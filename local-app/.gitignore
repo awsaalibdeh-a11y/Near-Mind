@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.log
+*.err
+state.json
+state.tmp
+neighbors.json
+bridge/auth/
+bridge/allow.json
+bridge/jids.json
+node_modules/
+tunnel/

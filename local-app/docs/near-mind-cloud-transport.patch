@@ -1,0 +1,197 @@
+diff --git a/bridge/transport.py b/bridge/transport.py
+index 0c89eae..cdfff57 100644
+--- a/bridge/transport.py
++++ b/bridge/transport.py
+@@ -23,10 +23,13 @@ through to the transport and never stores it in events.
+ 
+ from __future__ import annotations
+ 
++import hashlib
++import hmac
+ import json
+ import os
+ import subprocess
+ import threading
++from collections import deque
+ from dataclasses import dataclass, field
+ from datetime import datetime, timezone
+ from typing import Any, Callable, Optional, Protocol, Sequence
+@@ -499,3 +502,84 @@ def _parse_formatted_line(line: str, wire_key: str) -> Optional[TransportMessage
+         media_type=media_type,
+         is_from_me=is_from_me,
+     )
++
++
++# ---------------------------------------------------------------------------
++# Meta Cloud API (test number) via tkhattar14/whatsapp-business-mcp
++# ---------------------------------------------------------------------------
++
++
++def verify_meta_signature(raw_body: bytes, signature_header: str, app_secret: str) -> bool:
++    """Check Meta's ``X-Hub-Signature-256`` (HMAC-SHA256 of the raw body). Fails closed."""
++    if not app_secret or not signature_header:
++        return False
++    want = "sha256=" + hmac.new(app_secret.encode(), raw_body, hashlib.sha256).hexdigest()
++    return hmac.compare_digest(signature_header, want)
++
++
++class McpCloudTransport(McpStdioTransport):
++    """Send through ``whatsapp-business-mcp`` (official Cloud API); receive by webhook.
++
++    The Cloud API sends from the business/test number itself, so there is no linked
++    phone and no polling: that MCP server has no ``list_messages``. Inbound messages
++    arrive as Meta webhooks; the web layer verifies the signature
++    (:func:`verify_meta_signature`) and hands the JSON to :meth:`ingest_webhook`, and
++    :meth:`fetch_inbound` drains what has arrived.
++
++    Wire keys are plain phone digits (country code, no ``+``). A test number can only
++    message recipients added in the Meta dashboard, and free text only inside the
++    24h window after the person last wrote; anything else comes back as an API
++    error and surfaces as :class:`TransportError` (the bridge records it as FAILED).
++    """
++
++    def __init__(self, *, stdio_command, env=None, contacts=None, timeout_seconds: float = 20.0) -> None:
++        digits = {cid: "".join(c for c in str(k) if c.isdigit()) for cid, k in (contacts or {}).items()}
++        super().__init__(stdio_command=stdio_command, env=env, contacts=digits, timeout_seconds=timeout_seconds)
++        self._inbox: deque = deque()
++        self._inbox_lock = threading.Lock()
++
++    def send_text(self, recipient_key: str, body: str) -> str:
++        phone = "".join(c for c in recipient_key.split("@")[0] if c.isdigit())
++        result = self._request(
++            "tools/call",
++            {"name": "send_whatsapp_message", "arguments": {"phone_number": phone, "message": body}},
++        )
++        payload = _unwrap_tool_result(result)
++        msgs = payload.get("messages") if isinstance(payload, dict) else None
++        if isinstance(msgs, list) and msgs and isinstance(msgs[0], dict) and msgs[0].get("id"):
++            return str(msgs[0]["id"])
++        detail = (payload.get("message") or payload.get("error")) if isinstance(payload, dict) else str(payload)
++        raise TransportError(f"send_whatsapp_message failed: {detail}")
++
++    def ingest_webhook(self, payload: dict) -> int:
++        """Queue inbound text messages from an already-verified Meta webhook body."""
++        added = 0
++        for entry in payload.get("entry", []) or []:
++            for change in entry.get("changes", []) or []:
++                for m in (change.get("value") or {}).get("messages", []) or []:
++                    mid = str(m.get("id") or "")
++                    frm = "".join(c for c in str(m.get("from", "")) if c.isdigit())
++                    kind = m.get("type")
++                    if not mid or not frm or mid in self._seen_ids:
++                        continue
++                    if kind not in ("text", "reaction"):
++                        continue          # statuses / media are not part of the protocol here
++                    try:
++                        ts = datetime.fromtimestamp(int(m.get("timestamp")), tz=timezone.utc)
++                    except (TypeError, ValueError):
++                        ts = datetime.now(timezone.utc)
++                    self._seen_ids.add(mid)
++                    with self._inbox_lock:
++                        self._inbox.append(TransportMessage(
++                            message_id=mid, sender_key=frm, timestamp=ts,
++                            content=((m.get("text") or {}).get("body") or "") if kind == "text" else "",
++                            is_reaction=(kind == "reaction"),
++                        ))
++                    added += 1
++        return added
++
++    def fetch_inbound(self, *, since: Optional[datetime]) -> Sequence[TransportMessage]:
++        with self._inbox_lock:
++            out = list(self._inbox)
++            self._inbox.clear()
++        return out
+diff --git a/tests_bridge/fake_mcp_server.py b/tests_bridge/fake_mcp_server.py
+index a5b510d..ab80d89 100644
+--- a/tests_bridge/fake_mcp_server.py
++++ b/tests_bridge/fake_mcp_server.py
+@@ -40,6 +40,11 @@ for line in sys.stdin:
+                 fh.write(json.dumps({"tool": name, "args": args}) + "\n")
+         if name == "send_message":
+             reply(mid, {"content": [{"type": "text", "text": json.dumps({"success": True, "message": "sent"})}]})
++        elif name == "send_whatsapp_message":
++            if args.get("phone_number") == "0":
++                reply(mid, {"content": [{"type": "text", "text": json.dumps({"status": "error", "message": "recipient not in allowed list"})}]})
++            else:
++                reply(mid, {"content": [{"type": "text", "text": json.dumps({"messaging_product": "whatsapp", "contacts": [{"wa_id": args.get("phone_number")}], "messages": [{"id": "wamid.TEST1"}]})}]})
+         elif name == "list_messages":
+             text = "[2026-11-14 18:05:00] Chat: Karim From: Karim: yes I have one ladder"
+             reply(mid, {"content": [{"type": "text", "text": text}]})
+diff --git a/tests_bridge/test_cloud_transport.py b/tests_bridge/test_cloud_transport.py
+new file mode 100644
+index 0000000..c6951e9
+--- /dev/null
++++ b/tests_bridge/test_cloud_transport.py
+@@ -0,0 +1,72 @@
++"""McpCloudTransport against the stub MCP server: no real WhatsApp / Meta traffic."""
++import hashlib
++import hmac
++import json
++import sys
++from pathlib import Path
++
++import pytest
++
++from bridge.transport import McpCloudTransport, TransportError, verify_meta_signature
++
++STUB = Path(__file__).parent / "fake_mcp_server.py"
++
++
++@pytest.fixture()
++def log_path(tmp_path):
++    return tmp_path / "calls.ndjson"
++
++
++@pytest.fixture()
++def t(log_path):
++    tr = McpCloudTransport(stdio_command=[sys.executable, str(STUB), str(log_path)],
++                           contacts={"karim": "+966 55 123 4567"}, timeout_seconds=10)
++    yield tr
++    tr.close()
++
++
++def calls(p):
++    return [json.loads(line) for line in p.read_text().splitlines()] if p.exists() else []
++
++
++def hook(*msgs):
++    return {"entry": [{"changes": [{"value": {"messages": list(msgs)}}]}]}
++
++
++def test_contacts_are_normalised_to_digits(t):
++    assert t.resolve_key("karim") == "966551234567"
++
++
++def test_send_calls_cloud_tool_and_returns_wamid(t, log_path):
++    assert t.send_text("966551234567@s.whatsapp.net", "hello") == "wamid.TEST1"
++    assert calls(log_path)[-1] == {"tool": "send_whatsapp_message",
++                                   "args": {"phone_number": "966551234567", "message": "hello"}}
++
++
++def test_api_error_becomes_transport_error(t):
++    with pytest.raises(TransportError, match="not in allowed list"):
++        t.send_text("0", "hi")
++
++
++def test_webhook_text_is_delivered_once(t):
++    m = {"id": "wamid.A", "from": "966551234567", "type": "text", "timestamp": "1790000000", "text": {"body": "got a ladder"}}
++    assert t.ingest_webhook(hook(m)) == 1
++    assert t.ingest_webhook(hook(m)) == 0                      # Meta retries: dedupe
++    got = t.fetch_inbound(since=None)
++    assert [(g.message_id, g.sender_key, g.content) for g in got] == [("wamid.A", "966551234567", "got a ladder")]
++    assert t.fetch_inbound(since=None) == []
++
++
++def test_non_text_and_status_payloads_are_ignored(t):
++    img = {"id": "wamid.B", "from": "966551234567", "type": "image", "timestamp": "1790000000"}
++    assert t.ingest_webhook(hook(img)) == 0
++    assert t.ingest_webhook({"entry": [{"changes": [{"value": {"statuses": [{"id": "x"}]}}]}]}) == 0
++
++
++def test_signature_verification_fails_closed():
++    raw = b'{"a":1}'
++    good = "sha256=" + hmac.new(b"s3cret", raw, hashlib.sha256).hexdigest()
++    assert verify_meta_signature(raw, good, "s3cret")
++    assert not verify_meta_signature(raw, good, "other")
++    assert not verify_meta_signature(raw, "", "s3cret")
++    assert not verify_meta_signature(raw, good, "")             # no secret configured => reject

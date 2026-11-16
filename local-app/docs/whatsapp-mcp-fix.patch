@@ -1,0 +1,501 @@
+diff --git a/whatsapp-mcp-server/main.py b/whatsapp-mcp-server/main.py
+index ce1b85b..4bf8091 100644
+--- a/whatsapp-mcp-server/main.py
++++ b/whatsapp-mcp-server/main.py
+@@ -12,7 +12,8 @@ from whatsapp import (
+     send_message as whatsapp_send_message,
+     send_file as whatsapp_send_file,
+     send_audio_message as whatsapp_audio_voice_message,
+-    download_media as whatsapp_download_media
++    download_media as whatsapp_download_media,
++    message_to_dict, chat_to_dict, contact_to_dict, context_to_dict, format_message
+ )
+ 
+ # Initialize FastMCP server
+@@ -25,8 +26,7 @@ def search_contacts(query: str) -> List[Dict[str, Any]]:
+     Args:
+         query: Search term to match against contact names or phone numbers
+     """
+-    contacts = whatsapp_search_contacts(query)
+-    return contacts
++    return [contact_to_dict(c) for c in whatsapp_search_contacts(query)]
+ 
+ @mcp.tool()
+ def list_messages(
+@@ -67,7 +67,7 @@ def list_messages(
+         context_before=context_before,
+         context_after=context_after
+     )
+-    return messages
++    return [message_to_dict(msg) for msg in messages]
+ 
+ @mcp.tool()
+ def list_chats(
+@@ -93,7 +93,7 @@ def list_chats(
+         include_last_message=include_last_message,
+         sort_by=sort_by
+     )
+-    return chats
++    return [chat_to_dict(c) for c in chats]
+ 
+ @mcp.tool()
+ def get_chat(chat_jid: str, include_last_message: bool = True) -> Dict[str, Any]:
+@@ -104,7 +104,9 @@ def get_chat(chat_jid: str, include_last_message: bool = True) -> Dict[str, Any]
+         include_last_message: Whether to include the last message (default True)
+     """
+     chat = whatsapp_get_chat(chat_jid, include_last_message)
+-    return chat
++    if chat is None:
++        raise ValueError(f"Chat not found: {chat_jid}")
++    return chat_to_dict(chat)
+ 
+ @mcp.tool()
+ def get_direct_chat_by_contact(sender_phone_number: str) -> Dict[str, Any]:
+@@ -114,7 +116,9 @@ def get_direct_chat_by_contact(sender_phone_number: str) -> Dict[str, Any]:
+         sender_phone_number: The phone number to search for
+     """
+     chat = whatsapp_get_direct_chat_by_contact(sender_phone_number)
+-    return chat
++    if chat is None:
++        raise ValueError(f"No direct chat found for phone number: {sender_phone_number}")
++    return chat_to_dict(chat)
+ 
+ @mcp.tool()
+ def get_contact_chats(jid: str, limit: int = 20, page: int = 0) -> List[Dict[str, Any]]:
+@@ -125,18 +129,17 @@ def get_contact_chats(jid: str, limit: int = 20, page: int = 0) -> List[Dict[str
+         limit: Maximum number of chats to return (default 20)
+         page: Page number for pagination (default 0)
+     """
+-    chats = whatsapp_get_contact_chats(jid, limit, page)
+-    return chats
++    return [chat_to_dict(c) for c in whatsapp_get_contact_chats(jid, limit, page)]
+ 
+ @mcp.tool()
+-def get_last_interaction(jid: str) -> str:
++def get_last_interaction(jid: str) -> Optional[str]:
+     """Get most recent WhatsApp message involving the contact.
+     
+     Args:
+         jid: The JID of the contact to search for
+     """
+     message = whatsapp_get_last_interaction(jid)
+-    return message
++    return format_message(message) if message is not None else None
+ 
+ @mcp.tool()
+ def get_message_context(
+@@ -151,8 +154,7 @@ def get_message_context(
+         before: Number of messages to include before the target message (default 5)
+         after: Number of messages to include after the target message (default 5)
+     """
+-    context = whatsapp_get_message_context(message_id, before, after)
+-    return context
++    return context_to_dict(whatsapp_get_message_context(message_id, before, after))
+ 
+ @mcp.tool()
+ def send_message(
+diff --git a/whatsapp-mcp-server/pytest.ini b/whatsapp-mcp-server/pytest.ini
+new file mode 100644
+index 0000000..c7b23ec
+--- /dev/null
++++ b/whatsapp-mcp-server/pytest.ini
+@@ -0,0 +1,3 @@
++[pytest]
++pythonpath = .
++testpaths = tests
+diff --git a/whatsapp-mcp-server/tests/test_tools.py b/whatsapp-mcp-server/tests/test_tools.py
+new file mode 100644
+index 0000000..dde6cf7
+--- /dev/null
++++ b/whatsapp-mcp-server/tests/test_tools.py
+@@ -0,0 +1,197 @@
++"""Every MCP tool is called through FastMCP, so the declared return type is
++validated exactly as it is for a real client. Nothing here touches a live
++bridge or a real store: the database is a throwaway SQLite file and the Go
++bridge is replaced by a fake (or by a port nothing listens on)."""
++import asyncio
++import sqlite3
++
++import pytest
++import requests
++
++import main
++import whatsapp
++
++ME = "111@s.whatsapp.net"
++BOB = "222@s.whatsapp.net"
++GROUP = "333@g.us"
++
++
++def call(tool, **args):
++    """Invoke a tool the way an MCP client does; returns (content, structured)."""
++    res = asyncio.run(main.mcp.call_tool(tool, args))
++    content, data = res if isinstance(res, tuple) else (res, None)
++    if isinstance(data, dict) and list(data) == ["result"]:   # FastMCP wraps non-object returns as {"result": ...}
++        data = data["result"]
++    return content, data
++
++
++@pytest.fixture
++def db(tmp_path, monkeypatch):
++    path = tmp_path / "messages.db"
++    conn = sqlite3.connect(path)
++    conn.executescript("""
++        CREATE TABLE chats (jid TEXT PRIMARY KEY, name TEXT, last_message_time TIMESTAMP);
++        CREATE TABLE messages (id TEXT, chat_jid TEXT, sender TEXT, content TEXT,
++            timestamp TIMESTAMP, is_from_me BOOLEAN, media_type TEXT, filename TEXT,
++            url TEXT, media_key BLOB, file_sha256 BLOB, file_enc_sha256 BLOB, file_length INTEGER,
++            PRIMARY KEY (id, chat_jid));
++    """)
++    conn.executemany("INSERT INTO chats VALUES (?,?,?)", [
++        (BOB, "Bob", "2026-11-15T13:16:50"),
++        (GROUP, "Family", "2026-11-15T12:00:00"),
++    ])
++    conn.executemany(
++        "INSERT INTO messages (id, chat_jid, sender, content, timestamp, is_from_me, media_type) VALUES (?,?,?,?,?,?,?)",
++        [
++            ("m1", BOB, "222", "hello", "2026-11-15T13:10:00", 0, None),
++            ("m2", BOB, "111", "hi bob", "2026-11-15T13:12:00", 1, None),
++            ("m3", BOB, "222", "pic", "2026-11-15T13:16:50", 0, "image"),
++            ("g1", GROUP, "333", "dinner?", "2026-11-15T12:00:00", 0, None),
++        ])
++    conn.commit()
++    conn.close()
++    monkeypatch.setattr(whatsapp, "MESSAGES_DB_PATH", str(path))
++    return path
++
++
++# ---- read tools: each must validate against its declared return type -------
++
++def test_list_chats(db):
++    _, data = call("list_chats", limit=5)
++    chats = data
++    assert {c["jid"] for c in chats} == {BOB, GROUP}
++    bob = next(c for c in chats if c["jid"] == BOB)
++    assert bob["name"] == "Bob" and bob["last_message"] == "pic"
++    assert bob["is_group"] is False
++    assert next(c for c in chats if c["jid"] == GROUP)["is_group"] is True
++
++
++def test_list_messages_without_context(db):
++    _, data = call("list_messages", limit=3, include_context=False)
++    msgs = data
++    assert [m["id"] for m in msgs] == ["m3", "m2", "m1"]
++    assert msgs[0]["content"] == "pic" and msgs[0]["media_type"] == "image"
++    assert msgs[1]["is_from_me"] is True and msgs[0]["chat_jid"] == BOB
++
++
++def test_list_messages_with_context(db):
++    _, data = call("list_messages", query="hi bob", include_context=True)
++    assert [m["id"] for m in data] == ["m1", "m2", "m3"]
++
++
++def test_list_messages_returns_records_not_text(db):
++    out = whatsapp.list_messages(include_context=False)
++    assert isinstance(out, list) and all(isinstance(m, whatsapp.Message) for m in out)
++
++
++def test_search_contacts(db):
++    _, data = call("search_contacts", query="bob")
++    assert data == [{"phone_number": "222", "name": "Bob", "jid": BOB}]
++
++
++def test_get_chat(db):
++    _, data = call("get_chat", chat_jid=BOB)
++    assert data["jid"] == BOB and data["last_message"] == "pic"
++
++
++def test_get_chat_not_found_is_a_clear_error(db):
++    with pytest.raises(Exception, match="not found"):
++        call("get_chat", chat_jid="nope@s.whatsapp.net")
++
++
++def test_get_direct_chat_by_contact(db):
++    _, data = call("get_direct_chat_by_contact", sender_phone_number="222")
++    assert data["jid"] == BOB
++
++
++def test_get_contact_chats(db):
++    _, data = call("get_contact_chats", jid=BOB)
++    # NB: upstream returns one row per message here (DISTINCT over message columns); asserting the set is out of scope
++    assert {c["jid"] for c in data} == {BOB}
++
++
++def test_get_last_interaction(db):
++    content, data = call("get_last_interaction", jid=BOB)
++    text = data if isinstance(data, str) else content[0].text
++    assert "pic" in text and "Bob" in text
++
++
++def test_get_message_context(db):
++    _, data = call("get_message_context", message_id="m2", before=1, after=1)
++    assert data["message"]["id"] == "m2"
++    assert [m["id"] for m in data["before"]] == ["m1"]
++    assert [m["id"] for m in data["after"]] == ["m3"]
++
++
++# ---- write tools: fake bridge, never a real send ---------------------------
++
++class FakeResp:
++    def __init__(self, status=200, body=None):
++        self.status_code, self._body, self.text = status, body or {}, str(body)
++
++    def json(self):
++        return self._body
++
++
++@pytest.fixture
++def fake_bridge(monkeypatch, tmp_path):
++    calls = []
++
++    def post(url, json=None, **kw):
++        calls.append((url, json))
++        if url.endswith("/send"):
++            return FakeResp(200, {"success": True, "message": "Message sent to " + json["recipient"]})
++        if url.endswith("/download"):
++            return FakeResp(200, {"success": True, "message": "ok", "filename": "a.jpg", "path": "/tmp/a.jpg"})
++        return FakeResp(404)
++
++    monkeypatch.setattr(whatsapp.requests, "post", post)
++    return calls
++
++
++def test_send_message(fake_bridge):
++    _, data = call("send_message", recipient="222", message="hi")
++    assert data == {"success": True, "message": "Message sent to 222"}
++    assert fake_bridge == [(whatsapp.WHATSAPP_API_BASE_URL + "/send", {"recipient": "222", "message": "hi"})]
++
++
++def test_send_file(fake_bridge, tmp_path):
++    f = tmp_path / "x.png"
++    f.write_bytes(b"x")
++    _, data = call("send_file", recipient="222", media_path=str(f))
++    assert data["success"] is True
++    assert fake_bridge[0][1] == {"recipient": "222", "media_path": str(f)}
++
++
++def test_send_audio_message(fake_bridge, tmp_path):
++    f = tmp_path / "x.ogg"
++    f.write_bytes(b"x")
++    _, data = call("send_audio_message", recipient="222", media_path=str(f))
++    assert data["success"] is True
++
++
++def test_download_media(fake_bridge):
++    _, data = call("download_media", message_id="m3", chat_jid=BOB)
++    assert data == {"success": True, "message": "Media downloaded successfully", "file_path": "/tmp/a.jpg"}
++
++
++# ---- bridge / store unreachable --------------------------------------------
++
++def test_bridge_down_send_is_a_clear_error(monkeypatch):
++    monkeypatch.setattr(whatsapp, "WHATSAPP_API_BASE_URL", "http://127.0.0.1:1/api")  # nothing listens here
++    _, data = call("send_message", recipient="222", message="hi")
++    assert data["success"] is False and "Request error" in data["message"]
++
++
++def test_bridge_down_download_is_a_clear_error(monkeypatch):
++    monkeypatch.setattr(whatsapp, "WHATSAPP_API_BASE_URL", "http://127.0.0.1:1/api")
++    _, data = call("download_media", message_id="m3", chat_jid=BOB)
++    assert data["success"] is False
++
++
++def test_store_missing_read_is_a_clear_error(tmp_path, monkeypatch):
++    missing = tmp_path / "store" / "messages.db"
++    monkeypatch.setattr(whatsapp, "MESSAGES_DB_PATH", str(missing))
++    with pytest.raises(Exception, match="WhatsApp message store not found"):
++        call("list_chats")
++    assert not missing.exists()          # reading must never create an empty store
+diff --git a/whatsapp-mcp-server/whatsapp.py b/whatsapp-mcp-server/whatsapp.py
+index 55ff50a..f3bdcea 100644
+--- a/whatsapp-mcp-server/whatsapp.py
++++ b/whatsapp-mcp-server/whatsapp.py
+@@ -1,7 +1,8 @@
+ import sqlite3
+ from datetime import datetime
+ from dataclasses import dataclass
+-from typing import Optional, List, Tuple
++from dataclasses import asdict
++from typing import Any, Dict, Optional, List, Tuple
+ import os.path
+ import requests
+ import json
+@@ -47,9 +48,57 @@ class MessageContext:
+     before: List[Message]
+     after: List[Message]
+ 
++class StoreNotFoundError(RuntimeError):
++    """The local message store does not exist (the Go bridge has never run, or the path is wrong)."""
++
++
++def _connect() -> sqlite3.Connection:
++    # sqlite3.connect() silently creates an empty file when the path is missing, which then
++    # fails later with an opaque "no such table". Fail early and clearly instead.
++    if not os.path.isfile(MESSAGES_DB_PATH):
++        raise StoreNotFoundError(
++            f"WhatsApp message store not found at {os.path.normpath(MESSAGES_DB_PATH)}. "
++            "Start the whatsapp-bridge and let it sync before reading messages."
++        )
++    return sqlite3.connect(MESSAGES_DB_PATH)
++
++
++# --- serialisation: the one place records become plain dicts (used by the MCP layer) ---
++
++def _iso(value: Optional[datetime]) -> Optional[str]:
++    return value.isoformat() if value is not None else None
++
++
++def message_to_dict(m: Message) -> Dict[str, Any]:
++    d = asdict(m)
++    d["timestamp"] = _iso(m.timestamp)
++    d["is_from_me"] = bool(m.is_from_me)
++    return d
++
++
++def chat_to_dict(c: Chat) -> Dict[str, Any]:
++    d = asdict(c)
++    d["last_message_time"] = _iso(c.last_message_time)
++    d["last_is_from_me"] = None if c.last_is_from_me is None else bool(c.last_is_from_me)
++    d["is_group"] = c.is_group
++    return d
++
++
++def contact_to_dict(c: Contact) -> Dict[str, Any]:
++    return asdict(c)
++
++
++def context_to_dict(ctx: MessageContext) -> Dict[str, Any]:
++    return {
++        "message": message_to_dict(ctx.message),
++        "before": [message_to_dict(m) for m in ctx.before],
++        "after": [message_to_dict(m) for m in ctx.after],
++    }
++
++
+ def get_sender_name(sender_jid: str) -> str:
+     try:
+-        conn = sqlite3.connect(MESSAGES_DB_PATH)
++        conn = _connect()
+         cursor = conn.cursor()
+         
+         # First try matching by exact JID
+@@ -91,8 +140,8 @@ def get_sender_name(sender_jid: str) -> str:
+         if 'conn' in locals():
+             conn.close()
+ 
+-def format_message(message: Message, show_chat_info: bool = True) -> None:
+-    """Print a single message with consistent formatting."""
++def format_message(message: Message, show_chat_info: bool = True) -> str:
++    """Render a single message as one line of text (presentation only; the data layer returns records)."""
+     output = ""
+     
+     if show_chat_info and message.chat_name:
+@@ -111,7 +160,8 @@ def format_message(message: Message, show_chat_info: bool = True) -> None:
+         print(f"Error formatting message: {e}")
+     return output
+ 
+-def format_messages_list(messages: List[Message], show_chat_info: bool = True) -> None:
++def format_messages_list(messages: List[Message], show_chat_info: bool = True) -> str:
++    """Render messages as text (presentation only; the data layer returns records)."""
+     output = ""
+     if not messages:
+         output += "No messages to display."
+@@ -135,7 +185,7 @@ def list_messages(
+ ) -> List[Message]:
+     """Get messages matching the specified criteria with optional context."""
+     try:
+-        conn = sqlite3.connect(MESSAGES_DB_PATH)
++        conn = _connect()
+         cursor = conn.cursor()
+         
+         # Build base query
+@@ -210,10 +260,9 @@ def list_messages(
+                 messages_with_context.append(context.message)
+                 messages_with_context.extend(context.after)
+             
+-            return format_messages_list(messages_with_context, show_chat_info=True)
+-            
+-        # Format and display messages without context
+-        return format_messages_list(result, show_chat_info=True)    
++            return messages_with_context
++
++        return result
+         
+     except sqlite3.Error as e:
+         print(f"Database error: {e}")
+@@ -230,7 +279,7 @@ def get_message_context(
+ ) -> MessageContext:
+     """Get context around a specific message."""
+     try:
+-        conn = sqlite3.connect(MESSAGES_DB_PATH)
++        conn = _connect()
+         cursor = conn.cursor()
+         
+         # Get the target message first
+@@ -325,7 +374,7 @@ def list_chats(
+ ) -> List[Chat]:
+     """Get chats matching the specified criteria."""
+     try:
+-        conn = sqlite3.connect(MESSAGES_DB_PATH)
++        conn = _connect()
+         cursor = conn.cursor()
+         
+         # Build base query
+@@ -393,7 +442,7 @@ def list_chats(
+ def search_contacts(query: str) -> List[Contact]:
+     """Search contacts by name or phone number."""
+     try:
+-        conn = sqlite3.connect(MESSAGES_DB_PATH)
++        conn = _connect()
+         cursor = conn.cursor()
+         
+         # Split query into characters to support partial matching
+@@ -441,7 +490,7 @@ def get_contact_chats(jid: str, limit: int = 20, page: int = 0) -> List[Chat]:
+         page: Page number for pagination (default 0)
+     """
+     try:
+-        conn = sqlite3.connect(MESSAGES_DB_PATH)
++        conn = _connect()
+         cursor = conn.cursor()
+         
+         cursor.execute("""
+@@ -483,10 +532,10 @@ def get_contact_chats(jid: str, limit: int = 20, page: int = 0) -> List[Chat]:
+             conn.close()
+ 
+ 
+-def get_last_interaction(jid: str) -> str:
++def get_last_interaction(jid: str) -> Optional[Message]:
+     """Get most recent message involving the contact."""
+     try:
+-        conn = sqlite3.connect(MESSAGES_DB_PATH)
++        conn = _connect()
+         cursor = conn.cursor()
+         
+         cursor.execute("""
+@@ -522,7 +571,7 @@ def get_last_interaction(jid: str) -> str:
+             media_type=msg_data[7]
+         )
+         
+-        return format_message(message)
++        return message
+         
+     except sqlite3.Error as e:
+         print(f"Database error: {e}")
+@@ -535,7 +584,7 @@ def get_last_interaction(jid: str) -> str:
+ def get_chat(chat_jid: str, include_last_message: bool = True) -> Optional[Chat]:
+     """Get chat metadata by JID."""
+     try:
+-        conn = sqlite3.connect(MESSAGES_DB_PATH)
++        conn = _connect()
+         cursor = conn.cursor()
+         
+         query = """
+@@ -583,7 +632,7 @@ def get_chat(chat_jid: str, include_last_message: bool = True) -> Optional[Chat]
+ def get_direct_chat_by_contact(sender_phone_number: str) -> Optional[Chat]:
+     """Get chat metadata by sender phone number."""
+     try:
+-        conn = sqlite3.connect(MESSAGES_DB_PATH)
++        conn = _connect()
+         cursor = conn.cursor()
+         
+         cursor.execute("""
