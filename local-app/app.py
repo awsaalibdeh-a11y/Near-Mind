@@ -1092,14 +1092,10 @@ STREET = street_mod.make_blueprint(chat, MODEL, SIM_MODEL, cur_sid, PUBLIC)
 app.register_blueprint(STREET)
 
 
+@app.get("/")
 @app.get("/street")
 def street_page():
     return send_from_directory(HERE / "static", "street.html", max_age=0)
-
-
-@app.get("/")
-def index():
-    return send_from_directory(HERE, "index.html", max_age=0)
 
 
 def seed_joined():

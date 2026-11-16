@@ -62,18 +62,17 @@ function Apartment({id,frame}){
  const border=asker?"#ff7eb6":{asked:"#f2b560",offer:"#66b8ff",chosen:"#17c394",no:"#c9d2ce",released:"#b6c9bf"}[st]||"#1f6f9e";
  const bg=sleep?"linear-gradient(180deg,#46527e,#2c365a)":night?"linear-gradient(180deg,#fff2c9,#ffe3a1)":"linear-gradient(180deg,#ffffff,#f1f7fb)";
  const pulse=asker?4+Math.sin(frame/6)*4:0;
- const spark=hot||asker;
  return <div onClick={()=>store.onPick&&store.onPick(id)} style={{position:"absolute",left:x,top:y,width:AW,height:AH,cursor:"pointer"}}>
   <div style={{position:"absolute",left:10,top:-34,width:AW-20,height:34,background:sleep?"#3a4570":"#e8f3f8",border:"5px solid "+border,borderBottom:"none",clipPath:"polygon(4% 100%,12% 0,88% 0,96% 100%)"}}/>
-  <div style={{position:"absolute",right:16,top:12+Math.sin(frame/15+ROWS[id])*3,fontSize:40,zIndex:2,filter:"drop-shadow(0 3px 4px rgba(0,0,0,.18))"}}>{p.icon}
-   {spark&&[-1,0,1].map(i=><span key={i} style={{position:"absolute",left:20+i*22,top:-14-Math.abs(i)*4,width:4,height:12,borderRadius:2,background:"#1f6f9e",transform:`rotate(${i*30}deg)`,opacity:0.5+0.5*Math.sin(frame/4+i)}}/>)}</div>
+  <div style={{position:"absolute",right:18,top:16+(hot?Math.sin(frame/4)*4:0),fontSize:30,zIndex:2,opacity:sleep?0.5:0.9}}>{p.icon}</div>
   <div style={{position:"absolute",inset:0,borderRadius:16,background:bg,border:"5px solid "+border,boxShadow:(asker?`0 0 0 ${pulse}px #ff7eb655,`:"")+(st==="chosen"?"0 0 0 8px #17c39433,":"")+"0 8px 22px rgba(20,40,32,.16)",
-   padding:"14px 16px",boxSizing:"border-box",color:sleep?"#e8ecff":"#14201c",fontFamily:"system-ui,Segoe UI,sans-serif",display:"flex",flexDirection:"column",gap:8,opacity:st==="released"?0.85:1}}>
+   padding:"14px 16px",boxSizing:"border-box",color:sleep?"#e8ecff":"#14201c",fontFamily:"system-ui,Segoe UI,sans-serif",display:"flex",flexDirection:"column",gap:6,opacity:st==="released"?0.8:1}}>
    <div style={{display:"flex",alignItems:"center",gap:12}}>
-    <div style={{width:48,height:48,borderRadius:"50%",background:p.color,display:"grid",placeItems:"center",fontWeight:800,fontSize:22,color:"#0b1a14",boxShadow:"0 0 0 3px #fff"}}>{p.name[0]}</div>
-    <div style={{lineHeight:1.15,minWidth:0,maxWidth:AW-130}}><div style={{fontWeight:800,fontSize:25}}>{p.name}</div><div style={{fontSize:15,opacity:0.65,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>Apt {p.apt} · {p.style}</div></div>
+    <div style={{width:72,height:72,borderRadius:"50%",background:p.color,overflow:"hidden",flex:"none",boxShadow:`0 0 0 4px #fff,0 0 0 ${hot?7:4}px ${hot?border:"#fff"}`,filter:sleep?"grayscale(.5) brightness(.75)":"none",display:"grid",placeItems:"center",fontWeight:800,fontSize:28,color:"#0b1a14"}}>
+     {p.img?<img src={p.img} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:p.name[0]}</div>
+    <div style={{lineHeight:1.15,minWidth:0}}><div style={{fontWeight:800,fontSize:27}}>{p.name}</div><div style={{fontSize:16,opacity:0.6,fontWeight:600}}>Apt {p.apt}</div></div>
    </div>
-   <div style={{display:"flex",alignItems:"center",gap:8,marginTop:"auto",minHeight:30}}>
+   <div style={{display:"flex",alignItems:"center",gap:8,marginTop:"auto",minHeight:28,paddingLeft:84}}>
     {asker&&<span style={{fontSize:14,fontWeight:800,letterSpacing:1,textTransform:"uppercase",background:"#ff7eb6",color:"#fff",borderRadius:999,padding:"4px 12px"}}>asking</span>}
     {!asker&&pill&&<span style={{fontSize:14,fontWeight:800,letterSpacing:1,textTransform:"uppercase",background:pill[1],color:pill[2],borderRadius:999,padding:"4px 12px"}}>{pill[0]}</span>}
     {!asker&&!pill&&sleep&&<span style={{fontSize:14,fontWeight:800,letterSpacing:1,textTransform:"uppercase",background:"#e4e8fb",color:"#5b6aa8",borderRadius:999,padding:"4px 12px"}}>asleep</span>}
@@ -88,7 +87,7 @@ function Bubble({id,frame}){
  const age=frame-b.f0,sp=spring({frame:age,fps:FPS,config:{damping:12,stiffness:160}});
  const p=store.s.people[id]||{name:id,color:"#999"},left=!COLS[id],fromRobot=b.from==="robot";
  const x=left?24:1076,y=AY(id)-10,w=300;
- const fade=age>FPS*16?interpolate(age,[FPS*16,FPS*18],[1,0.35],{extrapolateRight:"clamp"}):1;
+ const fade=interpolate(age,[FPS*11,FPS*14],[1,0],{extrapolateLeft:"clamp",extrapolateRight:"clamp"});if(fade<=0)return null;
  return <div style={{position:"absolute",left:x,top:y,width:w,opacity:sp*fade,transform:`translateX(${(1-sp)*(left?30:-30)}px) scale(${0.85+0.15*sp})`,transformOrigin:left?"right center":"left center",fontFamily:"system-ui,Segoe UI,sans-serif"}}>
   <div style={{background:"#fff",borderRadius:18,padding:"12px 15px",boxShadow:"0 10px 28px rgba(20,40,32,.18)",borderTop:"6px solid "+(fromRobot?"#17c394":p.color),position:"relative"}}>
    <div style={{fontSize:13,fontWeight:800,letterSpacing:1,textTransform:"uppercase",color:fromRobot?"#0b8f69":"#36424a",marginBottom:4}}>{fromRobot?"🤖 NearMind → "+p.name:p.name+" → 🤖 NearMind"}</div>
@@ -100,10 +99,12 @@ function Scene(){
  useStore();const frame=useCurrentFrame(),s=store.s,sk=SKY[s.period]||SKY.day,night=s.period==="night";
  const live=s.packets.filter(p=>frame-p.f0>=0&&frame-p.f0<=D);
  const ids=Object.keys(COLS);
- const th=s.think&&frame>=s.think.f0?s.think:null,thSp=th?spring({frame:frame-th.f0,fps:FPS,config:{damping:14}}):0;
+ const th=s.think&&frame>=s.think.f0&&frame-s.think.f0<FPS*7?s.think:null,thSp=th?spring({frame:frame-th.f0,fps:FPS,config:{damping:14}})*interpolate(frame-th.f0,[FPS*6,FPS*7],[1,0],{extrapolateLeft:"clamp",extrapolateRight:"clamp"}):0;
  return <AbsoluteFill style={{background:`linear-gradient(${sk[0]},${sk[1]})`,overflow:"hidden",fontFamily:"system-ui,Segoe UI,sans-serif"}}>
   {night&&[[80,60],[220,140],[380,40],[1020,70],[1180,150],[1300,50],[150,300],[1250,330]].map(([x,y],i)=><div key={i} style={{position:"absolute",left:x,top:y,width:4,height:4,borderRadius:"50%",background:"#dfe6ff",opacity:0.3+0.7*Math.abs(Math.sin(frame/24+i))}}/>)}
-  {!night&&[[0,90,1],[500,40,0.8],[900,120,0.9]].map(([o,y,sc],i)=><div key={i} style={{position:"absolute",left:((frame*(0.3+i*0.1)+o)%1700)-250,top:y,width:150*sc,height:44*sc,borderRadius:44,background:"rgba(255,255,255,.8)",boxShadow:`${40*sc}px 12px 0 -6px rgba(255,255,255,.8),${-34*sc}px 14px 0 -8px rgba(255,255,255,.8)`}}/>)}
+  {store.backdrop&&<img src={store.backdrop} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",
+    transform:`scale(${1.04+Math.sin(frame/400)*0.01})`,filter:night?"brightness(.38) saturate(.7) hue-rotate(200deg)":s.period==="evening"?"saturate(1.1) sepia(.15)":s.period==="early morning"?"brightness(1.05) saturate(.9)":"none"}}/>}
+  {!store.backdrop&&!night&&[[0,90,1],[500,40,0.8],[900,120,0.9]].map(([o,y,sc],i)=><div key={i} style={{position:"absolute",left:((frame*(0.3+i*0.1)+o)%1700)-250,top:y,width:150*sc,height:44*sc,borderRadius:44,background:"rgba(255,255,255,.8)"}}/>)}
   {/* building */}
   <div style={{position:"absolute",left:B.x,top:B.y,width:B.w,height:B.h,background:night?"linear-gradient(180deg,#2b355c,#222a4a)":"linear-gradient(180deg,#f7fbfd,#e7f1f6)",border:"6px solid #1f6f9e",borderRadius:"34px 34px 0 0",boxShadow:"0 30px 70px rgba(20,40,60,.22)"}}/>
   <div style={{position:"absolute",left:B.x-60,top:B.y+B.h,width:B.w+120,height:8,background:"#1f6f9e",borderRadius:4}}/>
@@ -113,8 +114,8 @@ function Scene(){
   {[-1,1].map(i=><div key={i} style={{position:"absolute",left:SX+i*82-14,top:B.y+B.h-46,fontSize:34}}>🪴</div>)}
   {/* wiring: dashed spine + branches, lit while a message travels */}
   <svg width={W} height={H} style={{position:"absolute",left:0,top:0}}>
-   <line x1={SX} y1={ROOF.y} x2={SX} y2={B.y+B.h-122} stroke="#1f6f9e" strokeWidth={4} strokeDasharray="10 12" strokeDashoffset={-frame*0.7} opacity={0.5}/>
-   {ids.map(id=>{const d=DOOR(id);return <line key={id} x1={d.x} y1={d.y} x2={SX} y2={d.y} stroke="#1f6f9e" strokeWidth={4} strokeDasharray="10 12" strokeDashoffset={-frame*0.7} opacity={0.5}/>})}
+   <line x1={SX} y1={ROOF.y} x2={SX} y2={B.y+B.h-122} stroke="#1f6f9e" strokeWidth={4} strokeDasharray="8 14" opacity={0.28}/>
+   {ids.map(id=>{const d=DOOR(id);return <line key={id} x1={d.x} y1={d.y} x2={SX} y2={d.y} stroke="#1f6f9e" strokeWidth={4} strokeDasharray="8 14" opacity={0.28}/>})}
    {live.map(p=>{const id=p.from==="robot"?p.to:p.from,pts=PATH(id),t=ease(clamp((frame-p.f0)/D,0,1));
     const col=p.from==="robot"?"#17c394":(s.people[id]||{}).color||"#66b8ff";
     const d="M"+pts.map(q=>q.x+" "+q.y).join(" L");
@@ -144,9 +145,9 @@ function Scene(){
  </AbsoluteFill>}
 
 let root=null;
-function mount(el,people,onPick){
+function mount(el,people,onPick,backdrop){
  if(root){try{root.unmount()}catch(e){}root=null}
- store.s.people=people;store.onPick=onPick;store.ref=React.createRef();
+ store.s.people=people;store.onPick=onPick;store.backdrop=backdrop||null;store.ref=React.createRef();
  root=createRoot(el);
  root.render(<Player ref={store.ref} component={Scene} durationInFrames={FPS*3600} compositionWidth={W} compositionHeight={H} fps={FPS} loop autoPlay controls={false} clickToPlay={false} acknowledgeRemotionLicense style={{width:"100%",height:"100%"}}/>);
 }

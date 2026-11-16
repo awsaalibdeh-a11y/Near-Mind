@@ -83,3 +83,13 @@ a{color:inherit}
 @media (max-width:1100px){.layout{grid-template-columns:1fr}.feed{min-height:0}#log{max-height:340px}}
 @media (max-width:600px){.bar{padding:8px 14px}.brand small{display:none}.acts{margin-left:0}.layout{padding:12px 14px}.who{grid-template-columns:repeat(2,1fr)}.legend .tip{margin-left:0;width:100%}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* v2: calmer layout */
+.tip{margin:10px 2px 0;color:var(--dim);font-size:12.5px}
+.who img.av{width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none}
+.presets .more{border-style:dashed;color:var(--dim)}
+.wa{padding:12px 16px}
+.wa-h .off{margin-left:auto}
+.wa-h .sw{margin-left:6px}
+.card.ask h2{margin-bottom:8px}
+#log li.status .tx{color:var(--dim)}

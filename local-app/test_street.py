@@ -86,3 +86,15 @@ def test_model_failure_becomes_error_event(app_mod, monkeypatch):
     monkeypatch.setattr(st, "robot_fn", boom)
     ev = run(app_mod.app.test_client(), "asma", "need a flashlight")
     assert any(e["t"] == "error" for e in ev) and ev[-1]["t"] == "done"
+
+
+def test_home_is_the_street(app_mod):
+    r = app_mod.app.test_client().get("/")
+    assert r.status_code == 200 and b"NearMind Street" in r.data
+
+
+def test_portraits_are_served(app_mod):
+    c = app_mod.app.test_client()
+    for n in app_mod.street_mod.ORDER:
+        img = c.get("/api/street/people").get_json()["people"][n]["img"]
+        assert c.get(img).status_code == 200

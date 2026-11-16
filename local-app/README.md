@@ -1,23 +1,28 @@
-# NearMind
+# NearMind Street
 
-**The agent that makes neighbors neighborly.** Ask for a small favor ("anyone have a ladder?") and NearMind works out
-who on your street is likely to have it and awake, asks them in their own style, untangles vague replies ("the long
-thing in the garage"), recommends the best offer and arranges the handover. It remembers who helped and what you owe.
+**The agent that makes neighbors neighborly.** Six neighbors live in one building with the NearMind robot on the roof.
+Any of them can ask for a small favor ("I need a ladder", "anyone up for a movie?"). The robot works out who is likely
+to have it and awake, asks them in their own style, untangles vague replies, recommends the best offer and arranges the
+handover. Every message is animated: you watch each bubble travel from an apartment up to the robot and back down.
 
-Neighbors can be **AI-played** (Ben, Mrs. Cohen, Omar) or **real people on WhatsApp**.
+The neighbors (all AI models): **Sedra** 🎬, **Osama** 🧂, **Sulaiman** 🔧, **Asma** 🩹, **Alwalid** 🍲, **Anas** 🎮.
+Portraits and backdrop are illustrated with Higgsfield; the animation is a live Remotion scene.
 
 ## Run it
 
 ```bash
 pip install -r requirements.txt
-cp .env.example .env        # add OPENAI_API_KEY
-run.bat                     # starts the WhatsApp bridge and the app on http://127.0.0.1:5215
+cp .env.example .env        # add OPENAI_API_KEY (model: NM_MODEL, here gpt-6.1-terra)
+python app.py               # http://127.0.0.1:5215
 ```
 
-- **Showcase** plays scripted scenarios and needs no API key. Keys: Space play/pause, → step, R replay, S speed.
-- **Live** talks to the real model (`NM_MODEL`, default `gpt-5-mini`; this install uses `gpt-6.1-terra`).
+- Pick who's asking (tap an apartment or a chip), type a request or tap a preset, and watch it play out.
+- Time-of-day chips change the sky and who's asleep; the live timeline lists every step.
+- Rebuild the animation after editing `remotion/src/street.jsx`: `cd remotion && npm install && node build.mjs`.
 
-## WhatsApp
+## WhatsApp (off for now)
+
+The WhatsApp link is switched off; the page shows it on the side. When on, it runs the WhatsApp engine below.
 
 `start-whatsapp.bat` runs `bridge/bridge.js`, which links to **your own WhatsApp** as a linked device (pairing code on
 first run, shown in the app's WhatsApp panel).
@@ -59,8 +64,10 @@ verified in the Meta dashboard, and free text only within 24h of their last mess
 
 | Path | What |
 |---|---|
-| `app.py` | Flask server: agent loop, neighbor simulation, WhatsApp routing, commands, persistence |
-| `static/` | web app (`app.js`, `app.css`, `apt.js` apartment view) |
+| `street.py` | the six-neighbor engine and its streaming API (`/api/street/*`) |
+| `static/street.*`, `static/img/` | the website, portraits and backdrop |
+| `remotion/src/street.jsx` | the animated building (built to `static/street-scene.js`) |
+| `app.py` | Flask server: serves the site, plus the WhatsApp engine, commands and persistence |
 | `bridge/` | WhatsApp linked-device bridge (Baileys) |
 | `state.json` | NearMind's memory of your street (created at runtime) |
 | `neighbors.json` | real neighbor slots (created at runtime) |
@@ -70,7 +77,7 @@ verified in the Meta dashboard, and free text only within 24h of their last mess
 ## Tests
 
 ```bash
-python -m pytest -q test_app.py test_real_neighbors.py   # server, real neighbors, commands, persistence
+python -m pytest -q test_street.py test_app.py test_real_neighbors.py   # street, server, WhatsApp engine
 python test_cloud_fake.py                                # Meta Cloud webhook against a fake Meta
 ```
 

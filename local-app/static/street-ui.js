@@ -64,7 +64,7 @@ function show(e){
       break;
     case "status":
       NMStreet.status(e.who, e.state);
-      if(STATE[e.state]) logRow("status", esc(name(e.who)[0]), color(e.who), `<b>${esc(name(e.who))}</b> ${STATE[e.state]}`);
+      if(STATE[e.state] && e.state !== "asked") logRow("status", esc(name(e.who)[0]), color(e.who), `<b>${esc(name(e.who))}</b> ${STATE[e.state]}`);
       break;
     case "typing":
       NMStreet.typing(e.who, e.on);
@@ -117,7 +117,7 @@ function renderWho(){
   const hf = hourOf(clock);
   $("#who").innerHTML = ORDER.map(id => {
     const p = P[id], zz = sleeping(id, hf);
-    return `<button type="button" role="radio" aria-checked="${id === asker}" data-id="${id}" class="${zz ? "zz" : ""}" title="${esc(p.name)} · Apt ${p.apt}${zz ? " · probably asleep" : ""}"><span class="av" style="background:${p.color}">${esc(p.name[0])}</span><span class="nm">${p.icon} ${esc(p.name)}</span></button>`;
+    return `<button type="button" role="radio" aria-checked="${id === asker}" data-id="${id}" class="${zz ? "zz" : ""}" title="${esc(p.name)} · Apt ${p.apt}${zz ? " · probably asleep" : ""}"><img class="av" src="${p.img}" alt="" style="background:${p.color}"><span class="nm">${esc(p.name)}</span></button>`;
   }).join("");
 }
 function fresh(){
@@ -147,7 +147,7 @@ $("#f").onsubmit = e => { e.preventDefault(); send($("#in").value); };
 $("#in").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); send($("#in").value); } });
 $("#who").onclick = e => { const b = e.target.closest("[data-id]"); if(b) pick(b.dataset.id); };
 $("#quick").onclick = e => { const b = e.target.closest("button"); if(b) send(b.textContent); };
-$("#presets").onclick = e => { const b = e.target.closest("[data-q]"); if(b) send(b.dataset.q); };
+$("#presets").onclick = e => { const m = e.target.closest("[data-more]"); if(m){ drawPresets(m.dataset.more === "1"); return; } const b = e.target.closest("[data-q]"); if(b) send(b.dataset.q); };
 document.querySelector(".clock").onclick = e => {
   const b = e.target.closest("[data-clk]"); if(!b) return;
   document.querySelectorAll(".clock .chip").forEach(x => x.classList.toggle("on", x === b));
@@ -159,12 +159,18 @@ $("#reset").onclick = async () => {
   fresh(); NMStreet.asker(asker); toast("Street cleared");
 };
 
-$("#presets").innerHTML = PRESETS.map(([g, items]) => `<span class="grp">${g}</span>` + items.map(([ic, label, q]) => `<button type="button" data-q="${esc(q)}" title="${esc(q)}">${ic} ${label}</button>`).join("")).join("");
+const FAV = ["Movie buddy","Sugar","Eggs","Ladder","Drill","Charger","Umbrella","First aid"];
+const ALL = PRESETS.flatMap(([, items]) => items), chip = ([ic, label, q]) => `<button type="button" data-q="${esc(q)}" title="${esc(q)}">${ic} ${label}</button>`;
+function drawPresets(open){
+  $("#presets").innerHTML = (open ? PRESETS.map(([g, items]) => `<span class="grp">${g}</span>` + items.map(chip).join("")).join("")
+    : FAV.map(f => chip(ALL.find(x => x[1] === f))).join("")) + `<button type="button" class="more" data-more="${open ? 0 : 1}">${open ? "Less" : "More…"}</button>`;
+}
+drawPresets(false);
 
 drawThm();
 fetch("/api/street/people").then(r => r.json()).then(d => {
   P = d.people; ORDER = d.order;
-  NMStreet.mount($("#scene"), P, id => pick(id));
+  NMStreet.mount($("#scene"), P, id => pick(id), "/static/img/backdrop.jpg");
   setTimeout(() => { applyClock(); pick(asker, false); }, 50);
 }).catch(() => toast("Can't reach the NearMind server"));
 })();

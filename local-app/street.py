@@ -266,8 +266,9 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False):
     @bp.get("/api/street/people")
     def street_people():
         label, hf = now_label(None)
-        return {"order": ORDER, "people": {n: {k: N[n][k] for k in ("name", "apt", "color", "icon", "style", "facts", "sleep")} | {"asleep": asleep(n, hf)}
-                                          for n in ORDER}}
+        public = ("name", "apt", "color", "icon", "style", "facts", "sleep")
+        people = {n: {k: N[n][k] for k in public} | {"asleep": asleep(n, hf), "img": f"/static/img/{n}.webp"} for n in ORDER}
+        return {"order": ORDER, "people": people}
 
     bp.run = run              # exposed for tests
     bp.sess = sess
