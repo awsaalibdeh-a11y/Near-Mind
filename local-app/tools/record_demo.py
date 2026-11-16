@@ -14,6 +14,7 @@ SCENARIOS = [
     ("ladder", "A ladder at noon", "osama", "13:00", "Need a ladder to change a ceiling bulb"),
     ("charger", "Charger after midnight", "anas", "00:30", "my phone is dying, anyone have a usb-c charger?"),
     ("sale", "Selling a bike", "asma", "17:00", "I'm selling my old adult bike, solid frame and good wheels, for 150 SAR"),
+    ("jump", "Jump-start at 6 AM", "noor", "06:00", "my car battery is dead and i have an early shift, anyone have jumper cables?"),
 ]
 
 
@@ -24,6 +25,7 @@ def post(path, body):
 
 
 FOLLOWUPS = {   # what the asker says next when the robot needs more than a yes
+    "movie": ["Alwalid sounds perfect! Let's say 20:30 at my place, apartment 1A, after his kids are asleep. Can you confirm that with him now?"],
     "sale": ["It's a medium frame, a bit dusty but no rust. Happy to sell to whoever is keen at 150, I can bring it at 18:30.",
              "Yes, go with them, 150 SAR, I'll bring it to their door at 18:30."],
 }
@@ -49,5 +51,8 @@ def record(name, title, asker, clock, text):
 
 
 if __name__ == "__main__":
+    import sys
+    pick = set(sys.argv[1:])
     for sc in SCENARIOS:
-        record(*sc)
+        if not pick or sc[0] in pick:
+            record(*sc)

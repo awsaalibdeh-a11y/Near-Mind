@@ -7,7 +7,7 @@ let P = {}, ORDER = [], asker = "sedra", clock = "", busy = false, speed = 1, mo
 let REQ = null, CHOSEN = null, CLOSED = false;            // what this request is, who was chosen, whether it closed
 const ICONS = [["ladder","🪜"],["stool","🪜"],["sugar","🍬"],["salt","🧂"],["egg","🥚"],["flour","🌾"],["milk","🥛"],["hammer","🔨"],["screwdriver","🪛"],
   ["drill","🔧"],["wrench","🔧"],["cord","🔌"],["extension","🔌"],["tape","🩹"],["umbrella","☔"],["charger","🔋"],["power bank","🔋"],["first aid","🩹"],
-  ["plaster","🩹"],["flashlight","🔦"],["torch","🔦"],["candle","🕯️"],["movie","🎬"],["film","🎬"],["board game","🎲"],["game","🎮"],["controller","🎮"],
+  ["plaster","🩹"],["jumper","🔋"],["cable","🔌"],["sewing","🧵"],["tent","⛺"],["pump","🚲"],["mixer","🧁"],["cake","🍰"],["flashlight","🔦"],["torch","🔦"],["candle","🕯️"],["movie","🎬"],["film","🎬"],["board game","🎲"],["game","🎮"],["controller","🎮"],
   ["bike","🚲"],["lamp","💡"],["fryer","🍳"],["pan","🍳"],["chair","🪑"],["monitor","🖥️"],["pot","🍲"],["plant","🪴"],["book","📚"]];
 const iconFor = t => { t = String(t || "").toLowerCase(); const hit = ICONS.find(([k]) => t.includes(k)); return hit ? hit[1] : (REQ && REQ.kind === "company" ? "🤝" : "📦"); };
 
@@ -142,7 +142,7 @@ function renderWho(){
   const hf = hourOf(clock);
   $("#who").innerHTML = ORDER.map(id => {
     const p = P[id], zz = sleeping(id, hf);
-    return `<button type="button" role="radio" aria-checked="${id === asker}" data-id="${id}" class="${zz ? "zz" : ""}" title="${esc(p.name)} · Apt ${p.apt}${zz ? " · probably asleep" : ""}"><img class="av" src="${p.img}" alt="" style="background:${p.color}"><span class="nm">${esc(p.name)}</span></button>`;
+    return `<button type="button" role="radio" aria-checked="${id === asker}" data-id="${id}" class="${zz ? "zz" : ""}" title="${esc(p.name)} · Apt ${p.apt}${zz ? " · probably asleep" : ""}"><img class="av" src="${p.img}" alt="" style="background:${p.color}"><span class="nm">${esc(p.name)}</span><span class="ap">${esc(p.apt)}</span></button>`;
   }).join("");
 }
 function fresh(){
@@ -152,12 +152,13 @@ function fresh(){
 }
 
 // ---------- recorded demos: real runs replayed instantly ----------
-const DEMOS = [["movie","🎬 Movie night"],["ladder","🪜 Ladder at noon"],["charger","🔋 Charger at 00:30"],["sale","🏷️ Selling a bike"]];
-async function playDemo(name){
+const DEMOS = [["movie","🎬 Movie night"],["ladder","🪜 Ladder at noon"],["charger","🔋 Charger at 00:30"],["sale","🏷️ Selling a bike"],["jump","🚗 Jump-start at 6 AM"]];
+async function playDemo(demoId){
   if(busy){ toast("Wait for this request to finish"); return; }
-  let d; try{ const r = await fetch(`/static/demos/${name}.json`); if(!r.ok) throw 0; d = await r.json(); }catch(e){ toast("That demo isn't recorded yet"); return; }
+  let d; try{ const r = await fetch(`/static/demos/${demoId}.json`); if(!r.ok) throw 0; d = await r.json(); }catch(e){ toast("That demo isn't recorded yet"); return; }
   demo = true; setBusy(true);
   asker = d.asker; fresh(); renderWho(); NMStreet.asker(asker);
+  $("#in").placeholder = `${name(asker)} needs… (or tap another neighbor)`;
   clock = d.clock; document.querySelectorAll(".clock .chip").forEach(x => x.classList.toggle("on", x.dataset.clk === clock || (!x.dataset.clk && !clock)));
   if(![...document.querySelectorAll(".clock .chip")].some(x => x.classList.contains("on"))) document.querySelector('.clock [data-clk=""]').classList.remove("on");
   applyClock();
@@ -199,8 +200,32 @@ $("#mode").onclick = e => {
   $("#in").focus({preventScroll:true});
 };
 $("#speed").onclick = () => { speed = speed === 1 ? 2 : 1; $("#speed").textContent = speed + "×"; $("#speed").setAttribute("aria-label", "Playback speed " + speed + "x"); };
-$("#demos").innerHTML = DEMOS.map(([n, l]) => `<button type="button" data-demo="${n}">${l}</button>`).join("");
+$("#demos").innerHTML = DEMOS.map(([n, l], i) => `<button type="button" data-demo="${n}" title="Shortcut: ${i + 1}">${l}</button>`).join("");
 $("#demos").onclick = e => { const b = e.target.closest("[data-demo]"); if(b) playDemo(b.dataset.demo); };
+// ---------- WAICY: how it works, present mode, shortcuts ----------
+const how = $("#how");
+$("#howbtn").onclick = () => how.showModal();
+how.addEventListener("click", e => { if(e.target === how) how.close(); });
+function present(on){
+  document.body.classList.toggle("present", on);
+  if(on && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+  if(!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+}
+$("#present").onclick = () => present(true);
+$("#exitp").onclick = () => present(false);
+document.addEventListener("fullscreenchange", () => { if(!document.fullscreenElement) document.body.classList.remove("present"); });
+document.addEventListener("keydown", e => {
+  if(e.target.closest("textarea,input") || e.ctrlKey || e.metaKey || e.altKey || how.open) return;
+  const k = e.key.toLowerCase();
+  if(k >= "1" && k <= String(DEMOS.length)) playDemo(DEMOS[+k - 1][0]);
+  else if(k === "p") present(!document.body.classList.contains("present"));
+  else if(k === "escape") present(false);
+  else if(k === "r") $("#reset").click();
+  else if(k === "s") $("#speed").click();
+  else if(k === "?" || k === "i") how.showModal();
+});
+try{ if(!localStorage.getItem("nm.seenHow")){ localStorage.setItem("nm.seenHow", "1"); setTimeout(() => how.showModal(), 700); } }catch(e){}
+
 $("#reset").onclick = async () => {
   if(busy){ toast("Wait for this request to finish"); return; }
   try{ await fetch("/api/street/reset", {method:"POST"}); }catch(e){}

@@ -1,19 +1,21 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NearMind Street</title>
-<meta name="description" content="Six neighbors, one robot on the roof. Watch NearMind route every favor in real time.">
+<meta name="description" content="Ten neighbors, one robot on the roof. Watch NearMind route every favor in real time.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='8' width='20' height='14' rx='5' fill='%23e9f6fb' stroke='%231f6f9e' stroke-width='2'/%3E%3Ccircle cx='12' cy='15' r='2.5' fill='%231f6f9e'/%3E%3Ccircle cx='20' cy='15' r='2.5' fill='%231f6f9e'/%3E%3Cpath d='M10 8L8 3M22 8l2-5' stroke='%231f6f9e' stroke-width='2'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="/static/street.css?v=3">
+<link rel="stylesheet" href="/static/street.css?v=4">
 </head><body>
 <header class="bar">
   <a class="brand" href="/" aria-label="NearMind Street home">
     <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="7" y="11" width="26" height="18" rx="7" fill="#e9f6fb" stroke="#1f6f9e" stroke-width="2.5"/><circle cx="15" cy="20" r="3.2" fill="#1f6f9e"/><circle cx="25" cy="20" r="3.2" fill="#1f6f9e"/><path d="M12 11 9 4M28 11l3-7" stroke="#1f6f9e" stroke-width="2.5" stroke-linecap="round"/><circle cx="9" cy="4" r="2.4" fill="#35d6a4"/><circle cx="31" cy="4" r="2.4" fill="#35d6a4"/></svg>
-    <span><b>Near<i>Mind</i></b> Street<small>six neighbors · one robot on the roof</small></span>
+    <span><b>Near<i>Mind</i></b> Street<small>ten neighbors · one robot on the roof</small></span>
   </a>
   <div class="clock" role="group" aria-label="Time of day">
     <button class="chip on" data-clk="">Now</button><button class="chip" data-clk="08:30">Morning</button><button class="chip" data-clk="13:00">Midday</button><button class="chip" data-clk="19:30">Evening</button><button class="chip" data-clk="02:00">2 AM</button>
   </div>
   <div class="acts">
+    <button class="btn primary" id="howbtn" title="How it works">ⓘ How it works</button>
+    <button class="btn ghost" id="present" title="Present full screen (P)">⛶ Present</button>
     <button class="btn ghost" id="speed" title="Playback speed" aria-label="Playback speed 1x">1×</button>
     <button class="btn ghost" id="thm" title="Switch theme">🌙</button>
     <button class="btn" id="reset" title="Clear the street and start over">↺ Reset</button>
@@ -23,6 +25,7 @@
 <main class="layout">
   <section class="stage" aria-label="Building">
     <div id="scene" class="scene"></div>
+    <button class="exit-present" id="exitp" type="button">Exit presentation (Esc)</button>
     <p class="tip">Tap an apartment to ask as that neighbor · every bubble is one message passing through the robot</p>
   </section>
 
@@ -54,6 +57,36 @@
   </aside>
 </main>
 <div class="toast" id="toast" role="status"></div>
-<script src="/static/street-scene.js?v=5"></script>
-<script src="/static/street-ui.js?v=4"></script>
+<dialog id="how" class="how" aria-labelledby="how-t">
+  <form method="dialog" class="how-x"><button aria-label="Close">✕</button></form>
+  <p class="kick">How NearMind works</p>
+  <h1 id="how-t">One robot on the roof helps ten neighbors share, without anyone giving up their privacy.</h1>
+  <div class="how-grid">
+    <section><h3>The problem</h3><p>People buy things they need once (a drill, a ladder) while the neighbor next door has one. Asking the whole building is awkward and noisy, so nobody asks.</p></section>
+    <section><h3>The idea</h3><p>Every message goes to NearMind first. It works out what you need, asks only the 1-3 neighbors most likely to help, and arranges the handover at your door. You can also sell things to the neighbors who'd actually want them.</p></section>
+  </div>
+  <ol class="steps">
+    <li><b>Understand</b><span>An AI model turns a casual message into a structured request: item, how many, how urgent, or a sale price.</span></li>
+    <li><b>Route</b><span>It picks who to ask from public facts only (job, hobbies, who's awake). It never sees what's inside anyone's home.</span></li>
+    <li><b>Clarify</b><span>Vague replies ("the long thing in the garage") get one follow-up question before they reach you.</span></li>
+    <li><b>Hand over</b><span>You choose; NearMind confirms a time at a door and thanks everyone else.</span></li>
+  </ol>
+  <div class="how-grid">
+    <section><h3>The AI inside</h3><ul>
+      <li><b>Router:</b> one language model that replies in strict JSON (what it thinks, who to message, status changes). The page animates every step.</li>
+      <li><b>Neighbors:</b> each of the ten is its own simulated person with a private inventory, personality, sleep hours and budget, so the router must actually ask to find out.</li>
+      <li><b>Real pilot:</b> the same robot was run over WhatsApp with real neighbors (switched off in this demo).</li></ul></section>
+    <section><h3>Responsible by design</h3><ul>
+      <li><b>Privacy:</b> neighbors never see each other's chats; only the asker hears the offers.</li>
+      <li><b>Asks as few people as possible:</b> the counter shows how many were left in peace.</li>
+      <li><b>Respects sleep:</b> people who are probably asleep aren't pinged unless it's urgent; quiet hours 22:00-08:00 on WhatsApp.</li>
+      <li><b>Never starts a chat:</b> on WhatsApp it only answers people who opted in.</li>
+      <li><b>Honest:</b> it only relays what neighbors actually said and flags unsafe offers.</li>
+      <li><b>Humans decide:</b> the asker always picks; selling has no pressure.</li></ul></section>
+  </div>
+  <p class="how-foot">Try it: press <kbd>1</kbd>-<kbd>5</kbd> for a demo, <kbd>P</kbd> to present full screen, or tap any apartment and type your own request.</p>
+</dialog>
+
+<script src="/static/street-scene.js?v=8"></script>
+<script src="/static/street-ui.js?v=7"></script>
 </body></html>

@@ -1,0 +1,311 @@
+{
+"title": "Jump-start at 6 AM",
+"asker": "noor",
+"clock": "06:00",
+"events": [
+{
+"t": "say",
+"from": "noor",
+"to": "robot",
+"text": "my car battery is dead and i have an early shift, anyone have jumper cables?"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll quickly ask awake neighbors who may be able to help."
+},
+{
+"t": "parse",
+"item": "jumper cables",
+"kind": "item",
+"urgency": "high",
+"qty": "1 set",
+"price": ""
+},
+{
+"t": "phase",
+"phase": "outreach"
+},
+{
+"t": "status",
+"who": "sulaiman",
+"state": "asked"
+},
+{
+"t": "status",
+"who": "hamza",
+"state": "asked"
+},
+{
+"t": "status",
+"who": "asma",
+"state": "asked"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sulaiman",
+"text": "A car battery is dead before an early shift. Do you have jumper cables?"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "hamza",
+"text": "A neighbor’s car battery is dead and they have an early shift. Do you have jumper cables?"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "asma",
+"text": "A neighbor needs jumper cables for a dead car battery before an early shift. Do you have a set?"
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": true
+},
+{
+"t": "typing",
+"who": "hamza",
+"on": true
+},
+{
+"t": "typing",
+"who": "asma",
+"on": true
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": false
+},
+{
+"t": "say",
+"from": "sulaiman",
+"to": "robot",
+"text": "No. Got tools, cords, ladder, tape — no jumper cables. If you need, I can come help push-start if it's manual; otherwise I can try to buy cables today — got about 200 SAR, can haggle. When do you need it?"
+},
+{
+"t": "typing",
+"who": "hamza",
+"on": false
+},
+{
+"t": "say",
+"from": "hamza",
+"to": "robot",
+"text": "No problem bro — I’ve got jumper cables in my car. Want me to come down now and jump it?"
+},
+{
+"t": "typing",
+"who": "asma",
+"on": false
+},
+{
+"t": "say",
+"from": "asma",
+"to": "robot",
+"text": "Sorry, I don't— I don't have jumper cables. I can offer tea and honey while you wait, or help call someone who can bring a set."
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I'll relay Hamza's immediate offer and the other available help."
+},
+{
+"t": "phase",
+"phase": "relay"
+},
+{
+"t": "status",
+"who": "sulaiman",
+"state": "offer"
+},
+{
+"t": "status",
+"who": "asma",
+"state": "offer"
+},
+{
+"t": "status",
+"who": "hamza",
+"state": "offer"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "noor",
+"text": "Hamza has jumper cables and can come down now—I'd recommend him as the fastest option! Sulaiman can help push-start a manual car, and Asma can help call someone; which would you like?"
+},
+{
+"t": "quick",
+"options": [
+"Hamza, please",
+"Sulaiman",
+"Asma"
+]
+},
+{
+"t": "say",
+"from": "noor",
+"to": "robot",
+"text": "Hamza, please"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll arrange the jump-start and release the other helpers."
+},
+{
+"t": "phase",
+"phase": "handover"
+},
+{
+"t": "status",
+"who": "hamza",
+"state": "chosen"
+},
+{
+"t": "status",
+"who": "sulaiman",
+"state": "released"
+},
+{
+"t": "status",
+"who": "asma",
+"state": "released"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "hamza",
+"text": "Thanks! Can you meet Noor by her car downstairs now to jump-start it?"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sulaiman",
+"text": "Help is arranged. Thanks for offering."
+},
+{
+"t": "say",
+"from": "robot",
+"to": "asma",
+"text": "Help is arranged, thank you for offering."
+},
+{
+"t": "say",
+"from": "robot",
+"to": "noor",
+"text": "I’ve asked Hamza to meet you by your car downstairs now. I’ll confirm when he replies!"
+},
+{
+"t": "typing",
+"who": "hamza",
+"on": true
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": true
+},
+{
+"t": "typing",
+"who": "asma",
+"on": true
+},
+{
+"t": "typing",
+"who": "hamza",
+"on": false
+},
+{
+"t": "say",
+"from": "hamza",
+"to": "robot",
+"text": "On my way — downstairs in about 5 minutes. Tell Noor to pop the bonnet and stay near the driver's seat. Let's go."
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": false
+},
+{
+"t": "say",
+"from": "sulaiman",
+"to": "robot",
+"text": "Good. Keep warm — I’m around if you need tools or a hand later."
+},
+{
+"t": "typing",
+"who": "asma",
+"on": false
+},
+{
+"t": "say",
+"from": "asma",
+"to": "robot",
+"text": "You're welcome — glad it's sorted. I'll put the kettle on and leave a mug by the door in case they stop by."
+},
+{
+"t": "say",
+"from": "noor",
+"to": "robot",
+"text": "Yes please, go with your recommendation"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "Confirming Hamza’s arrival with Noor."
+},
+{
+"t": "phase",
+"phase": "closed"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "noor",
+"text": "Hamza is on his way and will meet you by your car downstairs in about 5 minutes! He asks you to pop the bonnet and stay near the driver’s seat."
+},
+{
+"t": "done"
+}
+]
+}

@@ -28,8 +28,17 @@ def test_page_and_people(app_mod):
     c = app_mod.app.test_client()
     assert c.get("/street").status_code == 200
     d = c.get("/api/street/people").get_json()
-    assert d["order"] == ["sedra", "osama", "sulaiman", "asma", "alwalid", "anas"]
+    assert d["order"] == ["sedra", "osama", "sulaiman", "asma", "alwalid", "anas", "layla", "yousef", "noor", "hamza"]
     assert all("sleep" in p and "home" not in p for p in d["people"].values())     # inventories stay hidden
+    apts = [p["apt"] for p in d["people"].values()]
+    assert sorted(apts) == [f"{f}{s}" for f in range(1, 6) for s in "AB"]          # one apartment each, five floors
+
+
+def test_robot_knows_every_neighbor(app_mod):
+    st = app_mod.street_mod
+    for n in st.ORDER:                                                            # router prompt lists all ten by id and apartment
+        assert f"{n}: {st.N[n]['name']} {st.N[n]['apt']}" in st.ROBOT
+    assert "ten-apartment" in st.ROBOT
 
 
 def test_full_flow_events_in_order(app_mod, monkeypatch):

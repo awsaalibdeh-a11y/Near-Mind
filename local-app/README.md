@@ -1,11 +1,12 @@
 # NearMind Street
 
-**The agent that makes neighbors neighborly.** Six neighbors live in one building with the NearMind robot on the roof.
+**The agent that makes neighbors neighborly.** Ten neighbors live on five floors of one building with the NearMind robot on the roof.
 Any of them can ask for a small favor ("I need a ladder", "anyone up for a movie?"). The robot works out who is likely
 to have it and awake, asks them in their own style, untangles vague replies, recommends the best offer and arranges the
 handover. Every message is animated: you watch each bubble travel from an apartment up to the robot and back down.
 
-The neighbors (all AI models): **Sedra** 🎬, **Osama** 🧂, **Sulaiman** 🔧, **Asma** 🩹, **Alwalid** 🍲, **Anas** 🎮.
+The neighbors (all AI models): **Sedra** 🎬, **Osama** 🧂, **Sulaiman** 🔧, **Asma** 🩹, **Alwalid** 🍲, **Anas** 🎮,
+**Layla** 🧵, **Yousef** 🚴, **Noor** 🧁, **Hamza** ⚽. Each has a private inventory, personality, sleep hours and budget.
 Portraits and backdrop are illustrated with Higgsfield; the animation is a live Remotion scene.
 
 ## Run it
@@ -19,9 +20,20 @@ python app.py               # http://127.0.0.1:5215
 - Pick who's asking (tap an apartment or a chip), type a request or tap a preset, and watch it play out.
 - Time-of-day chips change the sky and who's asleep; the live timeline lists every step.
 - **Sell** mode: a neighbor lists something with a price; the robot finds who'd want it and the item goes to the buyer's door.
-- **Watch a demo** replays recorded real runs instantly (no model calls). Re-record with `python tools/record_demo.py`.
+- **Watch a demo** replays five recorded real runs instantly (no model calls). Re-record with `python tools/record_demo.py [name]`.
 - When a deal closes, the item travels door to door and the camera zooms in on the receiver's door. `1×/2×` sets the pace.
+- The **Neighbors contacted** card shows how few people were bothered (e.g. 2 of 9, 7 left in peace).
 - Rebuild the animation after editing `remotion/src/street.jsx`: `cd remotion && npm install && node build.mjs`.
+
+## For WAICY judges
+
+- **ⓘ How it works** (or press `I`) explains the problem, the four steps, the AI inside and the responsible-AI rules.
+- **⛶ Present** (or `P`) shows the building full screen for a live demo or screen recording; `Esc` exits.
+- Shortcuts: `1`-`5` play the demos (movie night, ladder, charger at 00:30, selling a bike, jump-start at 6 AM), `S` speed, `R` reset.
+- What the AI does: one router model replies in strict JSON (what it thinks, who to message, status changes); each neighbor is a
+  separately simulated person that only owns what is in its private list, so the router has to ask to find out.
+- Responsible by design: the router sees only public facts, never inventories; neighbors never see each other's chats; it asks as
+  few people as it can; it skips people who are asleep unless it's urgent; it only relays what was actually said; the asker decides.
 
 ## WhatsApp (off for now)
 
@@ -67,7 +79,7 @@ verified in the Meta dashboard, and free text only within 24h of their last mess
 
 | Path | What |
 |---|---|
-| `street.py` | the six-neighbor engine and its streaming API (`/api/street/*`) |
+| `street.py` | the ten-neighbor engine and its streaming API (`/api/street/*`) |
 | `static/street.*`, `static/img/` | the website, portraits and backdrop |
 | `remotion/src/street.jsx` | the animated building (built to `static/street-scene.js`) |
 | `app.py` | Flask server: serves the site, plus the WhatsApp engine, commands and persistence |
