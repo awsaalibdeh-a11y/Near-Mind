@@ -1,0 +1,179 @@
+{
+"title": "Charger after midnight",
+"asker": "anas",
+"clock": "00:30",
+"events": [
+{
+"t": "say",
+"from": "anas",
+"to": "robot",
+"text": "my phone is dying, anyone have a usb-c charger?"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll ask the one neighbor who is probably awake."
+},
+{
+"t": "parse",
+"item": "USB-C phone charger",
+"kind": "item",
+"urgency": "medium",
+"qty": "1"
+},
+{
+"t": "phase",
+"phase": "outreach"
+},
+{
+"t": "status",
+"who": "sedra",
+"state": "asked"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sedra",
+"text": "Hey Sedra! 😊 Do you have a USB-C phone charger Anas could borrow?"
+},
+{
+"t": "typing",
+"who": "sedra",
+"on": true
+},
+{
+"t": "typing",
+"who": "sedra",
+"on": false
+},
+{
+"t": "say",
+"from": "sedra",
+"to": "robot",
+"text": "hey hey! i've got a USB-C charger in the tech drawer — happy to lend it to Anas 😊 i’m around most evenings, want me to drop it off tonight?"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll relay Sedra’s clear offer to Anas."
+},
+{
+"t": "phase",
+"phase": "relay"
+},
+{
+"t": "status",
+"who": "sedra",
+"state": "offer"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "anas",
+"text": "Sedra can lend you a USB-C charger and offered to drop it off tonight. I recommend her offer since she’s awake; want it?"
+},
+{
+"t": "quick",
+"options": [
+"Yes, please",
+"No, thanks"
+]
+},
+{
+"t": "say",
+"from": "anas",
+"to": "robot",
+"text": "Yes, please"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll arrange the charger handover with Sedra."
+},
+{
+"t": "phase",
+"phase": "handover"
+},
+{
+"t": "status",
+"who": "sedra",
+"state": "chosen"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sedra",
+"text": "Thanks, Sedra! 😊 Could you drop it at Anas’s door, 3B, in 5 minutes?"
+},
+{
+"t": "typing",
+"who": "sedra",
+"on": true
+},
+{
+"t": "typing",
+"who": "sedra",
+"on": false
+},
+{
+"t": "say",
+"from": "sedra",
+"to": "robot",
+"text": "i can drop it! give me like 10 minutes tho — i'm in 1A and need to grab it from the tech drawer and tuck it in my little charger pouch ⚡️ see you in a bit!"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "The handover is confirmed."
+},
+{
+"t": "phase",
+"phase": "closed"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "anas",
+"text": "Sedra will drop the USB-C charger at your door, 3B, in about 10 minutes."
+},
+{
+"t": "done"
+}
+]
+}

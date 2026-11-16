@@ -1,0 +1,198 @@
+{
+"title": "Selling a bike",
+"asker": "asma",
+"clock": "17:00",
+"events": [
+{
+"t": "say",
+"from": "asma",
+"to": "robot",
+"text": "I'm selling my old adult bike, solid frame and good wheels, for 150 SAR"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll ask the neighbor whose bike hobby suggests interest."
+},
+{
+"t": "parse",
+"item": "old adult bike with solid frame and good wheels",
+"kind": "sale",
+"urgency": "low",
+"qty": "1",
+"price": "150 SAR"
+},
+{
+"t": "phase",
+"phase": "outreach"
+},
+{
+"t": "status",
+"who": "sulaiman",
+"state": "asked"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sulaiman",
+"text": "Interested in buying an old adult bike for 150 SAR? Solid frame and good wheels."
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": true
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": false
+},
+{
+"t": "say",
+"from": "sulaiman",
+"to": "robot",
+"text": "Maybe. What kind of bike is it, and where is it now? I can come by after 18:00 and have a look."
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll pass on Sulaiman’s questions and interest."
+},
+{
+"t": "phase",
+"phase": "clarify"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "asma",
+"text": "Sulaiman may be interested at 150 SAR and can look after 18:00. What kind of bike is it, and where is it now?"
+},
+{
+"t": "say",
+"from": "asma",
+"to": "robot",
+"text": "It's a medium frame, a bit dusty but no rust. Happy to sell to whoever is keen at 150, I can bring it at 18:30."
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll clarify the bike details Sulaiman asked for."
+},
+{
+"t": "phase",
+"phase": "clarify"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "asma",
+"text": "Thanks. What type of bike is it, and where is it now?"
+},
+{
+"t": "say",
+"from": "asma",
+"to": "robot",
+"text": "Yes, go with them, 150 SAR, I'll bring it to their door at 18:30."
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll check whether Sulaiman can inspect the bike at his door at 18:30."
+},
+{
+"t": "phase",
+"phase": "handover"
+},
+{
+"t": "status",
+"who": "sulaiman",
+"state": "chosen"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sulaiman",
+"text": "It’s a medium frame, dusty but rust-free; the bike type and current location weren’t specified. Asma can bring it to your door at 18:30—can you inspect it then and, if you decide to buy, pay 150 SAR on pickup?"
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": true
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": false
+},
+{
+"t": "say",
+"from": "sulaiman",
+"to": "robot",
+"text": "Okay. I’ll be there at 18:30. I’ll check frame, wheels, brakes, and gears. If all looks good I’ll pay 150 SAR."
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "Confirming the inspection and conditional sale with Asma."
+},
+{
+"t": "phase",
+"phase": "closed"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "asma",
+"text": "Please bring the bike to Sulaiman’s door, 2A, at 18:30. He’ll inspect it and pay 150 SAR on pickup if it checks out."
+},
+{
+"t": "done"
+}
+]
+}

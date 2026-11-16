@@ -3,13 +3,20 @@
 "use strict";
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let P = {}, ORDER = [], asker = "sedra", clock = "", busy = false;
+let P = {}, ORDER = [], asker = "sedra", clock = "", busy = false, speed = 1, mode = "ask", demo = false;
+let REQ = null, CHOSEN = null, CLOSED = false;            // what this request is, who was chosen, whether it closed
+const ICONS = [["ladder","🪜"],["stool","🪜"],["sugar","🍬"],["salt","🧂"],["egg","🥚"],["flour","🌾"],["milk","🥛"],["hammer","🔨"],["screwdriver","🪛"],
+  ["drill","🔧"],["wrench","🔧"],["cord","🔌"],["extension","🔌"],["tape","🩹"],["umbrella","☔"],["charger","🔋"],["power bank","🔋"],["first aid","🩹"],
+  ["plaster","🩹"],["flashlight","🔦"],["torch","🔦"],["candle","🕯️"],["movie","🎬"],["film","🎬"],["board game","🎲"],["game","🎮"],["controller","🎮"],
+  ["bike","🚲"],["lamp","💡"],["fryer","🍳"],["pan","🍳"],["chair","🪑"],["monitor","🖥️"],["pot","🍲"],["plant","🪴"],["book","📚"]];
+const iconFor = t => { t = String(t || "").toLowerCase(); const hit = ICONS.find(([k]) => t.includes(k)); return hit ? hit[1] : (REQ && REQ.kind === "company" ? "🤝" : "📦"); };
 
 const PRESETS = [
   ["Pantry", [["🧂","Salt","Do you have a bit of salt? I'm in the middle of cooking"],["🍬","Sugar","Can I borrow a cup of sugar?"],["🥚","Eggs","Could I borrow 2 eggs for a cake?"],["🌾","Flour","Anyone have some flour? Baking tonight"],["🥛","Milk","Need a splash of milk for my coffee"]]],
   ["Tools", [["🔨","Hammer","Can I borrow a hammer to hang a picture?"],["🪛","Screwdriver","Need a screwdriver for 10 min"],["🔧","Drill","Does anyone have a drill? Putting up a shelf"],["🪜","Ladder","Need a ladder to change a ceiling bulb"]]],
   ["Handy", [["🔌","Extension cord","Anyone have an extension cord?"],["☔","Umbrella","It's pouring, can I borrow an umbrella?"],["🔋","Charger","My phone is dying, anyone have a USB-C charger?"],["🩹","First aid","I cut my finger, does anyone have plasters?"],["🔦","Flashlight","Power's out here, anyone have a flashlight or candles?"]]],
   ["Company", [["🎬","Movie buddy","I need someone to watch a movie with me tonight"],["🎲","Board games","Anyone up for board games this evening?"]]],
+  ["Sell", [["🚲","Sell bike","I'm selling my old bike for 150 SAR"],["💡","Sell lamp","Selling a desk lamp, 40 SAR"],["🎮","Sell controller","Selling a spare game controller for 60 SAR"],["🍳","Sell air fryer","Selling an air fryer, barely used, 120 SAR"]]],
 ];
 
 // ---------- pacing: events arrive in bursts; play them one at a time so every hop is visible ----------
@@ -27,10 +34,11 @@ async function pump(){
 }
 function delay(e){
   const travel = (NMStreet.D / NMStreet.FPS) * 1000;
-  if(e.t === "say") return Math.max(1500, travel + 400 + Math.min(2200, e.text.length * 22));
-  if(e.t === "think") return 1300;
-  if(e.t === "parse") return 500;
-  return 120;
+  if(e.t === "say") return Math.max(travel + 150, Math.max(1500, travel + 400 + Math.min(2200, e.text.length * 22)) / speed);
+  if(e.t === "think") return 1300 / speed;
+  if(e.t === "parse") return 500 / speed;
+  if(e.t === "done") return 0;
+  return 120 / speed;
 }
 
 // ---------- rendering one event: scene + timeline ----------
@@ -59,29 +67,45 @@ function show(e){
       logRow("think", "💭", "#d9f6ec", esc(e.text));
       break;
     case "parse":
-      NMStreet.request({item:e.item, kind:e.kind, urgency:e.urgency, qty:e.qty});
+      REQ = {item:e.item, kind:e.kind, price:e.price || ""};
+      NMStreet.request({item:e.item, kind:e.kind, urgency:e.urgency, qty:e.qty, price:e.price || ""});
       logRow("parse", "📋", "#e2f1ff", `Understood: <b>${esc(e.item)}</b>${e.qty ? " · " + esc(e.qty) : ""}${e.urgency ? " · " + esc(e.urgency) + " urgency" : ""}`);
       break;
-    case "status":
+    case "status": {
       NMStreet.status(e.who, e.state);
-      if(STATE[e.state] && e.state !== "asked") logRow("status", esc(name(e.who)[0]), color(e.who), `<b>${esc(name(e.who))}</b> ${STATE[e.state]}`);
+      if(e.state === "chosen") CHOSEN = e.who;
+      const sale = REQ && REQ.kind === "sale", txt = sale && e.state === "offer" ? "wants to buy it" : sale && e.state === "chosen" ? "is the buyer ✓" : STATE[e.state];
+      if(txt && e.state !== "asked") logRow("status", esc(name(e.who)[0]), color(e.who), `<b>${esc(name(e.who))}</b> ${txt}`);
+    }
       break;
     case "typing":
       NMStreet.typing(e.who, e.on);
       break;
     case "phase":
+      if(e.phase === "closed") CLOSED = true;
       $("#phase").textContent = PHASE[e.phase] || e.phase;
       break;
     case "quick":
+      if(demo) break;
       $("#quick").innerHTML = e.options.map(o => `<button type="button">${esc(o)}</button>`).join("");
       break;
     case "error":
       logRow("err", "⚠️", "#ffe2dc", esc(e.error));
       break;
     case "done":
-      setBusy(false);
+      if(CLOSED && CHOSEN) finale();
+      setBusy(false); demo = false;
       break;
   }
+}
+
+function finale(){
+  const sale = REQ && REQ.kind === "sale", item = (REQ && REQ.item) || "your request";
+  const from = sale ? asker : CHOSEN, to = sale ? CHOSEN : asker;
+  NMStreet.finale({from, to, icon:iconFor(item), sale, label:item.charAt(0).toUpperCase() + item.slice(1),
+    note: sale ? `${name(from)} → ${name(to)}${REQ.price ? " · " + REQ.price : ""}` : `from ${name(from)} · at ${name(to)}'s door`});
+  logRow("done", "🎉", "#d9f6ec", `<b>${sale ? "Sold" : "Done"}:</b> ${esc(item)} ${sale ? "goes to" : "arrives at"} <b>${esc(name(to))}</b>'s door`);
+  CLOSED = false; CHOSEN = null;
 }
 
 // ---------- sending ----------
@@ -91,6 +115,7 @@ function toast(t){ const el = $("#toast"); el.textContent = t; el.classList.add(
 async function send(text){
   text = String(text || "").trim();
   if(!text) return;
+  if(mode === "sell" && !/\b(sell|selling|for sale)\b/i.test(text)) text = "I'm selling " + text;
   if(busy){ toast("NearMind is still working on the last one"); return; }
   setBusy(true); $("#quick").innerHTML = ""; $("#in").value = "";
   try{
@@ -121,9 +146,23 @@ function renderWho(){
   }).join("");
 }
 function fresh(){
-  NMStreet.clear(); Q.length = 0; $("#quick").innerHTML = "";
+  NMStreet.clear(); Q.length = 0; $("#quick").innerHTML = ""; REQ = null; CHOSEN = null; CLOSED = false;
   $("#log").innerHTML = '<li class="empty">New request. Type it below and watch NearMind route it.</li>';
   $("#phase").textContent = "Waiting for a request";
+}
+
+// ---------- recorded demos: real runs replayed instantly ----------
+const DEMOS = [["movie","🎬 Movie night"],["ladder","🪜 Ladder at noon"],["charger","🔋 Charger at 00:30"],["sale","🏷️ Selling a bike"]];
+async function playDemo(name){
+  if(busy){ toast("Wait for this request to finish"); return; }
+  let d; try{ const r = await fetch(`/static/demos/${name}.json`); if(!r.ok) throw 0; d = await r.json(); }catch(e){ toast("That demo isn't recorded yet"); return; }
+  demo = true; setBusy(true);
+  asker = d.asker; fresh(); renderWho(); NMStreet.asker(asker);
+  clock = d.clock; document.querySelectorAll(".clock .chip").forEach(x => x.classList.toggle("on", x.dataset.clk === clock || (!x.dataset.clk && !clock)));
+  if(![...document.querySelectorAll(".clock .chip")].some(x => x.classList.contains("on"))) document.querySelector('.clock [data-clk=""]').classList.remove("on");
+  applyClock();
+  logRow("think", "▶", "#e2f1ff", `Demo: <b>${esc(d.title)}</b> (a recorded real run at ${esc(d.clock)})`);
+  d.events.forEach(e => enqueue(e));
 }
 
 // ---------- clock ----------
@@ -153,6 +192,15 @@ document.querySelector(".clock").onclick = e => {
   document.querySelectorAll(".clock .chip").forEach(x => x.classList.toggle("on", x === b));
   clock = b.dataset.clk; applyClock();
 };
+$("#mode").onclick = e => {
+  const b = e.target.closest("[data-mode]"); if(!b) return;
+  mode = b.dataset.mode; document.querySelectorAll("#mode button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  $("#in").placeholder = mode === "sell" ? `What is ${name(asker)} selling, and for how much? e.g. my old bike, 150 SAR` : `${name(asker)} needs… (e.g. a ladder for 10 minutes)`;
+  $("#in").focus({preventScroll:true});
+};
+$("#speed").onclick = () => { speed = speed === 1 ? 2 : 1; $("#speed").textContent = speed + "×"; $("#speed").setAttribute("aria-label", "Playback speed " + speed + "x"); };
+$("#demos").innerHTML = DEMOS.map(([n, l]) => `<button type="button" data-demo="${n}">${l}</button>`).join("");
+$("#demos").onclick = e => { const b = e.target.closest("[data-demo]"); if(b) playDemo(b.dataset.demo); };
 $("#reset").onclick = async () => {
   if(busy){ toast("Wait for this request to finish"); return; }
   try{ await fetch("/api/street/reset", {method:"POST"}); }catch(e){}

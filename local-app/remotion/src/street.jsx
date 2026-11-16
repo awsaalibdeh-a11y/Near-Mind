@@ -17,7 +17,7 @@ const SKY={day:["#bfe3ff","#f1f9ff"],evening:["#ffc79a","#fdeee0"],"early mornin
 const PILL={asked:["asked","#fff1d6","#b0630f"],offer:["has it","#e2f1ff","#1f6fb8"],no:["can't","#eef1f0","#7c8a84"],
  chosen:["chosen ✓","#17c394","#fff"],released:["thanked","#eef6f2","#5f8f7b"]};
 
-const store={s:{people:{},period:"day",busy:false,asker:null,req:null,think:null,packets:[],bubbles:{},status:{},typing:{},asleep:{},look:null},subs:new Set(),ref:null,onPick:null};
+const store={s:{people:{},period:"day",busy:false,asker:null,req:null,think:null,packets:[],bubbles:{},status:{},typing:{},asleep:{},look:null,finale:null},subs:new Set(),ref:null,onPick:null};
 const emit=()=>store.subs.forEach(f=>f());
 const nowF=()=>{try{return store.ref.current.getCurrentFrame()}catch(e){return 0}};
 function useStore(){const[,t]=useState(0);useEffect(()=>{const f=()=>t(x=>x+1);store.subs.add(f);return()=>store.subs.delete(f)},[])}
@@ -56,7 +56,7 @@ function Robot({frame}){
 
 function Apartment({id,frame}){
  const s=store.s,p=s.people[id]||{name:id,apt:"",color:"#999",icon:"🏠"};
- const x=AX(id),y=AY(id),st=s.status[id],pill=PILL[st],sleep=s.asleep[id],asker=s.asker===id,typing=s.typing[id];
+ const x=AX(id),y=AY(id),st=s.status[id],sale=s.req&&s.req.kind==="sale",pill=sale&&st==="offer"?["wants it","#e2f1ff","#1f6fb8"]:sale&&st==="chosen"?["buyer ✓","#17c394","#fff"]:PILL[st],sleep=s.asleep[id],asker=s.asker===id,typing=s.typing[id];
  const hot=s.packets.some(k=>(k.from===id||k.to===id)&&frame-k.f0>=0&&frame-k.f0<=D+10);
  const night=s.period==="night";
  const border=asker?"#ff7eb6":{asked:"#f2b560",offer:"#66b8ff",chosen:"#17c394",no:"#c9d2ce",released:"#b6c9bf"}[st]||"#1f6f9e";
@@ -95,16 +95,64 @@ function Bubble({id,frame}){
    <div style={{position:"absolute",top:34,[left?"right":"left"]:-12,width:0,height:0,borderTop:"12px solid transparent",borderBottom:"12px solid transparent",[left?"borderLeft":"borderRight"]:"14px solid #fff"}}/>
   </div></div>}
 
+// ---------- finale: the item travels door to door, camera zooms on the receiver's door, item lands on the doormat ----------
+const F_TRAVEL=70,F_IN=[55,95],F_HOLD=165,F_OUT=36;
+const FOOT=id=>({x:DOOR(id).x+(COLS[id]?-26:26),y:AY(id)+AH-14});
+function zoomOf(frame){
+ const fz=store.s.finale;if(!fz||frame<fz.f0)return{z:1,tx:0,ty:0,k:0};
+ const t=frame-fz.f0,end=F_IN[1]+F_HOLD;
+ let k=t<F_IN[0]?0:t<F_IN[1]?(t-F_IN[0])/(F_IN[1]-F_IN[0]):t<end?1:t<end+F_OUT?1-(t-end)/F_OUT:0;
+ k=Easing.inOut(Easing.cubic)(clamp(k,0,1));
+ const f=FOOT(fz.to),fx=f.x+(COLS[fz.to]?-60:60),fy=f.y-50,z=1+1.35*k;   // focus point eases to screen centre as we zoom
+ return{z,tx:k*(W/2-fx*z),ty:k*(H/2-fy*z),k};
+}
+function Doors({frame}){
+ const fz=store.s.finale,t=fz?frame-fz.f0:-1,night=store.s.period==="night";
+ return <>{Object.keys(COLS).map(id=>{const d=DOOR(id),on=fz&&fz.to===id&&t>=F_IN[0]&&t<F_IN[1]+F_HOLD+F_OUT;
+  return <div key={id} style={{position:"absolute",left:d.x-(COLS[id]?0:30),top:AY(id)+AH-64,width:30,height:60,borderRadius:"8px 8px 0 0",
+   background:on?"#fff6d6":night?"#3a4570":"#d9ecf5",border:"4px solid "+(on?"#17c394":"#1f6f9e"),borderBottom:"none",
+   boxShadow:on?`0 0 0 ${6+Math.sin(frame/4)*3}px #17c39444`:"none",zIndex:3}}>
+   <div style={{position:"absolute",[COLS[id]?"left":"right"]:5,top:28,width:6,height:6,borderRadius:"50%",background:"#1f6f9e"}}/></div>})}</>}
+function Finale({frame}){
+ const fz=store.s.finale;if(!fz||frame<fz.f0)return null;
+ const t=frame-fz.f0,end=F_IN[1]+F_HOLD+F_OUT;if(t>end+10)return null;
+ const a=FOOT(fz.from),b=FOOT(fz.to),pts=[a,{x:SX,y:a.y},{x:SX,y:b.y},b];
+ const raw=clamp(t/F_TRAVEL,0,1),pos=raw<1?along(pts,Easing.inOut(Easing.quad)(raw)):b;
+ const hop=raw<1?Math.abs(Math.sin(raw*Math.PI*3))*24:0;
+ const land=raw>=1?spring({frame:t-F_TRAVEL,fps:FPS,config:{damping:7,stiffness:140}}):0;
+ const fadeOut=interpolate(t,[end-20,end],[1,0],{extrapolateLeft:"clamp",extrapolateRight:"clamp"});
+ const tagIn=spring({frame:t-F_IN[1]+10,fps:FPS,config:{damping:13}}),left=!COLS[fz.to];
+ const cols=["#17c394","#ff7eb6","#f2b560","#66b8ff","#a99bff"],ct=t-F_TRAVEL;
+ return <>
+  {/* doormat */}
+  {raw>=1&&<div style={{position:"absolute",left:b.x-34,top:b.y-2,width:68,height:12,borderRadius:6,background:"#c98f5a",opacity:fadeOut*clamp(land*2,0,1),zIndex:4}}/>}
+  {/* the item */}
+  <div style={{position:"absolute",left:pos.x-30,top:pos.y-56-hop,width:60,height:60,display:"grid",placeItems:"center",fontSize:raw<1?40:44,zIndex:5,
+   filter:"drop-shadow(0 6px 8px rgba(20,40,32,.3))",opacity:fadeOut,transform:`rotate(${raw<1?Math.sin(raw*12)*12:0}deg) scale(${raw<1?1:0.7+0.3*land})`}}>{fz.icon}</div>
+  {/* confetti at landing */}
+  {ct>=0&&ct<70&&Array.from({length:22},(_,i)=>{const ang=-Math.PI*(0.1+0.8*i/21),sp=4+(i%4)*1.4;
+   return <div key={i} style={{position:"absolute",left:b.x+Math.cos(ang)*sp*ct,top:b.y-40+Math.sin(ang)*sp*ct+0.08*ct*ct,width:9,height:5,borderRadius:2,
+    background:cols[i%5],transform:`rotate(${ct*15+i*40}deg)`,opacity:1-ct/70,zIndex:6}}/>})}
+  {/* delivered tag */}
+  {t>=F_IN[1]-10&&<div style={{position:"absolute",left:left?b.x+40:b.x-40-230,top:b.y-118,width:230,background:"#fff",borderRadius:16,padding:"10px 14px",
+   boxShadow:"0 12px 28px rgba(20,40,32,.22)",borderLeft:"6px solid #17c394",opacity:tagIn*fadeOut,transform:`translateY(${(1-tagIn)*12}px)`,zIndex:6,fontFamily:"system-ui,Segoe UI,sans-serif"}}>
+   <div style={{fontSize:12,fontWeight:800,letterSpacing:1.2,textTransform:"uppercase",color:"#0b8f69"}}>{fz.sale?"Sold ✓":"Delivered ✓"}</div>
+   <div style={{fontSize:18,fontWeight:800,color:"#14201c",lineHeight:1.2,marginTop:2}}>{fz.label}</div>
+   <div style={{fontSize:13,color:"#5b6b65",marginTop:3}}>{fz.note}</div></div>}
+ </>}
+
 function Scene(){
  useStore();const frame=useCurrentFrame(),s=store.s,sk=SKY[s.period]||SKY.day,night=s.period==="night";
  const live=s.packets.filter(p=>frame-p.f0>=0&&frame-p.f0<=D);
  const ids=Object.keys(COLS);
+ const cam=zoomOf(frame);
  const th=s.think&&frame>=s.think.f0&&frame-s.think.f0<FPS*7?s.think:null,thSp=th?spring({frame:frame-th.f0,fps:FPS,config:{damping:14}})*interpolate(frame-th.f0,[FPS*6,FPS*7],[1,0],{extrapolateLeft:"clamp",extrapolateRight:"clamp"}):0;
  return <AbsoluteFill style={{background:`linear-gradient(${sk[0]},${sk[1]})`,overflow:"hidden",fontFamily:"system-ui,Segoe UI,sans-serif"}}>
   {night&&[[80,60],[220,140],[380,40],[1020,70],[1180,150],[1300,50],[150,300],[1250,330]].map(([x,y],i)=><div key={i} style={{position:"absolute",left:x,top:y,width:4,height:4,borderRadius:"50%",background:"#dfe6ff",opacity:0.3+0.7*Math.abs(Math.sin(frame/24+i))}}/>)}
   {store.backdrop&&<img src={store.backdrop} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",
     transform:`scale(${1.04+Math.sin(frame/400)*0.01})`,filter:night?"brightness(.38) saturate(.7) hue-rotate(200deg)":s.period==="evening"?"saturate(1.1) sepia(.15)":s.period==="early morning"?"brightness(1.05) saturate(.9)":"none"}}/>}
   {!store.backdrop&&!night&&[[0,90,1],[500,40,0.8],[900,120,0.9]].map(([o,y,sc],i)=><div key={i} style={{position:"absolute",left:((frame*(0.3+i*0.1)+o)%1700)-250,top:y,width:150*sc,height:44*sc,borderRadius:44,background:"rgba(255,255,255,.8)"}}/>)}
+  <div style={{position:"absolute",inset:0,transformOrigin:"0 0",transform:`translate(${cam.tx}px,${cam.ty}px) scale(${cam.z})`}}>
   {/* building */}
   <div style={{position:"absolute",left:B.x,top:B.y,width:B.w,height:B.h,background:night?"linear-gradient(180deg,#2b355c,#222a4a)":"linear-gradient(180deg,#f7fbfd,#e7f1f6)",border:"6px solid #1f6f9e",borderRadius:"34px 34px 0 0",boxShadow:"0 30px 70px rgba(20,40,60,.22)"}}/>
   <div style={{position:"absolute",left:B.x-60,top:B.y+B.h,width:B.w+120,height:8,background:"#1f6f9e",borderRadius:4}}/>
@@ -122,6 +170,8 @@ function Scene(){
     return <path key={p.id} d={d} stroke={col} strokeWidth={9} fill="none" strokeLinecap="round" strokeLinejoin="round" opacity={0.35+0.4*Math.sin(t*Math.PI)}/>})}
   </svg>
   {ids.map(id=><Apartment key={id} id={id} frame={frame}/>)}
+  <Doors frame={frame}/>
+  <Finale frame={frame}/>
   {/* travelling messages */}
   {live.map(p=>{const id=p.from==="robot"?p.to:p.from,pts=PATH(id),raw=clamp((frame-p.f0)/D,0,1),t=ease(raw);
    const pos=along(p.from==="robot"?pts.slice().reverse():pts,t),col=p.from==="robot"?"#17c394":(s.people[id]||{}).color||"#66b8ff";
@@ -129,9 +179,9 @@ function Scene(){
   <Robot frame={frame}/>
   {/* request card (left of the robot) */}
   {s.req&&<div style={{position:"absolute",left:40,top:40,width:440,background:"#fff",borderRadius:20,padding:"16px 20px",boxShadow:"0 12px 30px rgba(20,40,32,.16)",borderLeft:"8px solid "+((s.people[s.asker]||{}).color||"#17c394")}}>
-   <div style={{fontSize:14,fontWeight:800,letterSpacing:1.5,color:"#5b6b65",textTransform:"uppercase"}}>Request from {(s.people[s.asker]||{}).name||""}</div>
-   <div style={{fontSize:30,fontWeight:800,color:"#14201c",marginTop:2}}>{s.req.kind==="company"?"👥 ":s.req.kind==="favor"?"🤝 ":"📦 "}{s.req.item}</div>
-   <div style={{display:"flex",gap:8,marginTop:8}}>{s.req.qty&&<span style={{fontSize:15,background:"#e4f8f0",color:"#0b8f69",borderRadius:999,padding:"3px 12px",fontWeight:700}}>{s.req.qty}</span>}
+   <div style={{fontSize:14,fontWeight:800,letterSpacing:1.5,color:"#5b6b65",textTransform:"uppercase"}}>{s.req.kind==="sale"?"For sale by ":"Request from "}{(s.people[s.asker]||{}).name||""}</div>
+   <div style={{fontSize:30,fontWeight:800,color:"#14201c",marginTop:2}}>{s.req.kind==="company"?"👥 ":s.req.kind==="favor"?"🤝 ":s.req.kind==="sale"?"🏷️ ":"📦 "}{s.req.item}</div>
+   <div style={{display:"flex",gap:8,marginTop:8}}>{s.req.price&&<span style={{fontSize:15,background:"#17c394",color:"#fff",borderRadius:999,padding:"3px 12px",fontWeight:800}}>{s.req.price}</span>}{s.req.qty&&s.req.kind!=="sale"&&<span style={{fontSize:15,background:"#e4f8f0",color:"#0b8f69",borderRadius:999,padding:"3px 12px",fontWeight:700}}>{s.req.qty}</span>}
     {s.req.urgency&&<span style={{fontSize:15,background:s.req.urgency==="high"?"#ffe2dc":"#fff1c2",color:s.req.urgency==="high"?"#c23b25":"#8a6500",borderRadius:999,padding:"3px 12px",fontWeight:700}}>{s.req.urgency} urgency</span>}</div>
   </div>}
   {/* robot thought bubble (right of the robot) */}
@@ -142,6 +192,7 @@ function Scene(){
    {[0,1].map(i=><div key={i} style={{position:"absolute",left:-22-i*20,top:70+i*16,width:16-i*5,height:16-i*5,borderRadius:"50%",background:"#fff",border:"3px dashed #17c394"}}/>)}
   </div>}
   {ids.map(id=><Bubble key={id} id={id} frame={frame}/>)}
+  </div>
  </AbsoluteFill>}
 
 let root=null;
@@ -164,5 +215,6 @@ window.NMStreet={
  request(r){store.s.req=r;emit()},
  period(p){store.s.period=p;emit()},
  asleep(map){store.s.asleep=map||{};emit()},
- clear(){Object.assign(store.s,{req:null,think:null,packets:[],bubbles:{},status:{},typing:{},busy:false,look:null});emit()},
+ finale(o){store.s.finale={from:o.from,to:o.to,icon:o.icon||"📦",label:o.label||"",note:o.note||"",sale:!!o.sale,f0:nowF()};store.s.bubbles={};emit()},
+ clear(){Object.assign(store.s,{req:null,think:null,packets:[],bubbles:{},status:{},typing:{},busy:false,look:null,finale:null});emit()},
 };

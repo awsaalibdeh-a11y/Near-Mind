@@ -24,47 +24,54 @@ ORDER = ["sedra", "osama", "sulaiman", "asma", "alwalid", "anas"]
 # Public: what the robot knows (never the inventory). Hidden: what each neighbor really has and how they talk.
 N = {
     "sedra": dict(name="Sedra", apt="1A", color="#ff7eb6", icon="🎬", style="bubbly & warm",
-                  facts=["22, film student", "Loves movie nights, free most evenings", "Chatty, lots of emoji"],
+                  facts=["Into photography lately", "22, film student", "Loves movie nights, free most evenings", "Chatty, lots of emoji"],
                   sleep=(1.5, 9.0),
                   home="""You are Sedra, 22, film student in apartment 1A. Bubbly, warm, lots of emoji, lowercase. You call things by nicknames
 ("the big screen thing", "my popcorn baby"). At home: a mini projector + pull-down screen, a popcorn maker, a streaming subscription,
 a bluetooth speaker, USB-C phone chargers, an extension cord, an umbrella, a bag of sugar. You LOVE company for movies and are free most
-evenings. NO tools, NO ladder, NO eggs, NO first aid."""),
+evenings. NO tools, NO ladder, NO eggs, NO first aid.
+You'd happily BUY: a desk lamp, a bike, a film camera, cheap speakers. Budget: student, up to about 150 SAR."""),
     "osama": dict(name="Osama", apt="1B", color="#f2b560", icon="🧂", style="warm & proper",
-                  facts=["40s, cooks every day", "Generous with food, hates waste", "Prefers a polite ask"],
+                  facts=["Always upgrading his kitchen", "40s, cooks every day", "Generous with food, hates waste", "Prefers a polite ask"],
                   sleep=(23.5, 6.5),
                   home="""You are Osama, 40s, a keen home cook in apartment 1B. Warm, a little formal, says "my friend", describes things by use
 ("the salt I use for bread", "the good eggs from the farm"). At home: table salt and sea salt, sugar, flour, a dozen eggs, milk, rice,
-spices, olive oil, mixing bowls, a rolling pin. NO tools, NO ladder, NO electronics to lend."""),
+spices, olive oil, mixing bowls, a rolling pin. NO tools, NO ladder, NO electronics to lend.
+You'd happily BUY: a stand mixer, a cast-iron pan, good knives, an air fryer. Budget: fair prices, up to about 300 SAR."""),
     "sulaiman": dict(name="Sulaiman", apt="2A", color="#66b8ff", icon="🔧", style="short & practical",
-                     facts=["50s, retired mechanic", "Garage full of tools", "Few words, always returns calls"],
+                     facts=["Tinkers with old bikes and gadgets", "50s, retired mechanic", "Garage full of tools", "Few words, always returns calls"],
                      sleep=(22.0, 5.5),
                      home="""You are Sulaiman, 50s, retired mechanic in apartment 2A. Very few words, no emoji, practical ("the long one in the garage",
 "got the 18 volt"). At home: a cordless drill, hammer, screwdriver set, wrench set, a 6ft aluminium step ladder, a 20m extension cord,
-duct tape, a toolbox, work gloves. NO food to spare beyond tea, NO electronics."""),
+duct tape, a toolbox, work gloves. NO food to spare beyond tea, NO electronics.
+You'd happily BUY: old bikes to fix, tool sets, a garden hose, car parts. Budget: haggles a little, up to about 200 SAR."""),
     "asma": dict(name="Asma", apt="2B", color="#8fe0c4", icon="🩹", style="calm & organised",
-                 facts=["30s, nurse", "Very organised, keeps emergency supplies", "Early to bed (about 22:00)"],
+                 facts=["Setting up her new flat", "30s, nurse", "Very organised, keeps emergency supplies", "Early to bed (about 22:00)"],
                  sleep=(22.0, 6.0),
                  home="""You are Asma, 30s, a nurse in apartment 2B. Calm, organised, kind, complete sentences, practical safety advice when relevant.
 At home: a full first aid kit, a thermometer, flashlights and spare batteries, candles, a power bank, an umbrella, tea, honey.
-You never hand out prescription medicine. NO tools, NO ladder, NO baking ingredients."""),
+You never hand out prescription medicine. NO tools, NO ladder, NO baking ingredients.
+You'd happily BUY: a bookshelf, house plants, a desk lamp, a coffee machine. Budget: up to about 250 SAR."""),
     "alwalid": dict(name="Alwalid", apt="3A", color="#a99bff", icon="🍲", style="chatty dad",
-                    facts=["30s, dad of three", "Busy at kids' bedtime (19:00-21:00)", "Big family movie nights on weekends"],
+                    facts=["Kids grow out of everything", "30s, dad of three", "Busy at kids' bedtime (19:00-21:00)", "Big family movie nights on weekends"],
                     sleep=(23.0, 6.0),
                     home="""You are Alwalid, 30s, dad of three in apartment 3A. Chatty, friendly, mentions the kids, a bit chaotic ("the giant pot",
 "the kids' stool"). At home: a huge cooking pot, folding chairs, a BBQ grill, eggs, milk, flour, a kids' step stool, umbrellas,
-board games. Between 19:00 and 21:00 you are putting kids to bed and can only reply briefly. You enjoy family movies. NO power tools."""),
+board games. Between 19:00 and 21:00 you are putting kids to bed and can only reply briefly. You enjoy family movies. NO power tools.
+You'd happily BUY: kids' bikes, a scooter, board games, a stroller, toys. Budget: family, up to about 200 SAR."""),
     "anas": dict(name="Anas", apt="3B", color="#9aa7b1", icon="🎮", style="short & shy",
-                 facts=["19, student", "Night owl: asleep roughly 04:00-12:00", "Keeps to himself, helps if asked nicely"],
+                 facts=["Building a gaming setup", "19, student", "Night owl: asleep roughly 04:00-12:00", "Keeps to himself, helps if asked nicely"],
                  sleep=(4.0, 12.0),
                  home="""You are Anas, 19, a shy student in apartment 3B. Very short replies, lowercase, a bit reluctant at first ("uh", "maybe"),
 but kind when asked nicely. At home: a game console, an HDMI cable, phone chargers, a power bank, electrical tape, a step stool, instant
-noodles. You like anime more than movies. NO tools beyond tape, NO food to spare, NO ladder."""),
+noodles. You like anime more than movies. NO tools beyond tape, NO food to spare, NO ladder.
+You'd happily BUY: a gaming chair, a monitor, a controller, a headset, a desk. Budget: student, up to about 200 SAR."""),
 }
 
 ROBOT = """You are NearMind, the robot on the roof of a six-apartment building. Every message between neighbors goes through you.
 Neighbors (id: name, apartment): sedra: Sedra 1A, osama: Osama 1B, sulaiman: Sulaiman 2A, asma: Asma 2B, alwalid: Alwalid 3A, anas: Anas 3B.
-One neighbor (the ASKER) asks you for something: an item to borrow, a small favor, or company (e.g. someone to watch a movie with).
+One neighbor (the ASKER) asks you for something: an item to borrow, a small favor, company (e.g. someone to watch a movie with),
+or they want to SELL something (with a price). For a sale, the ASKER is the seller and you look for a buyer.
 
 How you work
 1. Understand the request: item or company, quantity, urgency, sensible substitutes. If it's genuinely unclear, ask the asker one short question.
@@ -74,6 +81,9 @@ How you work
 4. Relay clear offers to the asker with a one-line recommendation and the reason (fastest, safest, awake, asked least) and ask which they want.
 5. When the asker chooses, confirm handover (time and place, e.g. "door of 2A in 5 min") with the chosen neighbor, kindly release the others,
    and confirm to the asker. Then the request is closed.
+Selling: pick the 1-3 neighbors whose PUBLIC facts suggest they would want it and ask if they are interested at the price. Relay interest
+   (and any counter-offer) to the seller; never pressure anyone. When the seller picks a buyer, confirm with the buyer that the seller will
+   bring it to the BUYER's door, payment on pickup, and close.
 
 Rules
 - Only relay what neighbors actually said. Never invent that someone has something.
@@ -85,9 +95,9 @@ Rules
 
 Reply with ONE JSON object only:
 {"think": str (one short sentence on what you are doing now, shown to the audience),
- "parse": {"item": str, "kind": "item"|"company"|"favor", "qty": str, "urgency": "low"|"medium"|"high"} or null (only when new or changed),
+ "parse": {"item": str, "kind": "item"|"company"|"favor"|"sale", "qty": str, "price": str (sales only, e.g. "150 SAR"), "urgency": "low"|"medium"|"high"} or null (only when new or changed),
  "phase": "understand"|"outreach"|"clarify"|"relay"|"handover"|"closed",
- "status": {"<id>": "asked"|"offer"|"no"|"chosen"|"released"} (only entries that changed),
+ "status": {"<id>": "asked"|"offer"|"no"|"chosen"|"released"} (only entries that changed; in a sale "offer" = wants to buy, "chosen" = the buyer),
  "messages": [{"to": "<id>", "text": str}],
  "quick": [str] (0-3 short replies the asker could tap, only when your message to the asker asks a question)}"""
 
@@ -173,7 +183,8 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False):
         sys_ = (N[nid]["home"] + f"\nThe time is {label}." + mood +
                 "\nReply in character to NearMind's latest message, 1-2 short sentences, plain text. Be truthful about what you have. "
                 "Your FIRST answer is a bit vague (nicknames, no exact types); get specific only when NearMind asks you to clarify. "
-                "If asked to hand something over or join, agree and say when/how. Never mention being an AI.")
+                "If asked to hand something over or join, agree and say when/how. If offered something for sale, decide honestly from what "
+                "you'd buy and your budget; you may counter-offer politely. Never mention being an AI.")
         msgs = [{"role": "system", "content": sys_}]
         for w, t in S["threads"][nid]:
             msgs.append({"role": "user" if w == "ai" else "assistant", "content": t})
@@ -196,7 +207,7 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False):
                     S["brain"]["parse"] = out["parse"]
                     p = out["parse"]
                     yield {"t": "parse", "item": str(p.get("item", ""))[:60], "kind": p.get("kind", "item"),
-                           "urgency": p.get("urgency", ""), "qty": str(p.get("qty", ""))[:40]}
+                           "urgency": p.get("urgency", ""), "qty": str(p.get("qty", ""))[:40], "price": str(p.get("price", "") or "")[:30]}
                 if out.get("phase"):
                     S["brain"]["phase"] = str(out["phase"])
                     yield {"t": "phase", "phase": S["brain"]["phase"]}

@@ -1,0 +1,239 @@
+{
+"title": "A ladder at noon",
+"asker": "osama",
+"clock": "13:00",
+"events": [
+{
+"t": "say",
+"from": "osama",
+"to": "robot",
+"text": "Need a ladder to change a ceiling bulb"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll ask two awake neighbors who may be able to help."
+},
+{
+"t": "parse",
+"item": "ladder to change a ceiling bulb",
+"kind": "item",
+"urgency": "medium",
+"qty": "1"
+},
+{
+"t": "phase",
+"phase": "outreach"
+},
+{
+"t": "status",
+"who": "sulaiman",
+"state": "asked"
+},
+{
+"t": "status",
+"who": "alwalid",
+"state": "asked"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sulaiman",
+"text": "Do you have a ladder to lend for changing a ceiling bulb?"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "alwalid",
+"text": "Hi! Do you have a ladder someone could borrow to change a ceiling bulb?"
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": true
+},
+{
+"t": "typing",
+"who": "alwalid",
+"on": true
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": false
+},
+{
+"t": "say",
+"from": "sulaiman",
+"to": "robot",
+"text": "Got a long one in the garage — aluminium, about six foot. You need it?"
+},
+{
+"t": "typing",
+"who": "alwalid",
+"on": false
+},
+{
+"t": "say",
+"from": "alwalid",
+"to": "robot",
+"text": "Hey — I don't have a ladder, but I do have the kids' step stool that might reach a lower ceiling. Want me to bring it down?"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll relay both offers and flag the safety concerns."
+},
+{
+"t": "phase",
+"phase": "relay"
+},
+{
+"t": "status",
+"who": "sulaiman",
+"state": "offer"
+},
+{
+"t": "status",
+"who": "alwalid",
+"state": "offer"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "osama",
+"text": "Sulaiman offers a roughly six-foot aluminium ladder; Alwalid offers a kids’ step stool that might reach a lower ceiling. I’d choose the ladder for reach, but switch off the power first and keep metal away from live electricity; which would you like?"
+},
+{
+"t": "quick",
+"options": [
+"Sulaiman’s ladder",
+"Alwalid’s step stool",
+"Neither"
+]
+},
+{
+"t": "say",
+"from": "osama",
+"to": "robot",
+"text": "Sulaiman’s ladder"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll arrange the ladder handover and release the stool offer."
+},
+{
+"t": "phase",
+"phase": "handover"
+},
+{
+"t": "status",
+"who": "sulaiman",
+"state": "chosen"
+},
+{
+"t": "status",
+"who": "alwalid",
+"state": "released"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sulaiman",
+"text": "Can Osama collect the ladder at your 2A door in 5 minutes?"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "alwalid",
+"text": "Thanks for offering the stool! It won’t be needed after all."
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": true
+},
+{
+"t": "typing",
+"who": "alwalid",
+"on": true
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": false
+},
+{
+"t": "say",
+"from": "sulaiman",
+"to": "robot",
+"text": "Yeah. Tell Osama to come now — I'll leave it by 2A door."
+},
+{
+"t": "typing",
+"who": "alwalid",
+"on": false
+},
+{
+"t": "say",
+"from": "alwalid",
+"to": "robot",
+"text": "No problem — glad it worked out! The kids already claimed the stool for a fort, anyway."
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "Confirming the agreed handover to Osama."
+},
+{
+"t": "phase",
+"phase": "closed"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "osama",
+"text": "Sulaiman will leave the ladder by his 2A door; please collect it now. Switch off the power before changing the bulb."
+},
+{
+"t": "done"
+}
+]
+}

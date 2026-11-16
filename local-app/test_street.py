@@ -98,3 +98,23 @@ def test_portraits_are_served(app_mod):
     for n in app_mod.street_mod.ORDER:
         img = c.get("/api/street/people").get_json()["people"][n]["img"]
         assert c.get(img).status_code == 200
+
+
+def test_sale_price_reaches_the_page(app_mod, monkeypatch):
+    st = app_mod.STREET
+    monkeypatch.setattr(st, "robot_fn", lambda S, f: {"parse": {"item": "old bike", "kind": "sale", "price": "150 SAR", "urgency": "low"},
+                                                     "messages": [{"to": "asma", "text": "On it!"}]})
+    ev = run(app_mod.app.test_client(), "asma", "I'm selling my old bike for 150 SAR")
+    p = next(e for e in ev if e["t"] == "parse")
+    assert p["kind"] == "sale" and p["price"] == "150 SAR"
+
+
+def test_recorded_demos_are_complete():
+    import pathlib
+    d = pathlib.Path(__file__).parent / "static" / "demos"
+    for n in ("movie", "ladder", "charger", "sale"):
+        data = json.loads((d / f"{n}.json").read_text(encoding="utf-8"))
+        kinds = [e["t"] for e in data["events"]]
+        assert kinds[-1] == "done" and "say" in kinds
+        assert any(e["t"] == "status" and e["state"] == "chosen" for e in data["events"]), n   # every demo ends in a handover
+        assert any(e["t"] == "phase" and e["phase"] == "closed" for e in data["events"]), n

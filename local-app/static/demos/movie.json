@@ -1,0 +1,278 @@
+{
+"title": "Movie night",
+"asker": "sedra",
+"clock": "19:30",
+"events": [
+{
+"t": "say",
+"from": "sedra",
+"to": "robot",
+"text": "I need someone to watch a movie with me tonight"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll ask two awake neighbors about a movie tonight."
+},
+{
+"t": "parse",
+"item": "movie company tonight",
+"kind": "company",
+"urgency": "medium",
+"qty": "1 person"
+},
+{
+"t": "phase",
+"phase": "outreach"
+},
+{
+"t": "status",
+"who": "anas",
+"state": "asked"
+},
+{
+"t": "status",
+"who": "alwalid",
+"state": "asked"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "anas",
+"text": "Hi Anas, would you like to watch a movie with Sedra tonight?"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "alwalid",
+"text": "Hey Alwalid! Are you free to watch a movie with Sedra tonight, perhaps after the kids’ bedtime?"
+},
+{
+"t": "typing",
+"who": "anas",
+"on": true
+},
+{
+"t": "typing",
+"who": "alwalid",
+"on": true
+},
+{
+"t": "typing",
+"who": "anas",
+"on": false
+},
+{
+"t": "say",
+"from": "anas",
+"to": "robot",
+"text": "uh, maybe. i'm in 3B — got a console and stuff, but i'd rather watch anime than a movie. when were you thinking?"
+},
+{
+"t": "typing",
+"who": "alwalid",
+"on": false
+},
+{
+"t": "say",
+"from": "alwalid",
+"to": "robot",
+"text": "Hey! I can after the little rascals are down — give me about an hour and I’m yours; I’ve got a big pot of popcorn-ready stuff and the kids’ stool for reaching snacks."
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’m checking whether Anas is open to a movie."
+},
+{
+"t": "phase",
+"phase": "clarify"
+},
+{
+"t": "status",
+"who": "alwalid",
+"state": "offer"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "anas",
+"text": "The time isn’t set yet. Would you be up for a movie tonight, or only anime?"
+},
+{
+"t": "typing",
+"who": "anas",
+"on": true
+},
+{
+"t": "typing",
+"who": "anas",
+"on": false
+},
+{
+"t": "say",
+"from": "anas",
+"to": "robot",
+"text": "uh, i’d prefer anime, but i can do a movie if Sedra really wants. what time were you thinking?"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll share both offers and recommend Alwalid for his clear availability."
+},
+{
+"t": "phase",
+"phase": "relay"
+},
+{
+"t": "status",
+"who": "anas",
+"state": "offer"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sedra",
+"text": "Alwalid can join in about an hour; Anas can do a movie too, though he’d prefer anime and asks what time. 🎬 I’d pick Alwalid since his availability is clear—who would you like?"
+},
+{
+"t": "quick",
+"options": [
+"Alwalid",
+"Anas"
+]
+},
+{
+"t": "say",
+"from": "sedra",
+"to": "robot",
+"text": "Alwalid"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "I’ll confirm the movie meet-up and let Anas know."
+},
+{
+"t": "phase",
+"phase": "handover"
+},
+{
+"t": "status",
+"who": "alwalid",
+"state": "chosen"
+},
+{
+"t": "status",
+"who": "anas",
+"state": "released"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "alwalid",
+"text": "Great, Sedra would love to watch a movie! Does meeting at your door around 20:30 work? 🍿"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "anas",
+"text": "Thanks for offering! You’re off the hook tonight."
+},
+{
+"t": "typing",
+"who": "alwalid",
+"on": true
+},
+{
+"t": "typing",
+"who": "anas",
+"on": true
+},
+{
+"t": "typing",
+"who": "alwalid",
+"on": false
+},
+{
+"t": "say",
+"from": "alwalid",
+"to": "robot",
+"text": "Sounds good — 20:30 at my door works. I’ll finish bedtime, get the giant pot ready, and we can head inside; see you then."
+},
+{
+"t": "typing",
+"who": "anas",
+"on": false
+},
+{
+"t": "say",
+"from": "anas",
+"to": "robot",
+"text": "uh, okay. thanks. tell sedra i said hi."
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "The meeting is confirmed, so I’m closing the request."
+},
+{
+"t": "phase",
+"phase": "closed"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sedra",
+"text": "All set! Meet Alwalid at his door (3A) at 20:30 for your movie 🎬 Anas says hi too!"
+},
+{
+"t": "done"
+}
+]
+}

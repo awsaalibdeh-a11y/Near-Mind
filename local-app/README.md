@@ -18,6 +18,9 @@ python app.py               # http://127.0.0.1:5215
 
 - Pick who's asking (tap an apartment or a chip), type a request or tap a preset, and watch it play out.
 - Time-of-day chips change the sky and who's asleep; the live timeline lists every step.
+- **Sell** mode: a neighbor lists something with a price; the robot finds who'd want it and the item goes to the buyer's door.
+- **Watch a demo** replays recorded real runs instantly (no model calls). Re-record with `python tools/record_demo.py`.
+- When a deal closes, the item travels door to door and the camera zooms in on the receiver's door. `1×/2×` sets the pace.
 - Rebuild the animation after editing `remotion/src/street.jsx`: `cd remotion && npm install && node build.mjs`.
 
 ## WhatsApp (off for now)
