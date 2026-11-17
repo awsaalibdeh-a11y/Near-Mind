@@ -27,6 +27,8 @@ python app.py               # http://127.0.0.1:5215
 
 ## For WAICY judges
 
+The full write-up and the demo-video script are in [WAICY.md](WAICY.md).
+
 - **ⓘ How it works** (or press `I`) explains the problem, the four steps, the AI inside and the responsible-AI rules.
 - **⛶ Present** (or `P`) shows the building full screen for a live demo or screen recording; `Esc` exits.
 - Shortcuts: `1`-`5` play the demos (movie night, ladder, charger at 00:30, selling a bike, jump-start at 6 AM), `S` speed, `R` reset.
