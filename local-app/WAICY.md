@@ -1,180 +1,290 @@
-# NearMind Street: WAICY submission pack
+# NearMind: WAICY 2026 submission pack (LLM & AI Agent Track)
 
-Part 1 is the project write-up (copy the sections you need into the submission form).
-Part 2 is the demo-video script. Fill in the `[brackets]` yourself.
-
-Team / author: `[name, age, school, country]`
-Category: `[WAICY category]`
-Repo: https://github.com/awsaalibdeh-a11y/Near-Mind (branch `local-app-street`, folder `local-app/`)
+**Author:** Aws Alaa, 13, Grade 8, Al Safi International Language School, Saudi Arabia
+**Track:** LLM & AI Agent Track (theme: *AI as a Service*)
+**Project:** NearMind, an AI neighborhood-sharing agent
+**Code:** https://github.com/awsaalibdeh-a11y/Near-Mind (branch `local-app-street`, folder `local-app/`)
 
 ---
 
-# Part 1: Project write-up
+## Part 0: The official rules (checked 17 Nov 2026)
 
-## One-line pitch
+Sources: the [WAICY 2026 Guidebook](https://waicy-cdn.wholeren.cn/wp-content/uploads/2026/10/WAICY-2026-Guidebook-2.pdf)
+and the [WAICY 2026 Rubrics](https://www.waicy.org/rubrics/) page.
 
-NearMind is an AI agent that lives on the roof of an apartment building and helps neighbors help each other:
-you ask for a small favor, it quietly finds the one or two people who can actually help, and you get what you need,
-without spamming the whole building.
+| Rule | What it says |
+|---|---|
+| Deadline | **29 November 2026, 5:00 PM ET** (01:00 on 30 Nov, Saudi time) via the online submission form |
+| Who | Teams of 1-5, under 18. Individual entry is fine. Free. Language: English |
+| Selected teams announced | 2 December |
+| WAICY Day (live, online) | 4-6 December; winners announced 7 December |
+| Track theme | *AI as a Service*: turn a general LLM into a specialized, personalized advisor/agent that adapts to different users |
+| Age categories | None in this track (all ages judged together) |
+| What to submit | **One PDF**, shared in a Google Drive folder the judges can open |
+| File naming | Folder `LLM_Middle_NearMind`, file `LLM_Middle_NearMind.pdf` (format `Track_Category_ProjectName`; Grade 8 = Middle) |
+| Video | Not required for this track. The video script below is for WAICY Day if you're selected, or as optional extra material |
 
-## The problem
+**What the PDF must contain** (in this order, this pack follows it):
+1. What specific service your AI provides
+2. Who your users are: **at least 3 different user profiles**
+3. Motivation
+4. Link to the chat history: **at least 10 messages** with the final version
+5. Link to the chatbot: **a live link judges can use**
+6. Iterative design process: Idea → Advisor Design → Testing → Error Analysis → Improvement
+7. Limitations
+8. Future development
+9. Conclusion
+10. References (APA, MLA or Chicago)
 
-People in apartment buildings often live a few meters apart and still don't know each other. When you need a ladder,
-a phone charger at midnight or jumper cables at 6 AM, your options are bad:
+**How it's scored (100 points):**
 
-- buy something you'll use once,
-- post in a building group chat and wake up or annoy fifty people,
-- or just go without.
+| Criterion | Points |
+|---|---|
+| Specific AI Service (clear, detailed function and purpose) | 25 |
+| Iterative Development (idea evolution, prompt refinement, experimental results) | 25 |
+| Motivation & Problem Statement | 10 |
+| Limitations & Considerations (ethics, unintended consequences) | 10 |
+| Future Development & Clear Reference (and a strong conclusion) | 10 |
+| Presentation & Communication (live presentation and Q&A) | 10 |
+| Originality & Creativity | 10 |
 
-The help is usually right there, behind one of the doors. What's missing is someone who knows who to ask, when it's
-polite to ask, and how to ask.
+The guidebook also says tools, APIs and agentic behavior are welcome, but judged on whether they *meaningfully* improve
+the solution, not on complexity alone. Its tips: be specific, design for different people, ask before advising, try to
+make your AI fail, and know when to say "I don't know". NearMind already does all of these; the PDF should say so.
 
-## The solution
+### Still missing before you can submit
 
-NearMind is that someone. A neighbor sends one message ("Need a ladder to change a ceiling bulb") and the agent:
+- [ ] **Live chatbot link.** NearMind only runs on your computer right now. It needs to be put online (a hosted
+      server with the OpenAI key kept secret) so judges can open it.
+- [ ] **Chat history link.** A shareable page with one full conversation (10+ messages). The recorded jump-start
+      demo has more than 20 messages and can be turned into a public transcript page.
+- [ ] **Screenshots** for the PDF: the building, a demo mid-way, the "Neighbors contacted" card, the delivery zoom.
+- [ ] Turn this text into the PDF, upload it to a Google Drive folder named `LLM_Middle_NearMind`, set sharing to
+      "anyone with the link can view", and submit the form at https://www.waicy.org/2026-submission
+- [ ] Optional: Saudi Arabia also has **WAICY KSA** (ages 13-18, finals in Abha) at https://www.waicy.org/waicy-2026-ksa/.
+      Ask your school whether it's open and how it relates to WAICY Global.
 
-1. **Understands** the request: what the item is, whether it's a borrow, a sale or company, and how urgent it is.
-2. **Routes** it: picks the few neighbors most likely to have it and be awake, and asks each of them in a short,
-   friendly message.
-3. **Clarifies**: reads vague answers ("maybe, what's it like?"), asks follow-ups, and compares the offers.
-4. **Hands over**: recommends the best offer to the asker, lets the asker decide, thanks and releases everyone else,
-   and confirms the meeting place.
+---
 
-The website shows all of this as a live animated building: every message flies as a bubble from an apartment up to
-the robot on the roof and back down, and when a deal closes the item travels door to door and the camera zooms to
-the receiver's door.
+## Part 1: The PDF text
 
-## What you see in the demo
+### 1. What specific service NearMind provides
 
-A ten-apartment building (five floors, two flats each) with ten neighbors, each a separately simulated AI person:
+**NearMind is a neighborhood-sharing agent for one apartment building.** A resident sends one message, such as
+"Need a ladder to change a ceiling bulb", "my phone is dying, anyone have a USB-C charger?" or "I'm selling my old
+bike for 150 SAR". NearMind finds the one or two neighbors who can actually help, talks to them, and arranges the
+handover, without spamming the whole building.
 
-| Apt | Neighbor | Personality and what they own (privately) |
+It is deliberately narrow. It is not a general assistant, and not a city-wide marketplace. It handles four kinds of
+request inside one building:
+
+| Kind | Example |
+|---|---|
+| Borrow an item | a ladder, a charger, jumper cables |
+| A small favor | help with a dead car battery at 6 AM |
+| Company | someone to watch a movie with tonight |
+| Sell something | a bike for 150 SAR, delivered to the buyer's door |
+
+**What it does, step by step** (this is written into its instructions):
+
+1. **Understand** the request: item, quantity, urgency, sensible substitutes. If it's unclear, ask one short question
+   first instead of guessing.
+2. **Choose who to ask**: 1-3 neighbors most likely to have it **and** be awake, using only public facts (job,
+   hobbies, sleep hours) and the time of day. Two normally; three only when urgent. Never everyone.
+3. **Clarify** vague answers ("the long thing in the garage") with that neighbor before reporting back.
+4. **Recommend** the best offer with a reason (fastest, safest, awake), and let the asker choose.
+5. **Hand over**: confirm time and place with the chosen neighbor, thank and release the others, and close.
+
+**The value:** you get what you need in minutes instead of buying something you'll use once, and the rest of the
+building isn't disturbed. On screen, a counter shows it, for example "Neighbors contacted: 3 of 9 · 6 left in peace".
+
+**How it's built:**
+- **The agent (the robot on the roof)** is an LLM (`gpt-6.1-terra`, OpenAI JSON mode) with a detailed system prompt.
+  Each turn it replies with one JSON object: a one-line "think" shown to the audience, what it understood
+  (`item`, `kind`, `price`, `urgency`), which phase it's in, a status for each neighbor (asked, offer, no, chosen,
+  released), the messages to send, and up to three quick-reply buttons for the asker.
+- **Ten simulated neighbors** test it. Each is a separate LLM call with its own personality, age, job, sleep hours,
+  budget, wish list and a **private inventory the agent never sees**. So the agent has to reason and ask, like in
+  real life, rather than look things up.
+- **Code checks the agent:** the server ignores any message to an unknown person, never lets it mark the asker, and
+  turns model errors into a clean message instead of a crash. 41 automated tests check this with the model faked.
+- **The website** turns each step into animation: you watch every message fly between the apartments and the robot,
+  and when a deal closes the item travels door to door. Portraits were illustrated with an AI image tool; the
+  animation uses Remotion.
+
+> *Screenshot here: the building at night with the robot on the roof.*
+
+### 2. Who the users are
+
+NearMind has to give different answers to different people. Four askers from the test building:
+
+| User | Who they are | What they need | What NearMind must consider |
+|---|---|---|---|
+| **Noor, 5A** 🧁 | Pastry chef, early shifts | 06:00, her car battery is dead: jumper cables, now | **Urgent**, so asking 3 people is okay. Most neighbors are asleep: choose people who are awake and likely to have a car. Speed beats everything |
+| **Asma, 2B** 🩹 | Kind neighbor, first-aid kit, tea | Sell her old bike for 150 SAR | She's the **seller**, so the agent looks for a **buyer**. Choose people whose interests fit (cycling, sport), check they're interested at the price, answer their questions, never pressure anyone. The bike goes to the buyer's door |
+| **Sedra, 1A** 🎬 | Loves movies | Someone to watch a movie with tonight | It's **company**, not an item. Choose people who are free and sociable in the evening; agree on a time and place, and respect that some neighbors have small kids |
+| **Osama, 1B** 🧂 | Kitchen basics, not a handyman | A ladder to change a ceiling bulb | A normal **borrow**. Ask 2 people at most; prefer the **safer** offer (a proper ladder over standing on a chair) and say why |
+
+The **neighbors being asked** are users too, and they're different: Anas (19, student) sleeps until noon; Alwalid has
+young kids; Yousef and Hamza have cars; Layla is retired and home a lot. NearMind writes to each in their own style,
+skips people who are probably asleep unless it's urgent, and never shows one neighbor's chat to another.
+
+### 3. Motivation
+
+`[Write this in your own words. It counts for 10 points, and judges can tell. Some questions to answer:]`
+- When did you or your family last need something small that a neighbor probably had? What did you do?
+- Why apartment buildings? (In Saudi cities many families live in buildings and don't know their neighbors.)
+- Why does it matter that the AI asks *as few people as possible*?
+- What did you want to learn by building an agent, not just a chatbot?
+
+Something like: "In my building, people live a few meters apart but barely talk. When my family needed
+`[something]`, we `[bought it / went without]`, and later found out the neighbor upstairs had one. I wanted an AI
+that knows who to ask, when it's polite to ask, and how to ask, so that neighbors help each other instead of
+buying things they use once."
+
+### 4. Link to the chat history
+
+`[Link goes here once the transcript page is online.]`
+
+Suggested conversation: the **jump-start at 6 AM** run (more than 20 messages). Noor asks; NearMind asks Sulaiman,
+Hamza and Asma (not Yousef, who's asleep); Sulaiman and Asma don't have cables but offer other help; Hamza does;
+NearMind recommends Hamza and says why; Noor chooses; NearMind confirms with Hamza, thanks the other two, and tells
+Noor to pop the bonnet because Hamza is five minutes away.
+
+### 5. Link to the chatbot
+
+`[Live link goes here once NearMind is online.]`
+
+How to use it: pick who's asking (tap an apartment), type a request or tap a preset, and watch it play out. Change
+the time of day and the sky changes and people go to sleep. **Watch a demo** replays five recorded real runs
+instantly. Keyboard: `1`-`5` demos, `I` how it works, `P` full screen, `S` speed, `R` reset.
+
+### 6. Iterative design process
+
+*(25 points: the biggest section. Add screenshots of before/after for each round.)*
+
+**Idea.** An agent that sits between neighbors: you ask once, it asks the right people. The first version ran on
+WhatsApp with real people, so it had strict safety rules from day one: it never starts a chat, never auto-replies in
+someone's private chat, holds messages during quiet hours (22:00-08:00), and anyone can send "stop".
+
+**Advisor design.**
+- *Problem:* you can't test an agent like this safely on real neighbors at 3 AM.
+  *Decision:* build a simulated building where every neighbor is an AI person with a private inventory.
+- *Problem:* if the agent could see everyone's inventory, it would just look it up. That's not realistic and not
+  private. *Decision:* the agent only gets **public facts** (job, hobbies, sleep hours, apartment). Its prompt says
+  "use only the PUBLIC facts and clock below, never guess inventories".
+- *Decision:* the agent answers in **strict JSON**, so the code can check every action, and the website can animate it.
+- The building grew from 6 to **10 neighbors on 5 floors**, so that choosing who to ask became a real decision.
+
+**Testing, error analysis and improvement.** Each round: run real requests, read every message, find what went
+wrong, change the prompt or the code, and run again.
+
+| # | What we tested | What went wrong (error analysis) | What we changed | Result |
+|---|---|---|---|---|
+| 1 | Growing from 6 to 10 neighbors | With more people to choose from, there was nothing stopping the agent from messaging lots of them, and nothing showed how many it bothered | Prompt: "Pick the 1-3 neighbors (out of all ten; asking fewer people is better: never message everyone)... Ask 2 normally; 3 only when urgent." Added the on-screen **Neighbors contacted** counter to measure it | In the five recorded demos it contacted 1-3 of 9 neighbors each time |
+| 2 | Requests at night and early morning | Waking people up is rude | Each neighbor has sleep hours; the agent is told who is "probably ASLEEP" and the rule "don't ping someone who is probably asleep unless it's urgent". Sleeping neighbors reply sleepy and short | At 06:00 the agent skipped Yousef (asleep) |
+| 3 | 6 AM jump-start | **A simulated neighbor made something up:** Sulaiman offered jumper cables that weren't in his inventory. The agent would have relayed a false offer | Neighbor prompt: "Be truthful about what you have: you ONLY own the things listed above; if something isn't listed, you don't have it, so say no kindly." Agent rule: "Only relay what neighbors actually said. Never invent that someone has something." | Re-ran: Sulaiman says no and offers to help push-start; Hamza, who really has cables, is chosen |
+| 4 | Movie night | The conversation never finished: the agent kept saying it would check and come back | Found the agent was right to wait: it can't confirm a meeting without a time and place, and the test asker never gave one. The prompt already says to confirm "time and place" before closing, so the fix was in the test: the asker now proposes 20:30 at her flat | The request closes with Alwalid joining at 20:30. Lesson: sometimes the AI is right and the test is wrong |
+| 5 | Trying to break it | An LLM could, in principle, message the asker or a made-up person | Server code ignores messages to unknown people and status changes for the asker. Automated tests prove it | 41 tests pass |
+| 6 | Model failure / timeout | A crash would freeze the page | Errors become a clean "error" event and the run ends properly | Tested with a fake timeout |
+| 7 | Selling | Sales are different from borrowing: the asker is the seller | Added a "Selling" section to the prompt: find interested buyers, relay counter-offers, never pressure, item goes to the buyer's door, payment on pickup | Asma's bike sold to Yousef for 150 SAR |
+
+`[Add one or two rounds of your own: something you noticed, what you changed, what happened.]`
+
+**Final results (the five recorded runs):**
+
+| Request | Asker | Contacted | Outcome |
+|---|---|---|---|
+| Movie night, 19:30 | Sedra | Alwalid, Anas | Alwalid joins at 20:30 |
+| Ladder, 13:00 | Osama | Sulaiman, Asma | Sulaiman's 6 ft ladder, picked up at 2A |
+| USB-C charger, 00:30 | Anas | Sedra | Sedra lends hers |
+| Selling a bike, 17:00 | Asma | Sulaiman, Yousef | Yousef buys it for 150 SAR |
+| Jump-start, 06:00 | Noor | Asma, Hamza, Sulaiman | Hamza comes down with cables in 5 minutes |
+
+### 7. Limitations and ethical considerations
+
+- **Simulated neighbors.** The test building is AI people. Real people answer late, change their minds, or ignore
+  messages. (The WhatsApp version handles some of this: if nobody answers within 15 minutes, it tells the asker.)
+- **The agent can still be wrong.** It guesses who might have something from public facts, so it can miss the
+  person who actually has it. It never claims someone has something until they say so.
+- **Privacy.** Even "public facts" like sleep hours are personal. A real version must ask everyone what they're
+  willing to share, and let them change it.
+- **Trust and safety.** Lending to strangers can go wrong (damaged items, unsafe meetings). NearMind says plainly
+  when an offer sounds unsafe and prefers the safer one, but it can't verify people.
+- **Fairness and pressure.** The same helpful neighbor could get asked again and again. People may feel they can't
+  say no to an AI. NearMind asks politely, never pressures, and thanks people who say no.
+- **Unintended consequences.** If it worked too well, people might stop talking to each other directly, the
+  opposite of the goal. The design keeps the human in charge: NearMind introduces people, then they meet at the door.
+- **Cost and dependence** on a paid AI model and an internet connection.
+
+### 8. Future development
+
+- **Pilot with real neighbors** in one building, using the WhatsApp version (people opt in by messaging first).
+- **Fairness:** remember who helped recently and spread requests out; give helpers "thank-you" points.
+- **Arabic and English** in the same building, each person in their own language.
+- **Learning with consent:** remember who usually helps with what, only if they agree, and let them delete it.
+- **Building-manager controls:** verified residents only, and a way to report problems.
+- **Beyond one building:** a mosque community, a school, a university dorm.
+
+### 9. Conclusion
+
+NearMind turns a general language model into a specialized agent with one job: connect a neighbor who needs
+something with the one or two neighbors who can help, and leave everyone else in peace. It understands the request,
+reasons about who is likely to have it and be awake, asks politely, checks vague answers, recommends the safest or
+fastest offer, and lets the human decide. Through seven rounds of testing it learned to ask fewer people, respect
+sleep, never invent offers, and actually close deals. Small favors are how neighbors become a community, and
+NearMind makes asking for one easy.
+
+### 10. References
+
+`[Add every source you used, in APA style. Examples of the format:]`
+- OpenAI. (2026). *API documentation: Structured outputs / JSON mode*. https://platform.openai.com/docs
+- ReadyAI. (2026). *WAICY 2026 guidebook*. https://www.waicy.org
+- AI4K12. (n.d.). *The 5 big ideas in AI*. https://ai4k12.org/resources/big-ideas-poster/
+- Remotion. (2026). *Remotion documentation*. https://www.remotion.dev/docs
+- `[Any articles about neighbors, sharing or loneliness you read for your motivation.]`
+
+---
+
+## Part 2: WAICY Day script (only if you're selected)
+
+The guidebook describes WAICY Day as a **3-minute presentation, a 3-minute demo, then 4 minutes of Q&A** with
+the judges, live online or with videos. Presentation & Communication is worth 10 points, and live attendance is
+needed for Q&A credit. (The guidebook describes this format under the AI Showcase track; confirm the format for the
+LLM track when the selected list comes out on 2 December.)
+
+### Presentation (3 minutes, with slides)
+
+| Time | Slide | What you say |
 |---|---|---|
-| 1A | Sedra 🎬 | movie lover |
-| 1B | Osama 🧂 | kitchen basics |
-| 2A | Sulaiman 🔧 | handyman: tools, ladder |
-| 2B | Asma 🩹 | first aid, tea, kind |
-| 3A | Alwalid 🍲 | cook, father of young kids |
-| 3B | Anas 🎮 | gamer, night owl |
-| 4A | Layla 🧵 | retired teacher, sewing kit, books |
-| 4B | Yousef 🚴 | engineer, bike gear, tent, car |
-| 5A | Noor 🧁 | pastry chef, baking tools, a cat |
-| 5B | Hamza ⚽ | PE coach, car, jumper cables |
+| 0:00-0:30 | Title: NearMind | "Hi, I'm Aws, I'm 13, from Al Safi International Language School in Saudi Arabia. My project is NearMind, an AI agent that helps neighbors help each other." |
+| 0:30-1:00 | The problem | "In apartment buildings, people live a few meters apart but don't know each other. When you need a ladder or a charger, you buy one you'll use once, or spam a group chat, or go without." `[your story]` |
+| 1:00-1:40 | The service: 5 steps | "You send NearMind one message. It understands what you need, picks the one to three neighbors most likely to help and awake, asks them in their own style, checks vague answers, recommends the best offer, and you decide." |
+| 1:40-2:20 | How I built and tested it | "I built a building with ten AI neighbors, each with a private inventory the agent can't see. Then I tried to make it fail. One neighbor invented jumper cables he didn't have, so I changed the prompts and tested again." |
+| 2:20-3:00 | Responsible by design | "It asks as few people as possible, respects sleep, keeps chats private, never invents offers, and the human always decides." |
 
-Five recorded real runs (replayed without calling the model, so they always work on stage):
+### Demo (3 minutes, live or recorded)
 
-| Demo | Who asks | Who the robot contacted | Result |
-|---|---|---|---|
-| 🎬 Movie night (19:30) | Sedra | Alwalid, Anas | Alwalid joins at 20:30 |
-| 🪜 Ladder at noon | Osama | Sulaiman, Asma | Sulaiman's ladder at his door |
-| 🔌 Charger after midnight | Anas | Sedra | Sedra lends a USB-C charger |
-| 🚲 Selling a bike (17:00) | Asma | Sulaiman, Yousef | Yousef buys it for 150 SAR |
-| 🚗 Jump-start at 6 AM | Noor | Asma, Hamza, Sulaiman | Hamza brings cables; Yousef was asleep and not disturbed |
+Setup: open NearMind full screen, press `R`, rehearse once.
 
-You can also type any request live, change the time of day (the sky changes and people go to sleep), or switch to
-**Sell** mode to list something with a price.
+| Time | Do | Say |
+|---|---|---|
+| 0:00-0:10 | Press `P` | "This is the building. Ten neighbors, the robot on the roof." |
+| 0:10-1:10 | Press `5` (jump-start) | "It's 6 AM. Noor's car battery is dead. The robot scans the building. It can't see what anyone owns, so it reasons about who's awake and might have a car. It asks three people. Yousef is asleep, so it leaves him alone. Hamza has cables. The robot recommends him, Noor chooses, and everyone else is thanked." |
+| 1:10-1:25 | Point at the counter | "Three of nine contacted. Six left in peace. That's the number I care about." |
+| 1:25-2:15 | `Esc`, then `4` (bike sale; `S` for 2× if short on time) | "It also works for selling. Asma wants 150 riyals for her bike. The robot finds the neighbors who'd want a bike and closes the deal with Yousef, at his door." |
+| 2:15-2:45 | Type a new request live, e.g. "anyone have a sewing kit?" | "This one isn't recorded. Let's see who it asks." |
+| 2:45-3:00 | Show the timeline | "Every step is visible: what the robot thinks, every message, every decision." |
 
-## How the AI works
+If something goes wrong live: press `R`, then the demo number. The demos are recorded, so they always replay the same.
 
-- **One router agent (the robot).** Every turn it reads the conversation and returns strict JSON: a short "think"
-  line, what it understood (`item`, `kind`, `price`, `urgency`), who to message and what to say, and a status for each
-  neighbor (asked, has it, no, chosen). The server validates this: the robot cannot message unknown people, cannot
-  mark the asker, and its outputs are checked before anything is shown.
-- **Ten simulated neighbors.** Each neighbor is a separate model call with its own personality, sleep hours, budget,
-  wish list and a **private inventory** the router never sees. So the robot really has to ask to find out, just like
-  in real life. Neighbors only offer what is on their list. If it isn't there, they say no kindly.
-- **Streaming.** The server streams events (NDJSON) to the page as they happen; the animated scene (built with
-  Remotion) turns each event into motion: scanning lines when the robot decides, message packets with trails, status
-  pills, opening doors.
-- **Model:** an OpenAI chat model in JSON mode (`gpt-6.1-terra`).
-- **Also built:** a WhatsApp version that runs the same engine on real chats. It is switched off for the competition
-  demo, and has strict safety rules (it never starts a chat, never auto-replies in private chats, holds messages
-  during quiet hours 22:00 to 08:00, anyone can send `stop`).
+### Q&A practice questions
 
-## Responsible AI, by design
-
-These are rules in the code, not just in the prompt:
-
-- **Privacy first.** The router sees only public facts (name, apartment, sleep hours), never what anyone owns.
-  Neighbors never see each other's chats.
-- **Ask as few people as possible.** The prompt forbids messaging everyone, and the on-screen **Neighbors contacted**
-  card makes it measurable: for example "3 of 9 · 6 left in peace". Across the five demos the robot contacted
-  1 to 3 of 9 neighbors each time.
-- **Respect sleep.** People inside their sleep hours are skipped unless the request is urgent (in the 6 AM demo,
-  Yousef is asleep and the robot doesn't wake him).
-- **Honesty.** The robot only relays what neighbors actually said. During testing a simulated neighbor invented
-  jumper cables he didn't own; we tightened the rules so neighbors can only offer real items, and re-recorded.
-- **The human decides.** The robot recommends, but the asker chooses, and everyone not chosen is thanked and released.
-- **Explainable.** Every step is visible: the robot's reasoning line, each message, each status, in the animation
-  and in the timeline next to it.
-
-## Testing
-
-41 automated tests (`pytest`) cover the engine with the model faked: event order, the robot not being able to
-message unknown people, bad requests, model failures turning into a clean error, every portrait being served, and
-every recorded demo ending in a real handover.
-
-## What's original
-
-- An agent whose job is to **bother as few people as possible**, and shows you that number.
-- Hidden information: the router doesn't know who owns what, so the demo shows real search and negotiation instead
-  of a lookup.
-- The whole conversation as an animated building you can watch, not a chat log.
-
-## Impact
-
-Sharing instead of buying saves money and waste, and small favors are how neighbors become a community.
-NearMind lowers the cost of asking: one message instead of knocking on doors, and no one gets spammed.
-It's useful for students, elderly neighbors who live alone, and new families who don't know anyone yet.
-
-## Limitations and next steps
-
-- The neighbors in the demo are simulated. Next: pilot the WhatsApp version with real neighbors who opt in.
-- Trust and safety for strangers: verified residents, ratings, and building-manager controls.
-- Arabic and English in the same building.
-- Learning over time who usually helps with what, without storing private inventories.
-
-## Run it
-
-```bash
-pip install -r requirements.txt
-cp .env.example .env        # add OPENAI_API_KEY
-python app.py               # http://127.0.0.1:5215
-```
-
-Shortcuts on the page: `1`-`5` play the demos, `P` present (full screen), `I` how it works, `S` speed, `R` reset,
-`Esc` exits.
-
----
-
-# Part 2: Demo-video script (about 3 minutes)
-
-Setup before recording:
-- Open http://127.0.0.1:5215 in a full-screen browser at 1920x1080. Close other tabs and notifications.
-- Record the screen plus your voice (OBS, or Windows Game Bar `Win+Alt+R`).
-- Do one rehearsal: press `R` to reset between takes.
-- Check the current WAICY rules for the maximum video length. A 90-second cut is at the end.
-
-| Time | On screen | What you do | Voice-over |
-|---|---|---|---|
-| 0:00-0:15 | The building at night, the robot on the roof | Page already open, press `R` | "This is a building with ten families. They live a few meters apart, but when one of them needs a ladder, a charger, or help at 6 AM, they don't know who to ask. So they buy something new, or spam a group chat, or go without." |
-| 0:15-0:35 | **How it works** panel | Press `I`, scroll slowly, then `Esc` | "I built NearMind: an AI agent on the roof. You send it one message. It understands what you need, finds the few neighbors who can help and are awake, talks to them, and arranges the handover. And it's designed to bother as few people as possible." |
-| 0:35-0:40 | Full-screen building | Press `P` | "Let's watch it work." |
-| 0:40-1:35 | 🚗 Jump-start demo | Press `5` | (as Noor's bubble rises) "It's 6 AM. Noor's car battery is dead and she has an early shift." (scan lines) "The robot scans the building. It can't see what anyone owns, that's private, so it has to reason about who might have jumper cables and who's awake." (packets fly) "It asks only three people. Yousef is asleep, so it leaves him alone." (replies) "Sulaiman and Asma don't have cables, but they offer help. Hamza does." (Noor picks Hamza) "The robot recommends Hamza, but Noor makes the choice. Everyone else gets thanked and released." (zoom to door) "And the cables arrive at Noor's door." |
-| 1:35-1:45 | Zoom on the **Neighbors contacted** card | Pause on it | "Three of nine contacted. Six neighbors left in peace. That number is the point." |
-| 1:45-2:20 | 🚲 Selling a bike | Press `Esc`, then `4` (press `S` for 2× if you're short on time) | "It also works for selling. Asma wants to sell her bike for 150 riyals. The robot finds the two neighbors who'd actually want a bike, answers their questions, and closes the deal with Yousef, at his door." |
-| 2:20-2:40 | The timeline beside the building | Scroll the timeline | "Every step is visible: what the robot was thinking, every message, every decision. Nothing happens behind your back." |
-| 2:40-2:55 | The **How it works** panel, responsible-AI part | Press `I` | "It's responsible by design: it never sees inventories, neighbors never see each other's chats, it respects sleep, it only repeats what people really said, and the human always decides. There's also a WhatsApp version with strict rules: it never starts a chat." |
-| 2:55-3:05 | Building, robot blinking | `Esc` | "NearMind: one message, the right neighbor, everyone else left in peace. Thank you." |
-
-## 90-second cut
-
-0:00-0:10 problem (first line above) → 0:10-0:20 "I built NearMind..." over `I` → 0:20-1:10 jump-start demo
-(`P`, `5`, `S` for 2×) → 1:10-1:20 the "3 of 9, six left in peace" card → 1:20-1:30 responsible-AI line and
-closing sentence.
-
-## Tips
-
-- Speak slowly; let each bubble land before you describe it. Use `S` for 2× only where you need to save time.
-- If something goes wrong live, press `R` and the demo number again; the demos are recorded, so they replay the same way.
-- Say "simulated neighbors" once, clearly. Judges value honesty about what's real.
+- Why not just send the request to everyone? *(It's rude and noisy; asking fewer people is the point.)*
+- How does it know who has something? *(It doesn't. It reasons from public facts and has to ask, like a person would.)*
+- What if it lies? *(Neighbors can only offer what they really own, the agent only relays what was said, and the
+  code checks its actions.)*
+- What about privacy? *(The agent never sees inventories; neighbors never see each other's chats.)*
+- Is it real? *(The neighbors in the demo are simulated AI people. A WhatsApp version exists for real people, with
+  strict safety rules, and a real pilot is the next step.)*
+- What was the hardest bug? `[your answer]`

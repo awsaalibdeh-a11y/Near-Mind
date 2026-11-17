@@ -27,7 +27,7 @@ python app.py               # http://127.0.0.1:5215
 
 ## For WAICY judges
 
-The full write-up and the demo-video script are in [WAICY.md](WAICY.md).
+The WAICY 2026 rules for the LLM & AI Agent track, the submission text and the WAICY Day script are in [WAICY.md](WAICY.md).
 
 - **ⓘ How it works** (or press `I`) explains the problem, the four steps, the AI inside and the responsible-AI rules.
 - **⛶ Present** (or `P`) shows the building full screen for a live demo or screen recording; `Esc` exits.
