@@ -723,9 +723,32 @@ def daily_ok():
     return DAY["n"] <= DAILY_CAP
 
 
+HOURLY_PER_IP = int(os.getenv("NM_HOURLY_PER_IP", "25"))
+IP_HITS = {}                      # ip -> [hour, count]
+PUBLIC_PATHS = ("/static/", "/api/street/", "/api/health", "/api/config", "/chat/")
+
+
+def public_gate():
+    """Before each live run on the public site: a per-visitor hourly limit and a site-wide daily limit protect the API budget."""
+    ip = (request.headers.get("X-Forwarded-For") or request.remote_addr or "?").split(",")[0].strip()
+    hour = int(time.time() // 3600)
+    if len(IP_HITS) > 5000:
+        IP_HITS.clear()
+    h = IP_HITS.get(ip)
+    if not h or h[0] != hour:
+        h = IP_HITS[ip] = [hour, 0]
+    h[1] += 1
+    if h[1] > HOURLY_PER_IP:
+        return "You've sent a lot of requests this hour. Try a recorded demo, or come back in a little while."
+    if not daily_ok():
+        return "NearMind has reached today's limit of live requests. The recorded demos still work."
+    return None
+
+
 @app.before_request
 def public_lockdown():
-    if PUBLIC and request.path.startswith("/api/wa") and request.path != "/api/wa/cloud":   # the Meta webhook must stay reachable
+    """The public site only serves the street website and its API: no WhatsApp, no old chat engine, no personal data."""
+    if PUBLIC and request.path not in ("/", "/street") and not request.path.startswith(PUBLIC_PATHS):
         return Response("not found", status=404)
 
 
@@ -1006,6 +1029,8 @@ def neighbors_set():
 @app.before_request
 def tunnel_lockdown():
     """Requests that came through the public tunnel (Cloudflare adds these headers) may only reach the Meta webhook."""
+    if PUBLIC:                     # a hosted site sits behind its own proxy; public_lockdown already limits what it serves
+        return None
     if (request.headers.get("Cf-Ray") or request.headers.get("Cf-Connecting-Ip")) and request.path != "/api/wa/cloud":
         return Response("not found", status=404)
 
@@ -1088,7 +1113,7 @@ def friends_set():
 
 
 import street as street_mod                      # six-neighbor visual street (website): /street
-STREET = street_mod.make_blueprint(chat, MODEL, SIM_MODEL, cur_sid, PUBLIC)
+STREET = street_mod.make_blueprint(chat, MODEL, SIM_MODEL, cur_sid, PUBLIC, public_gate if PUBLIC else None)
 app.register_blueprint(STREET)
 
 
@@ -1096,6 +1121,13 @@ app.register_blueprint(STREET)
 @app.get("/street")
 def street_page():
     return send_from_directory(HERE / "static", "street.html", max_age=0)
+
+
+@app.get("/chat/")
+@app.get("/chat/<name>")
+def chat_page(name="jump"):
+    """A shareable, readable transcript of one recorded run (for the WAICY chat-history link)."""
+    return send_from_directory(HERE / "static", "chat.html", max_age=0)
 
 
 def seed_joined():

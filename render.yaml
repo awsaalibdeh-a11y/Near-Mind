@@ -1,0 +1,27 @@
+# NearMind Street on Render (https://render.com): New > Blueprint > pick this repo and the branch local-app-street.
+# Render asks for OPENAI_API_KEY in its dashboard; the key never goes in the repo.
+services:
+  - type: web
+    name: nearmind
+    runtime: python
+    plan: free
+    rootDir: local-app
+    buildCommand: pip install -r requirements.txt
+    # one worker keeps every visitor's street in the same memory; threads let several people watch runs at once
+    startCommand: gunicorn app:app --workers 1 --threads 8 --timeout 300 --bind 0.0.0.0:$PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: NM_PUBLIC
+        value: "1"
+      - key: NM_MODEL
+        value: gpt-6.1-terra
+      - key: NM_SIM_MODEL
+        value: gpt-5-mini
+      - key: NM_DAILY_CAP
+        value: "150"
+      - key: NM_HOURLY_PER_IP
+        value: "25"
+      - key: PYTHON_VERSION
+        value: "3.12.8"

@@ -25,6 +25,21 @@ python app.py               # http://127.0.0.1:5215
 - The **Neighbors contacted** card shows how few people were bothered (e.g. 2 of 9, 7 left in peace).
 - Rebuild the animation after editing `remotion/src/street.jsx`: `cd remotion && npm install && node build.mjs`.
 
+## Put it online (Render)
+
+`render.yaml` at the repo root sets everything up. On https://render.com: **New → Blueprint**, pick this repo and the
+branch `local-app-street`, then paste `OPENAI_API_KEY` when Render asks (it's stored there, never in the repo).
+
+Online it runs in **public mode** (`NM_PUBLIC=1`):
+- Only the website, its API and the chat pages are served. WhatsApp, the old chat engine and any personal files are
+  switched off (404).
+- Every browser tab gets its own private street.
+- Limits protect the API budget: `NM_HOURLY_PER_IP` (25 live requests an hour per visitor) and `NM_DAILY_CAP`
+  (150 a day for the whole site). The recorded demos and chat pages never call the model.
+- Shareable transcripts of the recorded runs: `/chat/jump`, `/chat/ladder`, `/chat/charger`, `/chat/sale`, `/chat/movie`.
+
+On the free plan the site sleeps after about 15 minutes without visitors and takes up to a minute to wake up.
+
 ## For WAICY judges
 
 The WAICY 2026 rules for the LLM & AI Agent track, the submission text and the WAICY Day script are in [WAICY.md](WAICY.md).

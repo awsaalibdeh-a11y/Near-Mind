@@ -54,10 +54,15 @@ make your AI fail, and know when to say "I don't know". NearMind already does al
 
 ### Still missing before you can submit
 
-- [ ] **Live chatbot link.** NearMind only runs on your computer right now. It needs to be put online (a hosted
-      server with the OpenAI key kept secret) so judges can open it.
-- [ ] **Chat history link.** A shareable page with one full conversation (10+ messages). The recorded jump-start
-      demo has more than 20 messages and can be turned into a public transcript page.
+- [ ] **Live chatbot link.** Everything is ready for Render (see "Put it online" in the README). A parent should
+      create the Render account (sign in with GitHub), click New → Blueprint, choose this repo and branch
+      `local-app-street`, and paste the OpenAI key into Render. Also set a monthly spending limit in the OpenAI
+      dashboard. Then the link is `https://<your-render-name>.onrender.com`.
+- [ ] **Chat history link.** Done in the code: `https://<your-render-name>.onrender.com/chat/jump` shows the full
+      6 AM jump-start conversation (18 messages, 3 of 9 neighbors contacted). The other four runs are at
+      `/chat/ladder`, `/chat/charger`, `/chat/sale` and `/chat/movie`.
+- [ ] Open both links on a phone and in a private window before submitting. The free plan sleeps when nobody
+      visits, so the first load can take up to a minute; open it yourself just before the judging days.
 - [ ] **Screenshots** for the PDF: the building, a demo mid-way, the "Neighbors contacted" card, the delivery zoom.
 - [ ] Turn this text into the PDF, upload it to a Google Drive folder named `LLM_Middle_NearMind`, set sharing to
       "anyone with the link can view", and submit the form at https://www.waicy.org/2026-submission
@@ -144,16 +149,19 @@ buying things they use once."
 
 ### 4. Link to the chat history
 
-`[Link goes here once the transcript page is online.]`
+`https://<your-render-name>.onrender.com/chat/jump`
 
-Suggested conversation: the **jump-start at 6 AM** run (more than 20 messages). Noor asks; NearMind asks Sulaiman,
+The **jump-start at 6 AM** run (18 messages). Noor asks; NearMind asks Sulaiman,
 Hamza and Asma (not Yousef, who's asleep); Sulaiman and Asma don't have cables but offer other help; Hamza does;
 NearMind recommends Hamza and says why; Noor chooses; NearMind confirms with Hamza, thanks the other two, and tells
 Noor to pop the bonnet because Hamza is five minutes away.
 
 ### 5. Link to the chatbot
 
-`[Live link goes here once NearMind is online.]`
+`https://<your-render-name>.onrender.com`
+
+To keep it fair and affordable, each visitor gets their own private building, and there's a limit on live
+requests per hour and per day. The five recorded demos always work.
 
 How to use it: pick who's asking (tap an apartment), type a request or tap a preset, and watch it play out. Change
 the time of day and the sky changes and people go to sleep. **Watch a demo** replays five recorded real runs

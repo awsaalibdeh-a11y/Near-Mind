@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NearMind chat history</title>
+<meta name="description" content="A full recorded conversation between NearMind and the neighbors of the building.">
+<style>
+  :root{ --bg:#f6f3ee; --card:#fff; --ink:#1f2430; --muted:#6b7280; --line:#e6e1d8; --robot:#3b5bdb; --robot-bg:#eef2ff; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#14161c; --card:#1d2029; --ink:#eceef3; --muted:#9aa1ad; --line:#2c303b; --robot:#8ea6ff; --robot-bg:#232a45; } }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main{ max-width:760px; margin:0 auto; padding:24px 16px 64px; }
+  header h1{ margin:0 0 4px; font-size:26px; }
+  header p{ margin:0; color:var(--muted); }
+  .meta{ display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 6px; }
+  .pill{ background:var(--card); border:1px solid var(--line); border-radius:999px; padding:3px 12px; font-size:14px; }
+  nav{ display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 22px; }
+  nav a{ text-decoration:none; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:10px; padding:6px 12px; font-size:14px; }
+  nav a.on{ border-color:var(--robot); color:var(--robot); font-weight:600; }
+  .row{ display:flex; gap:10px; margin:12px 0; align-items:flex-start; }
+  .row.robot{ flex-direction:row-reverse; }
+  .av{ width:40px; height:40px; border-radius:50%; flex:none; object-fit:cover; background:var(--line); display:grid; place-items:center; font-size:22px; }
+  .b{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:8px 12px; max-width:min(560px, 80%); }
+  .robot .b{ background:var(--robot-bg); border-color:transparent; }
+  .who{ font-size:13px; color:var(--muted); margin-bottom:2px; }
+  .who b{ color:var(--ink); }
+  .note{ text-align:center; color:var(--muted); font-size:13px; margin:10px 0; font-style:italic; }
+  .chip{ display:inline-block; font-size:12px; border-radius:999px; padding:1px 9px; margin:2px; background:var(--card); border:1px solid var(--line); font-style:normal; }
+  .chosen{ border-color:#2f9e44; color:#2f9e44; font-weight:600; }
+  footer{ margin-top:30px; color:var(--muted); font-size:14px; border-top:1px solid var(--line); padding-top:14px; }
+  footer a{ color:var(--robot); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 id="title">NearMind chat history</h1>
+    <p>Every message from one real run: the asker, NearMind (the robot on the roof), and the neighbors it chose to ask.</p>
+    <div class="meta" id="meta"></div>
+  </header>
+  <nav id="nav"></nav>
+  <section id="log" aria-live="polite"></section>
+  <footer>
+    The neighbors are simulated AI people, each with a private inventory NearMind can't see. Recorded from a live run of
+    the final version (model: gpt-6.1-terra). <a href="/">Open NearMind and try it yourself →</a>
+  </footer>
+</main>
+<script>
+(() => {
+  const DEMOS = [["jump","🚗 Jump-start at 6 AM"],["ladder","🪜 Ladder at noon"],["charger","🔌 Charger after midnight"],
+                 ["sale","🚲 Selling a bike"],["movie","🎬 Movie night"]];
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const name = (location.pathname.split("/").filter(Boolean)[1] || "jump").replace(/[^a-z]/g, "");
+  const id = DEMOS.some(d => d[0] === name) ? name : "jump";
+  document.getElementById("nav").innerHTML = DEMOS.map(([k, t]) => `<a href="/chat/${k}" class="${k === id ? "on" : ""}">${t}</a>`).join("");
+  const LABEL = {asked:"asked", offer:"offered help", no:"can't help", chosen:"chosen ✓", released:"thanked & released"};
+  Promise.all([fetch("/api/street/people").then(r => r.json()), fetch(`/static/demos/${id}.json`).then(r => r.json())]).then(([pp, d]) => {
+    const P = pp.people, nm = w => w === "robot" ? "NearMind" : `${P[w].name} (${P[w].apt})`;
+    document.title = `${d.title} · NearMind chat`;
+    document.getElementById("title").textContent = `${d.title}`;
+    const says = d.events.filter(e => e.t === "say");
+    const asked = new Set(d.events.filter(e => e.t === "say" && e.from === "robot" && e.to !== d.asker).map(e => e.to));
+    document.getElementById("meta").innerHTML = [`Asker: ${esc(nm(d.asker))}`, `Time: ${esc(d.clock)}`, `${says.length} messages`,
+      `Neighbors contacted: ${asked.size} of 9`].map(t => `<span class="pill">${t}</span>`).join("");
+    const out = [];
+    for(const e of d.events){
+      if(e.t === "say"){
+        const side = e.from === "robot" ? "robot" : "";
+        const av = e.from === "robot" ? `<div class="av" aria-hidden="true">🤖</div>` : `<img class="av" src="${esc(P[e.from].img)}" alt="">`;
+        out.push(`<div class="row ${side}">${av}<div class="b"><div class="who"><b>${esc(nm(e.from))}</b> → ${esc(nm(e.to))}</div>${esc(e.text)}</div></div>`);
+      } else if(e.t === "think"){
+        out.push(`<div class="note">🤖 NearMind thinks: ${esc(e.text)}</div>`);
+      } else if(e.t === "status"){
+        out.push(`<div class="note"><span class="chip ${e.state === "chosen" ? "chosen" : ""}">${esc(P[e.who].name)}: ${esc(LABEL[e.state] || e.state)}</span></div>`);
+      } else if(e.t === "phase" && e.phase === "closed"){
+        out.push(`<div class="note"><span class="chip chosen">Request closed ✓</span></div>`);
+      }
+    }
+    document.getElementById("log").innerHTML = out.join("");
+  }).catch(() => { document.getElementById("log").innerHTML = `<p class="note">Couldn't load this conversation.</p>`; });
+})();
+</script>
+</body>
+</html>

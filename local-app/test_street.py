@@ -118,10 +118,47 @@ def test_sale_price_reaches_the_page(app_mod, monkeypatch):
     assert p["kind"] == "sale" and p["price"] == "150 SAR"
 
 
+@pytest.fixture()
+def public_mod(tmp_path, monkeypatch):
+    import importlib
+    import app as mod
+    monkeypatch.setenv("NM_PUBLIC", "1")
+    monkeypatch.setenv("NM_HOURLY_PER_IP", "2")
+    importlib.reload(mod)
+    mod.STATE_FILE = tmp_path / "state.json"
+    yield mod
+    monkeypatch.delenv("NM_PUBLIC")
+    importlib.reload(mod)
+
+
+def test_public_site_serves_only_the_street(public_mod):
+    c = public_mod.app.test_client()
+    for ok in ("/", "/street", "/chat/jump", "/static/demos/jump.json", "/api/street/people", "/api/health"):
+        assert c.get(ok).status_code == 200, ok
+    for blocked in ("/api/wa/status", "/api/wa/friends", "/api/neighbors", "/api/turn", "/.env", "/state.json"):
+        assert c.get(blocked).status_code == 404, blocked
+        assert c.post(blocked, json={}).status_code == 404, blocked
+
+
+def test_public_visitors_get_separate_streets_and_a_rate_limit(public_mod, monkeypatch):
+    st = public_mod.STREET
+    monkeypatch.setattr(st, "robot_fn", lambda S, f: {"messages": [{"to": S["asker"], "text": "ok"}]})
+    c = public_mod.app.test_client()
+
+    def go(sid):
+        r = c.post("/api/street/run", json={"from": "sedra", "text": "need sugar"}, headers={"X-Sid": sid})
+        return [json.loads(l) for l in r.get_data(as_text=True).splitlines() if l.strip()]
+    go("aaa")
+    assert st.sess("web:aaa")["turns"] == 1 and st.sess("web:bbb")["turns"] == 0      # one street per visitor
+    go("bbb")
+    third = go("ccc")                                                                 # same IP, limit is 2 an hour
+    assert third[0]["t"] == "error" and "this hour" in third[0]["error"] and third[-1] == {"t": "done"}
+
+
 def test_recorded_demos_are_complete():
     import pathlib
     d = pathlib.Path(__file__).parent / "static" / "demos"
-    for n in ("movie", "ladder", "charger", "sale"):
+    for n in ("movie", "ladder", "charger", "sale", "jump"):
         data = json.loads((d / f"{n}.json").read_text(encoding="utf-8"))
         kinds = [e["t"] for e in data["events"]]
         assert kinds[-1] == "done" and "say" in kinds

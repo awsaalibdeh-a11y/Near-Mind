@@ -174,7 +174,8 @@ def render(S):
     return "\n".join(out) or "(no messages yet)"
 
 
-def make_blueprint(chat, model, sim_model, sid_fn, public=False):
+def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
+    """gate(): optional check before each live run; returns an error text to refuse (rate limits on the public site)."""
     bp = Blueprint("street", __name__)
     SESS = {}
 
@@ -284,8 +285,11 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False):
             return Response(json.dumps({"error": "need a neighbor and a message"}), status=400, mimetype="application/json")
         clk = str(d.get("clock") or "")
         S["clock"] = clk if len(clk) == 5 and clk[2] == ":" and clk.replace(":", "").isdigit() else None
-        if public and S["turns"] >= 30:
-            return Response(json.dumps({"t": "error", "error": "Demo limit reached"}) + "\n", mimetype="application/x-ndjson")
+        refuse = "This street has had a lot of requests. Press Reset to start a fresh one." if public and S["turns"] >= 30 else None
+        refuse = refuse or (gate() if gate else None)
+        if refuse:
+            return Response(json.dumps({"t": "error", "error": refuse}) + "\n" + json.dumps({"t": "done"}) + "\n",
+                            mimetype="application/x-ndjson")
 
         def gen():
             if not S["lock"].acquire(blocking=False):

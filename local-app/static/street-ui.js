@@ -5,6 +5,10 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let P = {}, ORDER = [], asker = "sedra", clock = "", busy = false, speed = 1, mode = "ask", demo = false;
 let REQ = null, CHOSEN = null, CLOSED = false;            // what this request is, who was chosen, whether it closed
+const SID = (() => {                                        // one private street per browser tab on the public site
+  const make = () => (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()).replace(/-/g, "").slice(0, 32);
+  try{ let s = sessionStorage.getItem("nm.sid"); if(!s){ s = make(); sessionStorage.setItem("nm.sid", s); } return s; }catch(e){ return make(); }
+})();
 const ICONS = [["ladder","🪜"],["stool","🪜"],["sugar","🍬"],["salt","🧂"],["egg","🥚"],["flour","🌾"],["milk","🥛"],["hammer","🔨"],["screwdriver","🪛"],
   ["drill","🔧"],["wrench","🔧"],["cord","🔌"],["extension","🔌"],["tape","🩹"],["umbrella","☔"],["charger","🔋"],["power bank","🔋"],["first aid","🩹"],
   ["plaster","🩹"],["jumper","🔋"],["cable","🔌"],["sewing","🧵"],["tent","⛺"],["pump","🚲"],["mixer","🧁"],["cake","🍰"],["flashlight","🔦"],["torch","🔦"],["candle","🕯️"],["movie","🎬"],["film","🎬"],["board game","🎲"],["game","🎮"],["controller","🎮"],
@@ -119,7 +123,7 @@ async function send(text){
   if(busy){ toast("NearMind is still working on the last one"); return; }
   setBusy(true); $("#quick").innerHTML = ""; $("#in").value = "";
   try{
-    const r = await fetch("/api/street/run", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({from:asker, text, clock})});
+    const r = await fetch("/api/street/run", {method:"POST", headers:{"content-type":"application/json", "X-Sid":SID}, body:JSON.stringify({from:asker, text, clock})});
     if(!r.ok){ const j = await r.json().catch(() => ({})); enqueue({t:"error", error:j.error || "Request failed"}); enqueue({t:"done"}); return; }
     const rd = r.body.getReader(), dec = new TextDecoder(); let buf = "";
     for(;;){
@@ -228,7 +232,7 @@ try{ if(!localStorage.getItem("nm.seenHow")){ localStorage.setItem("nm.seenHow",
 
 $("#reset").onclick = async () => {
   if(busy){ toast("Wait for this request to finish"); return; }
-  try{ await fetch("/api/street/reset", {method:"POST"}); }catch(e){}
+  try{ await fetch("/api/street/reset", {method:"POST", headers:{"X-Sid":SID}}); }catch(e){}
   fresh(); NMStreet.asker(asker); toast("Street cleared");
 };
 
