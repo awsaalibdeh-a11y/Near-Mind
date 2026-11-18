@@ -203,6 +203,23 @@ def test_city_api_and_a_run_in_another_building(app_mod, monkeypatch):
     assert c.post("/api/street/run", json={"from": "sedra", "text": "hi", "building": bid}).status_code == 400
 
 
+def test_proxy_visitor_address_needs_the_secret(public_mod, monkeypatch):
+    monkeypatch.setenv("NM_PROXY_SECRET", "s3cret")
+    st = public_mod.STREET
+    monkeypatch.setattr(st, "robot_fn", lambda S, f: {"messages": [{"to": S["asker"], "text": "ok"}]})
+    c = public_mod.app.test_client()
+
+    def go(ip, secret):
+        r = c.post("/api/street/run", json={"from": "sedra", "text": "need sugar"},
+                   headers={"X-Sid": ip + secret, "X-NM-Client-IP": ip, "X-NM-Proxy-Secret": secret})
+        return [json.loads(l) for l in r.get_data(as_text=True).splitlines() if l.strip()][0]
+    for ip in ("1.1.1.1", "2.2.2.2", "3.3.3.3"):                    # through the Worker: each visitor has their own limit (2/hour here)
+        assert go(ip, "s3cret")["t"] == "say", ip
+    assert go("4.4.4.4", "wrong")["t"] == "say"                      # a forged header is ignored: counted as the direct client...
+    assert go("5.5.5.5", "wrong")["t"] == "say"
+    assert go("6.6.6.6", "wrong")["t"] == "error"                    # ...so the third forged request hits that client's limit
+
+
 def test_recorded_demos_are_complete():
     import pathlib
     d = pathlib.Path(__file__).parent / "static" / "demos"

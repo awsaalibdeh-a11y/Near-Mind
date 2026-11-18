@@ -43,12 +43,18 @@ python app.py               # http://127.0.0.1:5215
 
 ## Put it online (from this computer)
 
-Double-click `start-public.bat`. It starts a second NearMind server in **public mode** on port 5218 and opens a free
-Cloudflare tunnel (`tunnel\cloudflared.exe`) to it. The window shows the public address
-(`https://....trycloudflare.com`); the chat history is that address + `/chat/jump`.
+**Permanent link: https://nearmind.awsaa-libdeh.workers.dev** (chat history: `/chat/jump`)
 
-- The link works only while that window is open and the computer is awake and online.
-- The address changes every time you start it again, so start it once and leave it running while judges need it.
+Double-click `start-public.bat` (after a restart too). It:
+1. starts a second NearMind server in **public mode** on port 5218,
+2. opens a free Cloudflare tunnel to it (`tunnel\cloudflared.exe`, a new `trycloudflare.com` address each time),
+3. redeploys the small Cloudflare Worker in `worker/` so the permanent `workers.dev` link forwards to the new tunnel
+   (`tools/update-link.ps1`; needs `npx wrangler login` once).
+
+- The link stays the same forever; the computer must be on, awake and online for it to work. If it's off, the link shows
+  a friendly "NearMind is resting" page.
+- The Worker stores no keys or visitor data. It passes the visitor's address to the server with a shared secret
+  (`NM_PROXY_SECRET` in `.env`, also a Worker secret), so the per-visitor limits still work behind the proxy.
 - The normal private server (`python app.py`, port 5215) is never exposed: it refuses tunnel traffic.
 
 Public mode (`NM_PUBLIC=1`):

@@ -1,0 +1,9 @@
+name = "nearmind"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+preview_urls = false
+
+# TARGET (the current tunnel address) is passed at deploy time by update-link.ps1:
+#   npx wrangler deploy --var TARGET:https://....trycloudflare.com
+# PROXY_SECRET is a Worker secret (never in this file): npx wrangler secret put PROXY_SECRET

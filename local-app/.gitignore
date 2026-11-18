@@ -10,3 +10,4 @@ bridge/allow.json
 bridge/jids.json
 node_modules/
 tunnel/
+.wrangler/

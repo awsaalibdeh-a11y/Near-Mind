@@ -728,9 +728,19 @@ IP_HITS = {}                      # ip -> [hour, count]
 PUBLIC_PATHS = ("/static/", "/api/street/", "/api/city", "/api/health", "/api/config", "/chat/")
 
 
+def client_ip():
+    """The visitor's address. Behind the workers.dev proxy every request comes from Cloudflare, so the Worker passes the real
+    address in X-NM-Client-IP; it's only trusted when the Worker also sends the shared secret (NM_PROXY_SECRET in .env)."""
+    import hmac
+    secret = os.getenv("NM_PROXY_SECRET", "")
+    if secret and hmac.compare_digest(request.headers.get("X-NM-Proxy-Secret", ""), secret) and request.headers.get("X-NM-Client-IP"):
+        return request.headers["X-NM-Client-IP"].strip()[:64]
+    return (request.headers.get("Cf-Connecting-Ip") or request.headers.get("X-Forwarded-For") or request.remote_addr or "?").split(",")[0].strip()
+
+
 def public_gate():
     """Before each live run on the public site: a per-visitor hourly limit and a site-wide daily limit protect the API budget."""
-    ip = (request.headers.get("X-Forwarded-For") or request.remote_addr or "?").split(",")[0].strip()
+    ip = client_ip()
     hour = int(time.time() // 3600)
     if len(IP_HITS) > 5000:
         IP_HITS.clear()

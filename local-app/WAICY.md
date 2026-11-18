@@ -54,20 +54,18 @@ make your AI fail, and know when to say "I don't know". NearMind already does al
 
 ### Still missing before you can submit
 
-- [ ] **Live chatbot link.** It runs from your own computer: double-click `start-public.bat` and copy the
-      `https://....trycloudflare.com` address it shows. **Rules for keeping it working:**
-      - Start it once, shortly before you submit, and **don't close it** until WAICY is over (7 December).
-        Every restart gives a **new address**, and the one in your PDF would stop working.
-      - The computer must stay **on, plugged in, online and awake**. Windows Settings → System → Power →
-        set "When plugged in, put my device to sleep after" to **Never**. Don't restart for Windows updates
-        (Settings → Windows Update → Pause updates).
+- [x] **Live chatbot link: https://nearmind.awsaa-libdeh.workers.dev** (permanent). It runs from your own
+      computer through Cloudflare. **Rules for keeping it working:**
+      - The computer must be **on, plugged in, online and awake** while judges might visit (29 Nov to 7 Dec).
+        Windows Settings → System → Power → set "When plugged in, put my device to sleep after" to **Never**.
+      - **If the computer restarts:** double-click `start-public.bat`. It reconnects everything and the link
+        stays the same. While it's off, the link shows a friendly "NearMind is resting" page.
       - Set a monthly spending limit in the OpenAI dashboard, in case the link gets shared.
-- [ ] **Chat history link.** The same address + `/chat/jump` shows the full 6 AM jump-start conversation
-      (16 messages, 3 of 9 neighbors contacted). The other four runs are at `/chat/ladder`, `/chat/charger`,
-      `/chat/sale` and `/chat/movie`.
+- [x] **Chat history link: https://nearmind.awsaa-libdeh.workers.dev/chat/jump**, the full 6 AM jump-start
+      conversation (16 messages, 3 of 9 neighbors contacted). The other four runs are at `/chat/ladder`,
+      `/chat/charger`, `/chat/sale` and `/chat/movie`.
 - [ ] Open both links on a phone using mobile data (not your home Wi-Fi) before submitting, to be sure they work
-      from outside. If the computer ever has to restart, the link changes: you'd need to tell WAICY the new
-      one (info@waicy.org), so try hard not to.
+      from outside.
 - [ ] **Screenshots** for the PDF: the building, a demo mid-way, the "Neighbors contacted" card, the delivery zoom.
 - [ ] Turn this text into the PDF, upload it to a Google Drive folder named `LLM_Middle_NearMind`, set sharing to
       "anyone with the link can view", and submit the form at https://www.waicy.org/2026-submission
@@ -163,7 +161,7 @@ buying things they use once."
 
 ### 4. Link to the chat history
 
-`https://<your-address>.trycloudflare.com/chat/jump`
+https://nearmind.awsaa-libdeh.workers.dev/chat/jump
 
 The **jump-start at 6 AM** run (16 messages). Noor asks; NearMind asks Sulaiman ("retired mechanic, awake early"),
 Hamza ("has a car, awake early") and Asma ("keeps emergency supplies"), and not Yousef, who's asleep. Sulaiman and
@@ -172,7 +170,7 @@ says where her car is parked; NearMind confirms the place with Hamza, thanks the
 
 ### 5. Link to the chatbot
 
-`https://<your-address>.trycloudflare.com`
+https://nearmind.awsaa-libdeh.workers.dev
 
 To keep it fair and affordable, each visitor gets their own private building, and there's a limit on live
 requests per hour and per day. The five recorded demos always work.
