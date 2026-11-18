@@ -5,6 +5,7 @@ The text follows WAICY.md Part 1 (the ten sections the guidebook asks for, in it
 import os
 
 from PIL import Image as PILImage
+from reportlab.graphics.shapes import Circle, Drawing, Line, PolyLine, Rect, String
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import A4
@@ -144,28 +145,9 @@ s += [para("1. What specific service NearMind provides", H1),
       callout("<b>The value:</b> you get what you need in minutes instead of buying something you'll use once, and the "
               "rest of the building isn't disturbed. On screen, a counter shows it, for example "
               "“Neighbors contacted: 3 of 9 · 6 left in peace”."),
-      Spacer(1, 6),
-      KeepTogether([
-          para("Why not just use WhatsApp?", H3),
-          para("WhatsApp is great for talking to people you already know. But on a large scale, nobody is going to knock "
-               "on every door or text tens of neighbors they've never spoken to, just to borrow a ladder. A building group "
-               "chat pings everyone, at any hour, and most of them can't help. NearMind does the opposite:"),
-          table([["", "Building group chat / knocking on doors", "NearMind"],
-                 ["Who gets the message", "Everyone in the group, or you knock door by door", "Only the 1-3 people most likely "
-                  "to have it and be awake"],
-                 ["Time of day", "Pings people at 2 AM too", "Skips people who are probably asleep unless it's urgent"],
-                 ["Finding the right person", "You guess, or wait and hope", "It reasons from public facts (job, hobbies, "
-                  "sleep hours) and asks"],
-                 ["Vague answers", "You chase them yourself", "It asks a follow-up question before telling you"],
-                 ["Awkwardness", "You ask strangers yourself", "It asks politely for you; you choose the offer"],
-                 ["Privacy", "Everyone sees your request and every reply", "Each neighbor's chat is private; only you see "
-                  "the offers"],
-                 ["Scale", "Impossible with 200 families", "Works the same in every building of a 200-family city"]],
-                [0.22, 0.36, 0.42]),
-          Spacer(1, 3),
-          para("NearMind can even run <i>inside</i> WhatsApp (its first version did). WhatsApp is the phone line; "
-               "NearMind is the one who knows who to call.", SM)]),
+      para("<i>Why not just use WhatsApp? It's the most important question about NearMind, so it gets its own page at the end of this section.</i>", SM),
       Spacer(1, 8),
+      pic("hood.jpg", "Tapping a neighborhood (Al Noor Gardens) shows its four buildings; each one works live.", 0.6),
       pic("building.jpg", "The Roof Robot Tower: ten families on five floors, the NearMind robot on the roof. "
                           "The side panel shows the asker's family and who can ask."),
       CondPageBreak(45 * mm),
@@ -189,8 +171,99 @@ s += [para("1. What specific service NearMind provides", H1),
           "<b>The website</b> turns each step into animation: every message flies between the apartments and the robot, "
           "and when a deal closes the item travels door to door. Portraits were illustrated with an AI image tool; the "
           "animation uses Remotion."]),
-      pic("hood.jpg", "Tapping a neighborhood (Al Noor Gardens) shows its four buildings; each one works live.", 0.86),
       ]
+
+
+# ---------- the big question: its own page ----------
+def ping_panel(title, sub, mode):
+    """Noor at the top, her 9 neighbors below. mode 'group': everyone pinged; 'nm': only the 3 the robot chose."""
+    pw, ph = W / 2 - 5 * mm, 72 * mm
+    d = Drawing(pw, ph)
+    good, bad, grey, sleep = colors.HexColor("#17b583"), colors.HexColor("#e5484d"), colors.HexColor("#c9d3d0"), colors.HexColor("#6c63c7")
+    d.add(Rect(0, 0, pw, ph, rx=8, ry=8, fillColor=colors.HexColor("#f6faf8"), strokeColor=LINE, strokeWidth=0.8))
+    d.add(String(pw / 2, ph - 15, title, fontName="UI-B", fontSize=12.5, fillColor=INK, textAnchor="middle"))
+    d.add(String(pw / 2, ph - 27, sub, fontName="UI", fontSize=8.2, fillColor=MUTED, textAnchor="middle"))
+    nx, ny = pw / 2, ph - 50
+    # the jump-start at 6 AM: who's asleep, and who NearMind actually asked
+    people = [("Sedra", 1, 0), ("Sulaiman", 0, 1), ("Asma", 0, 1), ("Hamza", 0, 1), ("Osama", 1, 0),
+              ("Alwalid", 0, 0), ("Anas", 1, 0), ("Layla", 0, 0), ("Yousef", 1, 0)]
+    cols, gap = 5, pw / 5.6
+    pts = []
+    for i, (name, asleep, asked) in enumerate(people):
+        r, c = divmod(i, cols)
+        n_in_row = cols if r == 0 else len(people) - cols
+        x = pw / 2 + (c - (n_in_row - 1) / 2) * gap
+        y = 52 - r * 32
+        pts.append((x, y, name, asleep, asked))
+    for x, y, name, asleep, asked in pts:
+        hit = mode == "group" or asked
+        if hit:
+            d.add(Line(nx, ny - 9, x, y + 9, strokeColor=bad if mode == "group" else good, strokeWidth=1.1,
+                       strokeDashArray=None if mode == "nm" else [2, 2]))
+    for x, y, name, asleep, asked in pts:
+        hit = mode == "group" or asked
+        fill = (bad if (mode == "group" and asleep) else colors.HexColor("#f59e0b")) if mode == "group" else (good if asked else grey)
+        d.add(Circle(x, y, 9, fillColor=fill, strokeColor=colors.white, strokeWidth=1.2))
+        if mode == "nm" and asked:  # a drawn check mark
+            d.add(PolyLine([x - 4, y, x - 1.2, y - 3, x + 4, y + 3.5], strokeColor=colors.white, strokeWidth=1.8))
+        mark = "!" if (mode == "group" and asleep) else ("" if (mode == "nm" and asked) else ("z" if asleep else ""))
+        if mark:
+            d.add(String(x, y - 3.2, mark, fontName="UI-B", fontSize=9, fillColor=colors.white, textAnchor="middle"))
+        d.add(String(x, y - 18, name, fontName="UI", fontSize=6.6, fillColor=INK if hit else MUTED, textAnchor="middle"))
+    d.add(Circle(nx, ny, 10, fillColor=colors.HexColor("#ec4899"), strokeColor=colors.white, strokeWidth=1.2))
+    d.add(String(nx, ny - 3.2, "N", fontName="UI-B", fontSize=9.5, fillColor=colors.white, textAnchor="middle"))
+    d.add(String(nx + 14, ny - 3, "Noor, 06:00", fontName="UI-B", fontSize=7.4, fillColor=INK))
+    return d
+
+
+def stat(n, label, col):
+    return [Paragraph(f'<font size="20" color="{col}"><b>{n}</b></font>', ParagraphStyle("n", parent=P, alignment=TA_CENTER, leading=24)),
+            Paragraph(label, ParagraphStyle("l", parent=SM, alignment=TA_CENTER, textColor=MUTED))]
+
+
+BIG = ParagraphStyle("big", parent=P, fontName="UI-B", fontSize=24, leading=29, textColor=INK, spaceAfter=4)
+LEAD = ParagraphStyle("lead", parent=P, fontSize=11.2, leading=16, spaceAfter=8)
+QUOTE = ParagraphStyle("q", parent=P, fontName="UI-B", fontSize=15, leading=20, alignment=TA_CENTER, textColor=ACC)
+
+panels = Table([[ping_panel("WhatsApp group", "one message → all 9 neighbors, at 6 AM", "group"),
+                 ping_panel("NearMind", "one message → only the 3 who can help", "nm")]],
+               colWidths=[W / 2, W / 2])
+panels.setStyle(TableStyle([("LEFTPADDING", (0, 0), (-1, -1), 0), ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+                            ("ALIGN", (0, 0), (-1, -1), "CENTER")]))
+stats = Table([[stat("9 → 3", "people messaged<br/>(same request)", "#0b8f69"), stat("4 → 0", "people woken up<br/>at 6 AM", "#0b8f69"),
+                stat("6", "neighbors left<br/>in peace", "#0b8f69"), stat("1,182", "people in NearMind City:<br/>nobody can text them all", "#1d6fa3")]],
+              colWidths=[W / 4] * 4)
+stats.setStyle(TableStyle([("BOX", (0, 0), (-1, -1), 0.6, LINE), ("INNERGRID", (0, 0), (-1, -1), 0.6, LINE),
+                           ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#f6faf8")), ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                           ("TOPPADDING", (0, 0), (-1, -1), 6), ("BOTTOMPADDING", (0, 0), (-1, -1), 6)]))
+
+s += [PageBreak(),
+      para("THE BIG QUESTION", ParagraphStyle("k", parent=SM, fontName="UI-B", textColor=ACC, spaceAfter=2)),
+      para("Why not just use WhatsApp?", BIG),
+      para("WhatsApp is great for talking to people you already know. But on a large scale, <b>you're not going to "
+           "knock on every door, or text tens of neighbors you've never spoken to</b>, just to borrow a ladder. A building "
+           "group chat pings everyone, at any hour, and most of them can't help. So in real life, people just don't ask. "
+           "NearMind does the opposite: you send one message, and it asks <b>only</b> the few people who can help.", LEAD),
+      panels,
+      para("The same request, the 6 AM jump-start from the recorded demo. Left: a group chat reaches all nine neighbors and wakes "
+           "the four who are asleep (red). Right: NearMind asked Sulaiman, Asma and Hamza, who were awake, and left everyone else alone.", CAP),
+      stats,
+      Spacer(1, 10),
+      table([["", "WhatsApp group / knocking on doors", "NearMind"],
+             ["Who gets the message", "Everyone in the group, or you knock door by door", "Only the 1-3 people most likely to have it and be awake"],
+             ["Time of day", "Pings people at 2 AM too", "Skips people who are probably asleep unless it's urgent"],
+             ["Finding the right person", "You guess, or wait and hope", "It reasons from public facts (job, hobbies, sleep hours) and asks"],
+             ["Vague answers", "You chase them yourself", "It asks a follow-up question before telling you"],
+             ["Awkwardness", "You ask strangers yourself", "It asks politely for you; you choose the offer"],
+             ["Privacy", "Everyone sees your request and every reply", "Each neighbor's chat is private; only you see the offers"],
+             ["Scale", "Impossible with 200 families", "Works the same in every building of a 200-family city"]],
+            [0.22, 0.36, 0.42]),
+      Spacer(1, 12),
+      para("WhatsApp is the phone line.<br/>NearMind is the one who knows who to call.", QUOTE),
+      Spacer(1, 4),
+      para("NearMind can even run <i>inside</i> WhatsApp: its first version did, with real neighbors who opted in.",
+           ParagraphStyle("c2", parent=SM, alignment=TA_CENTER, textColor=MUTED)),
+      PageBreak()]
 
 # ---------- 2 ----------
 s += [para("2. Who the users are", H1),
