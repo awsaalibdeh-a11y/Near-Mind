@@ -199,17 +199,23 @@ s += [para("2. Who the users are", H1),
 
 # ---------- 3 ----------
 s += [para("3. Motivation", H1),
-      para("In apartment buildings, families live a few meters apart but often don't know each other. When someone needs "
-           "something small, like a ladder for ten minutes, a charger at night or jumper cables before work, they usually "
-           "buy one they'll use once, post in a big group chat that disturbs everyone, or go without. Meanwhile the "
-           "neighbor upstairs probably has exactly what they need."),
-      para("In Saudi cities many families live in buildings like this. I wanted an AI that knows <b>who</b> to ask, "
-           "<b>when</b> it's polite to ask, and <b>how</b> to ask, so that neighbors help each other instead of buying "
-           "things they use once. The most important rule for me was that it should ask <b>as few people as possible</b>: "
-           "a helper that bothers the whole building is worse than no helper at all."),
+      para("The neighbors next to my house barely make small talk with us. When they do talk to us, it's usually an "
+           "order or a complaint: “move your bike”, “why did you ring our bell?” We live a few meters apart, but it "
+           "feels like we're strangers, and sometimes like we're on opposite sides."),
+      para("I don't think my neighbors are bad people. I think nobody ever gives neighbors an easy, friendly reason to "
+           "talk. The only time we speak is when something goes wrong, so every conversation starts with a problem. "
+           "Ringing someone's bell to ask for a favor feels awkward, and if they're annoyed, it can make things worse. "
+           "So people stop asking, and buy things they'll use once, or go without, even though the family next door "
+           "probably has what they need."),
+      para("I wanted to flip that around. What if the first thing your neighbor heard from you was not a complaint, but "
+           "“can I borrow your ladder?”, or “I can help you with that”? NearMind does the awkward part: it works out who "
+           "is likely to help and awake, and asks politely, only them. That's why its most important rule is to ask "
+           "<b>as few people as possible</b> and to leave everyone else in peace. A helper that annoys the whole street "
+           "would just make neighbors more hostile, which is exactly what I'm trying to fix."),
       para("I also wanted to learn how to build an <b>agent</b>, not just a chatbot: something that makes decisions, "
            "talks to several people, keeps track of what each one said, and finishes a real task. Small favors are how "
-           "neighbors become a community, and I wanted to make asking for one easy."),
+           "neighbors start to trust each other, and I hope one day my neighbors and I talk about more than bikes and "
+           "doorbells."),
       ]
 
 # ---------- 4 + 5 ----------

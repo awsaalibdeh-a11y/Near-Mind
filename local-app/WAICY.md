@@ -69,8 +69,8 @@ make your AI fail, and know when to say "I don't know". NearMind already does al
 - [x] **Screenshots** for the PDF (in `waicy/img/`): the city, a neighborhood, the building, the jump-start demo
       mid-way, the decisions card, the delivery zoom, another building, the chat page.
 - [x] **The PDF: `waicy/LLM_Middle_NearMind.pdf`** (10 pages, the ten sections in the guidebook's order). Rebuild it
-      after any text change with `python tools/make_waicy_pdf.py`. The Motivation section is a draft: rewrite it in
-      your own words (edit section 3 in the script) before submitting.
+      after any text change with `python tools/make_waicy_pdf.py`. Motivation is based on your story about the
+      neighbors next to your house; read it once and change any words that don't sound like you.
 - [ ] Upload the PDF to a Google Drive folder named `LLM_Middle_NearMind`, set sharing to
       "anyone with the link can view", and submit the form at https://www.waicy.org/2026-submission
 - [ ] Optional: Saudi Arabia also has **WAICY KSA** (ages 13-18, finals in Abha) at https://www.waicy.org/waicy-2026-ksa/.
@@ -152,16 +152,24 @@ skips people who are probably asleep unless it's urgent, and never shows one nei
 
 ### 3. Motivation
 
-`[Write this in your own words. It counts for 10 points, and judges can tell. Some questions to answer:]`
-- When did you or your family last need something small that a neighbor probably had? What did you do?
-- Why apartment buildings? (In Saudi cities many families live in buildings and don't know their neighbors.)
-- Why does it matter that the AI asks *as few people as possible*?
-- What did you want to learn by building an agent, not just a chatbot?
+The neighbors next to my house barely make small talk with us. When they do talk to us, it's usually an order or a
+complaint: "move your bike", "why did you ring our bell?" We live a few meters apart, but it feels like we're
+strangers, and sometimes like we're on opposite sides.
 
-Something like: "In my building, people live a few meters apart but barely talk. When my family needed
-`[something]`, we `[bought it / went without]`, and later found out the neighbor upstairs had one. I wanted an AI
-that knows who to ask, when it's polite to ask, and how to ask, so that neighbors help each other instead of
-buying things they use once."
+I don't think my neighbors are bad people. I think nobody ever gives neighbors an easy, friendly reason to talk. The
+only time we speak is when something goes wrong, so every conversation starts with a problem. Ringing someone's bell
+to ask for a favor feels awkward, and if they're annoyed, it can make things worse. So people stop asking, and buy
+things they'll use once, or go without, even though the family next door probably has what they need.
+
+I wanted to flip that around. What if the first thing your neighbor heard from you was not a complaint, but "can I
+borrow your ladder?", or "I can help you with that"? NearMind does the awkward part: it works out who is likely to
+help and awake, and asks politely, only them. That's why its most important rule is to ask **as few people as
+possible** and to leave everyone else in peace. A helper that annoys the whole street would just make neighbors more
+hostile, which is exactly what I'm trying to fix.
+
+I also wanted to learn how to build an **agent**, not just a chatbot: something that makes decisions, talks to
+several people, keeps track of what each one said, and finishes a real task. Small favors are how neighbors start to
+trust each other, and I hope one day my neighbors and I talk about more than bikes and doorbells.
 
 ### 4. Link to the chat history
 
@@ -284,7 +292,7 @@ LLM track when the selected list comes out on 2 December.)
 | Time | Slide | What you say |
 |---|---|---|
 | 0:00-0:30 | Title: NearMind | "Hi, I'm Aws, I'm 13, from Al Safi International Language School in Saudi Arabia. My project is NearMind, an AI agent that helps neighbors help each other." |
-| 0:30-1:00 | The problem | "In apartment buildings, people live a few meters apart but don't know each other. When you need a ladder or a charger, you buy one you'll use once, or spam a group chat, or go without." `[your story]` |
+| 0:30-1:00 | The problem | "In apartment buildings, people live a few meters apart but don't know each other. When you need a ladder or a charger, you buy one you'll use once, or spam a group chat, or go without. The neighbors next to my house only talk to us to say 'move your bike' or 'why did you ring our bell?' I wanted the first thing neighbors hear from each other to be a favor, not a complaint." |
 | 1:00-1:40 | The service: 5 steps | "You send NearMind one message. It understands what you need, picks the one to three neighbors most likely to help and awake, asks them in their own style, checks vague answers, recommends the best offer, and you decide." |
 | 1:40-2:20 | How I built and tested it | "I built a building with ten AI neighbors, each with a private inventory the agent can't see. Then I tried to make it fail. One neighbor invented jumper cables he didn't have, so I changed the prompts and tested again." |
 | 2:20-3:00 | Responsible by design | "It asks as few people as possible, respects sleep, keeps chats private, never invents offers, and the human always decides." |
