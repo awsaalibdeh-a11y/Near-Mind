@@ -12,7 +12,7 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import (Image, KeepTogether, ListFlowable, ListItem, PageBreak, Paragraph, SimpleDocTemplate,
+from reportlab.platypus import (CondPageBreak, Image, KeepTogether, ListFlowable, ListItem, PageBreak, Paragraph, SimpleDocTemplate,
                                 Spacer, Table, TableStyle)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -36,8 +36,8 @@ BLUE = colors.HexColor("#1d6fa3")
 P = ParagraphStyle("p", fontName="UI", fontSize=10, leading=14.2, textColor=INK, spaceAfter=5)
 SM = ParagraphStyle("sm", parent=P, fontSize=8.7, leading=11.6, spaceAfter=0)
 CAP = ParagraphStyle("cap", parent=P, fontName="UI-I", fontSize=8.6, leading=11, textColor=MUTED, alignment=TA_CENTER, spaceAfter=10)
-H1 = ParagraphStyle("h1", parent=P, fontName="UI-B", fontSize=15, leading=19, textColor=ACC, spaceBefore=6, spaceAfter=6)
-H3 = ParagraphStyle("h3", parent=P, fontName="UI-B", fontSize=10.8, leading=14, spaceBefore=4, spaceAfter=3)
+H1 = ParagraphStyle("h1", parent=P, fontName="UI-B", fontSize=15, leading=19, textColor=ACC, spaceBefore=6, spaceAfter=6, keepWithNext=1)
+H3 = ParagraphStyle("h3", parent=P, fontName="UI-B", fontSize=10.8, leading=14, spaceBefore=4, spaceAfter=3, keepWithNext=1)
 TITLE = ParagraphStyle("t", parent=P, fontName="UI-B", fontSize=34, leading=40, alignment=TA_CENTER, spaceAfter=4)
 SUB = ParagraphStyle("s", parent=P, fontSize=13, leading=18, alignment=TA_CENTER, textColor=MUTED, spaceAfter=14)
 META = ParagraphStyle("m", parent=P, fontSize=10.5, leading=15.5, alignment=TA_CENTER)
@@ -144,9 +144,31 @@ s += [para("1. What specific service NearMind provides", H1),
       callout("<b>The value:</b> you get what you need in minutes instead of buying something you'll use once, and the "
               "rest of the building isn't disturbed. On screen, a counter shows it, for example "
               "“Neighbors contacted: 3 of 9 · 6 left in peace”."),
+      Spacer(1, 6),
+      KeepTogether([
+          para("Why not just use WhatsApp?", H3),
+          para("WhatsApp is great for talking to people you already know. But on a large scale, nobody is going to knock "
+               "on every door or text tens of neighbors they've never spoken to, just to borrow a ladder. A building group "
+               "chat pings everyone, at any hour, and most of them can't help. NearMind does the opposite:"),
+          table([["", "Building group chat / knocking on doors", "NearMind"],
+                 ["Who gets the message", "Everyone in the group, or you knock door by door", "Only the 1-3 people most likely "
+                  "to have it and be awake"],
+                 ["Time of day", "Pings people at 2 AM too", "Skips people who are probably asleep unless it's urgent"],
+                 ["Finding the right person", "You guess, or wait and hope", "It reasons from public facts (job, hobbies, "
+                  "sleep hours) and asks"],
+                 ["Vague answers", "You chase them yourself", "It asks a follow-up question before telling you"],
+                 ["Awkwardness", "You ask strangers yourself", "It asks politely for you; you choose the offer"],
+                 ["Privacy", "Everyone sees your request and every reply", "Each neighbor's chat is private; only you see "
+                  "the offers"],
+                 ["Scale", "Impossible with 200 families", "Works the same in every building of a 200-family city"]],
+                [0.22, 0.36, 0.42]),
+          Spacer(1, 3),
+          para("NearMind can even run <i>inside</i> WhatsApp (its first version did). WhatsApp is the phone line; "
+               "NearMind is the one who knows who to call.", SM)]),
       Spacer(1, 8),
       pic("building.jpg", "The Roof Robot Tower: ten families on five floors, the NearMind robot on the roof. "
                           "The side panel shows the asker's family and who can ask."),
+      CondPageBreak(45 * mm),
       para("How it's built", H3),
       bullets([
           "<b>The agent (the robot on the roof)</b> is an LLM (<i>gpt-6.1-terra</i>, OpenAI JSON mode) with a detailed "

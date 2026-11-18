@@ -113,6 +113,23 @@ building, then an apartment. It handles four kinds of request inside a building:
 **The value:** you get what you need in minutes instead of buying something you'll use once, and the rest of the
 building isn't disturbed. On screen, a counter shows it, for example "Neighbors contacted: 3 of 9 · 6 left in peace".
 
+**Why not just use WhatsApp?** WhatsApp is great for people you already know. But on a large scale, nobody is
+going to knock on every door or text tens of neighbors they've never spoken to, just to borrow a ladder. A building
+group chat pings everyone, at any hour, and most of them can't help.
+
+| | Building group chat / knocking on doors | NearMind |
+|---|---|---|
+| Who gets the message | Everyone in the group, or you knock door by door | Only the 1-3 people most likely to have it and be awake |
+| Time of day | Pings people at 2 AM too | Skips people who are probably asleep unless it's urgent |
+| Finding the right person | You guess, or wait and hope | It reasons from public facts (job, hobbies, sleep hours) and asks |
+| Vague answers | You chase them yourself | It asks a follow-up question before telling you |
+| Awkwardness | You ask strangers yourself | It asks politely for you; you choose the offer |
+| Privacy | Everyone sees your request and every reply | Each neighbor's chat is private; only you see the offers |
+| Scale | Impossible with 200 families | Works the same in every building of a 200-family city |
+
+NearMind can even run *inside* WhatsApp (its first version did). WhatsApp is the phone line; NearMind is the one
+who knows who to call.
+
 **How it's built:**
 - **The agent (the robot on the roof)** is an LLM (`gpt-6.1-terra`, OpenAI JSON mode) with a detailed system prompt.
   Each turn it replies with one JSON object: a one-line "think" shown to the audience, what it understood
@@ -314,6 +331,15 @@ If something goes wrong live: press `R`, then the demo number. The demos are rec
 
 ### Q&A practice questions
 
+- **What's the difference between this and just using WhatsApp?** *(This one is very likely. Answer: "WhatsApp
+  is great for talking to people you already know. But on a large scale, you're not going to knock on every door or
+  text tens of people you've never spoken to, just to borrow a ladder. In a building group, one message pings
+  everyone, at any hour, and most of them can't help. NearMind is the opposite: you send one message, it works out
+  the one to three people most likely to have it and be awake, asks only them, and leaves everyone else in peace.
+  It also does the awkward parts for you: it asks politely, checks vague answers, and arranges the handover.
+  In my demo city that's 200 families. Nobody can text all of those, but the robot knows who to ask. Actually,
+  NearMind can even run *inside* WhatsApp. WhatsApp is the phone line; NearMind is the one who knows who to
+  call.")*
 - Why not just send the request to everyone? *(It's rude and noisy; asking fewer people is the point.)*
 - How does it know who has something? *(It doesn't. It reasons from public facts and has to ask, like a person would.)*
 - What if it lies? *(Neighbors can only offer what they really own, the agent only relays what was said, and the
