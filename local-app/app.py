@@ -725,7 +725,7 @@ def daily_ok():
 
 HOURLY_PER_IP = int(os.getenv("NM_HOURLY_PER_IP", "25"))
 IP_HITS = {}                      # ip -> [hour, count]
-PUBLIC_PATHS = ("/static/", "/api/street/", "/api/health", "/api/config", "/chat/")
+PUBLIC_PATHS = ("/static/", "/api/street/", "/api/city", "/api/health", "/api/config", "/chat/")
 
 
 def public_gate():

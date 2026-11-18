@@ -96,9 +96,9 @@ a big first aid bag for the team, cones. You have a car. NO baking ingredients, 
 You'd happily BUY: a bike, dumbbells, a rowing machine, a gaming chair. Budget: up to about 250 SAR."""),
 }
 
-ROBOT = """You are NearMind, the robot on the roof of a ten-apartment building. Every message between neighbors goes through you.
-Neighbors (id: name, apartment): sedra: Sedra 1A, osama: Osama 1B, sulaiman: Sulaiman 2A, asma: Asma 2B, alwalid: Alwalid 3A, anas: Anas 3B,
-layla: Layla 4A, yousef: Yousef 4B, noor: Noor 5A, hamza: Hamza 5B.
+ROBOT_TMPL = """You are NearMind, the robot on the roof of {bname}, a ten-apartment building in {hood}. Every message between neighbors goes through you.
+Each apartment is a family of 4-8 people; you talk to one contact person per apartment, who speaks for the household (family members may help).
+Neighbors (id: name, apartment): {roster}.
 One neighbor (the ASKER) asks you for something: an item to borrow, a small favor, company (e.g. someone to watch a movie with),
 or they want to SELL something (with a price). For a sale, the ASKER is the seller and you look for a buyer.
 
@@ -127,10 +127,25 @@ Reply with ONE JSON object only:
  "parse": {"item": str, "kind": "item"|"company"|"favor"|"sale", "qty": str, "price": str (sales only, e.g. "150 SAR"), "urgency": "low"|"medium"|"high"} or null (only when new or changed),
  "phase": "understand"|"outreach"|"clarify"|"relay"|"handover"|"closed",
  "status": {"<id>": "asked"|"offer"|"no"|"chosen"|"released"} (only entries that changed; in a sale "offer" = wants to buy, "chosen" = the buyer),
+ "why": {"<id>": str} (ONLY in the round where you first ask someone: 3-7 words on why you picked them, from their PUBLIC facts and the clock, e.g. "has a car, up early"),
  "messages": [{"to": "<id>", "text": str}],
  "quick": [str] (0-3 short replies the asker could tap, only when your message to the asker asks a question)}"""
 
+
+def robot_prompt(B):
+    roster = ", ".join(f"{n}: {B['N'][n]['name']} {B['N'][n]['apt']}" for n in B["order"])
+    return ROBOT_TMPL.replace("{bname}", B["name"]).replace("{hood}", B["hood_name"]).replace("{roster}", roster)
+
 STATES = {"asked", "offer", "no", "chosen", "released"}
+
+import city                                               # noqa: E402  (needs N and ORDER above)
+HOODS, BUILDINGS = city.build(N, ORDER)
+for _h in HOODS:
+    for _b in _h["buildings"]:
+        BUILDINGS[_b]["hood_name"] = _h["name"]
+for _B in BUILDINGS.values():
+    _B["prompt"] = robot_prompt(_B)
+ROBOT = BUILDINGS[city.FLAGSHIP]["prompt"]                # the flagship building's prompt (tests read this)
 
 
 def now_label(clock):
@@ -142,29 +157,37 @@ def now_label(clock):
     return f"{h:02d}:{m:02d}", h + m / 60
 
 
-def asleep(nid, hf):
-    a, b = N[nid]["sleep"]
+def asleep(nid, hf, NN=None):
+    a, b = (NN or N)[nid]["sleep"]
     return (hf >= a or hf < b) if a > b else (a <= hf < b)
 
 
-def new_session():
-    return {"asker": None, "threads": {n: [] for n in ORDER}, "brain": {}, "clock": None,
+def new_session(bid=None):
+    bid = bid if bid in BUILDINGS else city.FLAGSHIP
+    return {"b": bid, "asker": None, "threads": {n: [] for n in BUILDINGS[bid]["order"]}, "brain": {}, "clock": None,
             "lock": threading.Lock(), "turns": 0}
 
 
+def bld(S):
+    return BUILDINGS[S.get("b") or city.FLAGSHIP]
+
+
 def world(S):
+    B = bld(S); NN = B["N"]
     label, hf = now_label(S["clock"])
     out = [f"CLOCK: {label}" + (" (simulated)" if S["clock"] else ""), "PUBLIC FACTS (you know nothing else about them):"]
-    for n in ORDER:
-        st = "probably ASLEEP" if asleep(n, hf) else "probably awake"
-        out.append(f"- {n} ({N[n]['name']}, {N[n]['apt']}, {N[n]['style']}): {st}. " + "; ".join(N[n]["facts"]))
-    out.append(f"ASKER: {S['asker']} ({N[S['asker']]['name']})")
+    for n in B["order"]:
+        st = "probably ASLEEP" if asleep(n, hf, NN) else "probably awake"
+        out.append(f"- {n} ({NN[n]['name']} {NN[n].get('family', '')}, {NN[n]['apt']}, {NN[n]['style']}, household of {len(NN[n].get('members') or [1])}): {st}. "
+                   + "; ".join(NN[n]["facts"]))
+    out.append(f"ASKER: {S['asker']} ({NN[S['asker']]['name']})")
     return "\n".join(out)
 
 
 def render(S):
+    N = bld(S)["N"]
     out = []
-    for n in ORDER:
+    for n in bld(S)["order"]:
         th = S["threads"][n]
         if not th:
             continue
@@ -179,12 +202,13 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
     bp = Blueprint("street", __name__)
     SESS = {}
 
-    def sess(sid):
-        if sid not in SESS:
-            if len(SESS) > 200:
+    def sess(sid, bid=city.FLAGSHIP):
+        key = f"{sid}|{bid}"                              # one street per visitor per building
+        if key not in SESS:
+            if len(SESS) > 300:
                 SESS.pop(next(iter(SESS)))
-            SESS[sid] = new_session()
-        return SESS[sid]
+            SESS[key] = new_session(bid)
+        return SESS[key]
 
     def loads(raw):
         try:
@@ -196,19 +220,23 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
     def robot(S, force):
         ctx = world(S) + "\n\n" + render(S) + "\nYour notes so far: " + json.dumps(S["brain"])
         if force:
-            ctx += f"\nIMPORTANT: wrap up now. Send {N[S['asker']]['name']} a message this round with what you know."
-        msgs = [{"role": "system", "content": ROBOT}, {"role": "user", "content": ctx}]
+            ctx += f"\nIMPORTANT: wrap up now. Send {bld(S)['N'][S['asker']]['name']} a message this round with what you know."
+        msgs = [{"role": "system", "content": bld(S)["prompt"]}, {"role": "user", "content": ctx}]
         try:
             return loads(chat(msgs, json_mode=True, model=model))
         except Exception:
             return loads(chat(msgs, json_mode=True, model=model))
 
     def neighbor(S, nid):
+        B = bld(S); N = B["N"]
         label, hf = now_label(S["clock"])
         mood = ""
-        if asleep(nid, hf):
+        if B.get("flagship") and N[nid].get("members"):
+            mood += (" You live with your family: " + "; ".join(f"{m['name']} ({m['role']}, {m['age']})" for m in N[nid]["members"][1:])
+                     + ". Family members can help (e.g. a teenager can carry things), and you may mention them by name.")
+        if asleep(nid, hf, N):
             mood = f" It is {label} and you were asleep: reply sleepy and short unless it's urgent."
-        if nid == "alwalid" and 19 <= hf < 21:
+        if B.get("flagship") and nid == "alwalid" and 19 <= hf < 21:
             mood += " You're putting the kids to bed: very brief."
         sys_ = (N[nid]["home"] + f"\nThe time is {label}." + mood +
                 "\nReply in character to NearMind's latest message, 1-2 short sentences, plain text. Be truthful about what you have: you ONLY own the things listed above; "
@@ -222,9 +250,10 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
         return chat(msgs, model=sim_model, effort="minimal").strip().strip('"')
 
     def run(S, asker, text):
+        N = bld(S)["N"]
         S["turns"] += 1
         if S["asker"] != asker:                          # a different neighbor asking starts a fresh request
-            S["asker"], S["threads"], S["brain"] = asker, {n: [] for n in ORDER}, {}
+            S["asker"], S["threads"], S["brain"] = asker, {n: [] for n in bld(S)["order"]}, {}
         S["threads"][asker].append(("me", text))
         yield {"t": "say", "from": asker, "to": "robot", "text": text}
         try:
@@ -242,6 +271,10 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
                 if out.get("phase"):
                     S["brain"]["phase"] = str(out["phase"])
                     yield {"t": "phase", "phase": S["brain"]["phase"]}
+                why = out.get("why") if isinstance(out.get("why"), dict) else {}
+                for nid, reason in why.items():                  # the robot's reason for picking each neighbor, shown on screen
+                    if nid in N and nid != asker and str(reason).strip():
+                        yield {"t": "why", "who": nid, "text": str(reason).strip()[:60]}
                 for nid, st in (out.get("status") or {}).items():
                     if nid in N and st in STATES and nid != asker:
                         S["brain"].setdefault("status", {})[nid] = st
@@ -278,10 +311,13 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
     @bp.post("/api/street/run")
     def street_run():
         sid = sid_fn() or "me"
-        S = sess(sid)
         d = request.get_json(force=True) or {}
+        bid = str(d.get("building") or city.FLAGSHIP)
+        if bid not in BUILDINGS:
+            return Response(json.dumps({"error": "unknown building"}), status=400, mimetype="application/json")
+        S = sess(sid, bid)
         asker, text = str(d.get("from", "")).lower(), str(d.get("text", "")).strip()[:400]
-        if asker not in N or not text:
+        if asker not in BUILDINGS[bid]["N"] or not text:
             return Response(json.dumps({"error": "need a neighbor and a message"}), status=400, mimetype="application/json")
         clk = str(d.get("clock") or "")
         S["clock"] = clk if len(clk) == 5 and clk[2] == ":" and clk.replace(":", "").isdigit() else None
@@ -305,15 +341,37 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
 
     @bp.post("/api/street/reset")
     def street_reset():
-        SESS.pop(sid_fn() or "me", None)
+        d = request.get_json(force=True, silent=True) or {}
+        SESS.pop(f"{sid_fn() or 'me'}|{d.get('building') or city.FLAGSHIP}", None)
         return {"ok": True}
 
     @bp.get("/api/street/people")
     def street_people():
+        bid = request.args.get("b") or city.FLAGSHIP
+        if bid not in BUILDINGS:
+            return Response(json.dumps({"error": "unknown building"}), status=404, mimetype="application/json")
+        B = BUILDINGS[bid]; NN = B["N"]
         label, hf = now_label(None)
-        public = ("name", "apt", "color", "icon", "style", "facts", "sleep")
-        people = {n: {k: N[n][k] for k in public} | {"asleep": asleep(n, hf), "img": f"/static/img/{n}.webp"} for n in ORDER}
-        return {"order": ORDER, "people": people}
+        public = ("name", "family", "apt", "color", "icon", "style", "facts", "sleep", "members")
+        people = {n: {k: NN[n][k] for k in public if k in NN[n]} | {"asleep": asleep(n, hf, NN),
+                  "img": f"/static/img/{n}.webp" if B.get("flagship") else None} for n in B["order"]}
+        return {"order": B["order"], "people": people, "building": {"id": bid, "name": B["name"], "hood": B["hood"],
+                "hood_name": B["hood_name"], "flagship": bool(B.get("flagship"))}}
+
+    @bp.get("/api/city")
+    def city_map():
+        out = []
+        for h in HOODS:
+            bs = []
+            for bid in h["buildings"]:
+                B = BUILDINGS[bid]
+                bs.append({"id": bid, "name": B["name"], "flagship": bool(B.get("flagship")), "homes": len(B["order"]),
+                           "people": sum(len(B["N"][n].get("members") or [1]) for n in B["order"]),
+                           "families": [B["N"][n].get("family", "") for n in B["order"]]})
+            out.append({k: h[k] for k in ("id", "name", "icon", "color", "desc")} | {"buildings": bs,
+                       "people": sum(b["people"] for b in bs), "homes": sum(b["homes"] for b in bs)})
+        return {"name": "NearMind City", "hoods": out, "buildings": sum(len(h["buildings"]) for h in out),
+                "homes": sum(h["homes"] for h in out), "people": sum(h["people"] for h in out)}
 
     bp.run = run              # exposed for tests
     bp.sess = sess

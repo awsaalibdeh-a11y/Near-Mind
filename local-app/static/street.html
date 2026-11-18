@@ -1,15 +1,16 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NearMind Street</title>
-<meta name="description" content="Ten neighbors, one robot on the roof. Watch NearMind route every favor in real time.">
+<title>NearMind City</title>
+<meta name="description" content="NearMind City: 5 neighborhoods, 20 buildings, 200 families. One robot on every roof routes favors between neighbors in real time.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='8' width='20' height='14' rx='5' fill='%23e9f6fb' stroke='%231f6f9e' stroke-width='2'/%3E%3Ccircle cx='12' cy='15' r='2.5' fill='%231f6f9e'/%3E%3Ccircle cx='20' cy='15' r='2.5' fill='%231f6f9e'/%3E%3Cpath d='M10 8L8 3M22 8l2-5' stroke='%231f6f9e' stroke-width='2'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="/static/street.css?v=4">
+<link rel="stylesheet" href="/static/street.css?v=8">
 </head><body>
 <header class="bar">
   <a class="brand" href="/" aria-label="NearMind Street home">
     <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="7" y="11" width="26" height="18" rx="7" fill="#e9f6fb" stroke="#1f6f9e" stroke-width="2.5"/><circle cx="15" cy="20" r="3.2" fill="#1f6f9e"/><circle cx="25" cy="20" r="3.2" fill="#1f6f9e"/><path d="M12 11 9 4M28 11l3-7" stroke="#1f6f9e" stroke-width="2.5" stroke-linecap="round"/><circle cx="9" cy="4" r="2.4" fill="#35d6a4"/><circle cx="31" cy="4" r="2.4" fill="#35d6a4"/></svg>
-    <span><b>Near<i>Mind</i></b> Street<small>ten neighbors · one robot on the roof</small></span>
+    <span><b>Near<i>Mind</i></b> <em id="brand-sub">City</em><small id="brand-small">one robot on every roof</small></span>
   </a>
+  <nav class="crumbs" id="crumbs" aria-label="Where you are"></nav>
   <div class="clock" role="group" aria-label="Time of day">
     <button class="chip on" data-clk="">Now</button><button class="chip" data-clk="08:30">Morning</button><button class="chip" data-clk="13:00">Midday</button><button class="chip" data-clk="19:30">Evening</button><button class="chip" data-clk="02:00">2 AM</button>
   </div>
@@ -22,7 +23,22 @@
   </div>
 </header>
 
-<main class="layout">
+<section class="cityview" id="cityview" aria-label="NearMind City" hidden>
+  <div class="city-hero">
+    <p class="kick">Welcome to</p>
+    <h1>NearMind City</h1>
+    <p class="city-sub">Every building has a NearMind robot on its roof. Pick a neighborhood, then a building, then knock on a door.</p>
+    <div class="city-stats" id="city-stats"></div>
+  </div>
+  <div class="citymap" id="citymap"></div>
+</section>
+
+<section class="hoodview" id="hoodview" aria-label="Neighborhood" hidden>
+  <div class="hood-hero" id="hood-hero"></div>
+  <div class="hood-street" id="hood-street"></div>
+</section>
+
+<main class="layout" id="bview" hidden>
   <section class="stage" aria-label="Building">
     <div id="scene" class="scene"></div>
     <button class="exit-present" id="exitp" type="button">Exit presentation (Esc)</button>
@@ -35,6 +51,8 @@
       <div class="demos" id="demos"></div>
     </div>
 
+    <div class="card family" id="family" hidden></div>
+
     <div class="card ask">
       <div class="ask-h"><h2>Who</h2><div class="mode" id="mode" role="group" aria-label="Ask or sell"><button type="button" data-mode="ask" aria-pressed="true">Ask</button><button type="button" data-mode="sell" aria-pressed="false">Sell</button></div></div>
       <div class="who" id="who" role="radiogroup" aria-label="Who is asking"></div>
@@ -46,8 +64,16 @@
       <div class="presets" id="presets"></div>
     </div>
 
+    <div class="card brain" id="brain" hidden>
+      <div class="brain-h"><h2 id="brain-t">Why these neighbors?</h2><span class="reach" id="reach"></span></div>
+      <ul class="picked" id="picked"></ul>
+      <div class="peace"><div class="peace-h"><span>🤫</span><b id="peace-n"></b></div><div class="faces" id="peace"></div></div>
+      <div class="result" id="result" hidden></div>
+    </div>
+
     <div class="card feed">
       <div class="feed-h"><h2>Live timeline</h2><span class="phase" id="phase">Waiting for a request</span></div>
+      <ol class="pipe" id="pipe" aria-label="NearMind's steps"><li>Understand</li><li>Ask</li><li>Clarify</li><li>Report</li><li>Hand over</li></ol>
       <ol id="log" aria-live="polite"><li class="empty">Pick a neighbor, type a request and watch NearMind route it.</li></ol>
     </div>
 
@@ -60,7 +86,8 @@
 <dialog id="how" class="how" aria-labelledby="how-t">
   <form method="dialog" class="how-x"><button aria-label="Close">✕</button></form>
   <p class="kick">How NearMind works</p>
-  <h1 id="how-t">One robot on the roof helps ten neighbors share, without anyone giving up their privacy.</h1>
+  <h1 id="how-t">A robot on every roof helps neighbors share, without anyone giving up their privacy.</h1>
+  <p class="how-scale">NearMind City: 5 neighborhoods · 20 buildings · 200 families · 1,182 people. Each building has its own robot that only connects the 10 families inside it.</p>
   <div class="how-grid">
     <section><h3>The problem</h3><p>People buy things they need once (a drill, a ladder) while the neighbor next door has one. Asking the whole building is awkward and noisy, so nobody asks.</p></section>
     <section><h3>The idea</h3><p>Every message goes to NearMind first. It works out what you need, asks only the 1-3 neighbors most likely to help, and arranges the handover at your door. You can also sell things to the neighbors who'd actually want them.</p></section>
@@ -87,6 +114,6 @@
   <p class="how-foot">Try it: press <kbd>1</kbd>-<kbd>5</kbd> for a demo, <kbd>P</kbd> to present full screen, or tap any apartment and type your own request.</p>
 </dialog>
 
-<script src="/static/street-scene.js?v=8"></script>
-<script src="/static/street-ui.js?v=8"></script>
+<script src="/static/street-scene.js?v=11"></script>
+<script src="/static/street-ui.js?v=10"></script>
 </body></html>

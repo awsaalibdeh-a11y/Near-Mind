@@ -26,6 +26,8 @@ def post(path, body):
 
 FOLLOWUPS = {   # what the asker says next when the robot needs more than a yes
     "movie": ["Alwalid sounds perfect! Let's say 20:30 at my place, apartment 1A, after his kids are asleep. Can you confirm that with him now?"],
+    "jump": ["Hamza please, he's the fastest!",
+             "My car is in the basement parking, spot B4 next to the lift. I'll be there with the bonnet open. Thank you!"],
     "sale": ["It's a medium frame, a bit dusty but no rust. Happy to sell to whoever is keen at 150, I can bring it at 18:30.",
              "Yes, go with them, 150 SAR, I'll bring it to their door at 18:30."],
 }

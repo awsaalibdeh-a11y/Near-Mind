@@ -9,11 +9,11 @@ const W=1400,H=1120,FPS=30,D=40;                      // D = frames a message ta
 const FLOORS=5,B={x:330,y:230,w:740,h:820};           // building
 const AW=290,AH=124,SX=700,ROOF={x:700,y:B.y},EYE_Y=98;
 const SKY={day:["#bfe3ff","#f1f9ff"],evening:["#ffc79a","#fdeee0"],"early morning":["#ffe0b5","#eef6ff"],night:["#16224d","#0a1022"]};
-const PILL={asked:["asked","#fff1d6","#b0630f"],offer:["has it","#e2f1ff","#1f6fb8"],no:["can't","#eef1f0","#7c8a84"],
+const PILL={asked:["asked","#fff1d6","#b0630f"],offer:["can help","#e2f1ff","#1f6fb8"],no:["can't","#eef1f0","#7c8a84"],
  chosen:["chosen ✓","#17c394","#fff"],released:["thanked","#eef6f2","#5f8f7b"]};
 const FONT="system-ui,Segoe UI,sans-serif";
 
-const store={s:{people:{},period:"day",busy:false,asker:null,req:null,think:null,packets:[],bubbles:{},status:{},statusF:{},typing:{},asleep:{},look:null,finale:null},subs:new Set(),ref:null,onPick:null};
+const store={s:{people:{},period:"day",busy:false,asker:null,req:null,think:null,packets:[],bubbles:{},status:{},statusF:{},why:{},typing:{},asleep:{},look:null,finale:null},subs:new Set(),ref:null,onPick:null};
 const emit=()=>store.subs.forEach(f=>f());
 const nowF=()=>{try{return store.ref.current.getCurrentFrame()}catch(e){return 0}};
 function useStore(){const[,t]=useState(0);useEffect(()=>{const f=()=>t(x=>x+1);store.subs.add(f);return()=>store.subs.delete(f)},[])}
@@ -81,13 +81,15 @@ function Apartment({id,frame,i}){
    <div style={{width:68,height:68,borderRadius:"50%",background:p.color,overflow:"hidden",flex:"none",boxShadow:`0 0 0 4px #fff,0 0 0 ${hot?7:4}px ${hot?border:"#fff"}`,filter:sleep?"grayscale(.5) brightness(.75)":"none",display:"grid",placeItems:"center",fontWeight:800,fontSize:26,color:"#0b1a14"}}>
     {p.img?<img src={p.img} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:p.name[0]}</div>
    <div style={{lineHeight:1.15,minWidth:0,flex:1}}>
-    <div style={{display:"flex",alignItems:"baseline",gap:8}}><span style={{fontWeight:800,fontSize:25}}>{p.name}</span><span style={{fontSize:14,opacity:0.6,fontWeight:700}}>{p.apt}</span></div>
+    <div style={{display:"flex",alignItems:"baseline",gap:8,minWidth:0}}><span style={{fontWeight:800,fontSize:p.name.length>8?21:25,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",minWidth:0}}>{p.name}</span><span style={{fontSize:14,opacity:0.6,fontWeight:700,flex:"none"}}>{p.apt}</span>{p.members&&<span style={{fontSize:14,opacity:0.7,fontWeight:800,marginLeft:"auto",flex:"none",whiteSpace:"nowrap"}}>👪{p.members.length}</span>}</div>
     <div style={{display:"flex",alignItems:"center",gap:8,marginTop:7,minHeight:24}}>
      {asker&&<span style={{...tag(),background:"#ff7eb6",color:"#fff"}}>{sale?"selling":"asking"}</span>}
      {!asker&&pill&&<span style={{...tag(),background:pill[1],color:pill[2],display:"inline-block",transform:`scale(${0.6+0.4*pop})`}}>{pill[0]}</span>}
      {!asker&&!pill&&sleep&&<span style={{...tag(),background:"#e4e8fb",color:"#5b6aa8"}}>asleep</span>}
      {typing&&<div style={{background:sleep?"#ffffff22":"#eef3f1",borderRadius:999,padding:"7px 10px"}}><Dots frame={frame}/></div>}
     </div>
+    {!asker&&s.why[id]&&<div style={{marginTop:6,fontSize:14,fontWeight:600,fontStyle:"italic",opacity:0.72,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",
+      transform:`translateX(${(1-clamp((frame-s.why[id].f0)/12,0,1))*(right?12:-12)}px)`}}>💡 {s.why[id].text}</div>}
    </div>
    <div style={{position:"absolute",[right?"right":"left"]:-2,top:-2,transform:`translate(${right?14:-14}px,-14px) rotate(${hot?Math.sin(frame/3)*10:0}deg)`,fontSize:24,width:40,height:40,borderRadius:"50%",background:sleep?"#3a4570":"#fff",border:"3px solid "+border,display:"grid",placeItems:"center"}}>{p.icon}</div>
    {sleep&&[0,1,2].map(k=><div key={k} style={{position:"absolute",[right?"right":"left"]:16+k*14,bottom:40+((frame/2+k*14)%30)+k*4,fontWeight:800,fontSize:16+k*4,color:"#c9d3ff",opacity:0.9-k*0.25}}>z</div>)}
@@ -261,6 +263,7 @@ window.NMStreet={
   store.s.look=from==="robot"?to:from;
   if(from==="robot")store.s.bubbles[to]={from,text:txt,f0:f+D};else store.s.bubbles[from]={from,text:txt,f0:f};emit()},
  think(text){store.s.think={text:String(text),f0:nowF()};emit()},
+ why(who,text){store.s.why[who]={text:String(text),f0:nowF()};emit()},
  status(who,state){if(store.s.status[who]!==state)store.s.statusF[who]=nowF();store.s.status[who]=state;emit()},
  typing(who,on){if(who==="robot")store.s.busy=!!on;else store.s.typing[who]=!!on;emit()},
  asker(id){store.s.asker=id;emit()},
@@ -268,5 +271,5 @@ window.NMStreet={
  period(p){store.s.period=p;emit()},
  asleep(map){store.s.asleep=map||{};emit()},
  finale(o){store.s.finale={from:o.from,to:o.to,icon:o.icon||"📦",label:o.label||"",note:o.note||"",sale:!!o.sale,f0:nowF()};store.s.bubbles={};emit()},
- clear(){Object.assign(store.s,{req:null,think:null,packets:[],bubbles:{},status:{},statusF:{},typing:{},busy:false,look:null,finale:null});emit()},
+ clear(){Object.assign(store.s,{req:null,think:null,packets:[],bubbles:{},status:{},statusF:{},why:{},typing:{},busy:false,look:null,finale:null});emit()},
 };

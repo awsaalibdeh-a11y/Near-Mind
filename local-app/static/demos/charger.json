@@ -21,7 +21,7 @@
 },
 {
 "t": "think",
-"text": "I’ll check with the one other neighbor who is probably awake."
+"text": "I’ll ask an awake neighbor about a USB-C charger."
 },
 {
 "t": "parse",
@@ -36,6 +36,11 @@
 "phase": "outreach"
 },
 {
+"t": "why",
+"who": "sedra",
+"text": "Probably awake at 00:30"
+},
+{
 "t": "status",
 "who": "sedra",
 "state": "asked"
@@ -44,7 +49,7 @@
 "t": "say",
 "from": "robot",
 "to": "sedra",
-"text": "Hey Sedra! 😊 Do you have a USB-C charger Anas could borrow?"
+"text": "Hey Sedra! 😊 Do you have a USB-C charger to lend?"
 },
 {
 "t": "typing",
@@ -60,7 +65,7 @@
 "t": "say",
 "from": "sedra",
 "to": "robot",
-"text": "hey hey! i’ve got a usb-c charger tucked in my little tech pouch — happy to let anas borrow it 😊 i’m around tonight if he wants to swing by the apartment (i’m usually free after dinner) or i can leave it by the door. which works?"
+"text": "yasss i do! i've got a usb-c phone charger ready to share ⚡️ you can swing by my place (1A) whenever — i'm free most evenings, or i can drop it off tonight if you need it now?"
 },
 {
 "t": "typing",
@@ -74,7 +79,7 @@
 },
 {
 "t": "think",
-"text": "I’ll relay Sedra’s offer and ask Anas how he wants to collect it."
+"text": "I’ll relay Sedra’s charger offer to Anas."
 },
 {
 "t": "phase",
@@ -89,20 +94,20 @@
 "t": "say",
 "from": "robot",
 "to": "anas",
-"text": "Sedra has a USB-C charger you can borrow and is around tonight. I’d recommend picking it up at 1A; she can also leave it by her door. Which works?"
+"text": "Sedra has a USB-C phone charger you can borrow. I recommend her offer since she’s awake; pick it up at 1A or have her drop it off tonight?"
 },
 {
 "t": "quick",
 "options": [
-"Pick it up",
-"Leave it by the door"
+"Pick up at 1A",
+"Drop it off tonight"
 ]
 },
 {
 "t": "say",
 "from": "anas",
 "to": "robot",
-"text": "Pick it up"
+"text": "Pick up at 1A"
 },
 {
 "t": "typing",
@@ -116,7 +121,7 @@
 },
 {
 "t": "think",
-"text": "I’ll confirm pickup with Sedra."
+"text": "I’ll confirm pickup at 1A with Sedra."
 },
 {
 "t": "phase",
@@ -131,7 +136,7 @@
 "t": "say",
 "from": "robot",
 "to": "sedra",
-"text": "Anas would like to pick up the charger 😊 Is your door at 1A in 5 minutes okay?"
+"text": "Hey Sedra! 😊 Anas would like to pick up the charger at 1A. Is now a good time?"
 },
 {
 "t": "typing",
@@ -147,7 +152,7 @@
 "t": "say",
 "from": "sedra",
 "to": "robot",
-"text": "perfect! tell anas to knock in like 5 — i’ll leave it on the little shelf by the door so he can grab it quickly 😊"
+"text": "oh cute! anas can come by now — i'm up and hanging with the big screen thing 🌙 i'll hand him the usb-c charger at the door. tell him to text when he's outside so i can grab it!"
 },
 {
 "t": "typing",
@@ -161,7 +166,7 @@
 },
 {
 "t": "think",
-"text": "Confirming the agreed charger pickup."
+"text": "The pickup is confirmed."
 },
 {
 "t": "phase",
@@ -171,7 +176,7 @@
 "t": "say",
 "from": "robot",
 "to": "anas",
-"text": "Sedra says to knock at 1A in about 5 minutes. The charger will be on the little shelf by her door."
+"text": "Sedra can hand you the charger at her 1A door now. Please text her when you’re outside."
 },
 {
 "t": "done"

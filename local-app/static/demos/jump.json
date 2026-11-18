@@ -21,7 +21,7 @@
 },
 {
 "t": "think",
-"text": "I’ll quickly ask awake neighbors who may be able to help."
+"text": "I’ll check with three awake neighbors for jumper cables quickly."
 },
 {
 "t": "parse",
@@ -34,6 +34,21 @@
 {
 "t": "phase",
 "phase": "outreach"
+},
+{
+"t": "why",
+"who": "sulaiman",
+"text": "Retired mechanic, awake early"
+},
+{
+"t": "why",
+"who": "hamza",
+"text": "Has a car, awake early"
+},
+{
+"t": "why",
+"who": "asma",
+"text": "Keeps emergency supplies, awake"
 },
 {
 "t": "status",
@@ -54,19 +69,19 @@
 "t": "say",
 "from": "robot",
 "to": "sulaiman",
-"text": "A car battery is dead before an early shift. Do you have jumper cables?"
+"text": "Do you have jumper cables Noor can borrow? Her battery is dead and she has an early shift."
 },
 {
 "t": "say",
 "from": "robot",
 "to": "hamza",
-"text": "A neighbor’s car battery is dead and they have an early shift. Do you have jumper cables?"
+"text": "Got jumper cables Noor can borrow? Her battery’s dead and she has an early shift."
 },
 {
 "t": "say",
 "from": "robot",
 "to": "asma",
-"text": "A neighbor needs jumper cables for a dead car battery before an early shift. Do you have a set?"
+"text": "Good morning! Do you have jumper cables Noor could borrow? Her battery is dead and she has an early shift."
 },
 {
 "t": "typing",
@@ -92,7 +107,7 @@
 "t": "say",
 "from": "sulaiman",
 "to": "robot",
-"text": "No. Got tools, cords, ladder, tape — no jumper cables. If you need, I can come help push-start if it's manual; otherwise I can try to buy cables today — got about 200 SAR, can haggle. When do you need it?"
+"text": "No. got no jumper cables. I can come over with my toolbox and the long extension cord at 07:00 and help push-start if it's manual, or call Tariq to bring his car if you need a jump."
 },
 {
 "t": "typing",
@@ -103,7 +118,7 @@
 "t": "say",
 "from": "hamza",
 "to": "robot",
-"text": "No problem bro — I’ve got jumper cables in my car. Want me to come down now and jump it?"
+"text": "No problem bro — yeah I’ve got jumper cables in the car. Tell Noor I can swing by and help jump it at 06:15, or she can come to my place and I’ll drive over. Which works?"
 },
 {
 "t": "typing",
@@ -114,7 +129,7 @@
 "t": "say",
 "from": "asma",
 "to": "robot",
-"text": "Sorry, I don't— I don't have jumper cables. I can offer tea and honey while you wait, or help call someone who can bring a set."
+"text": "Good morning — I’m sorry, I don’t have jumper cables. I can ask Faisal if he has any, or I can make tea and honey for Noor while she waits. Would you like me to call him?"
 },
 {
 "t": "typing",
@@ -128,7 +143,7 @@
 },
 {
 "t": "think",
-"text": "I'll relay Hamza's immediate offer and the other available help."
+"text": "I’ll relay the available help and let Noor choose."
 },
 {
 "t": "phase",
@@ -142,7 +157,7 @@
 {
 "t": "status",
 "who": "asma",
-"state": "offer"
+"state": "no"
 },
 {
 "t": "status",
@@ -153,21 +168,21 @@
 "t": "say",
 "from": "robot",
 "to": "noor",
-"text": "Hamza has jumper cables and can come down now—I'd recommend him as the fastest option! Sulaiman can help push-start a manual car, and Asma can help call someone; which would you like?"
+"text": "Hamza has cables and can come help at 06:15, or you can go to his place and he’ll drive over; Sulaiman can help push-start at 07:00 if your car is manual. I recommend Hamza because he’s fastest—would you like him to come by, go to his place, or choose Sulaiman?"
 },
 {
 "t": "quick",
 "options": [
-"Hamza, please",
-"Sulaiman",
-"Asma"
+"Hamza, come by",
+"Go to Hamza’s",
+"Sulaiman at 07:00"
 ]
 },
 {
 "t": "say",
 "from": "noor",
 "to": "robot",
-"text": "Hamza, please"
+"text": "Hamza please, he's the fastest!"
 },
 {
 "t": "typing",
@@ -181,7 +196,7 @@
 },
 {
 "t": "think",
-"text": "I’ll arrange the jump-start and release the other helpers."
+"text": "I’ll confirm the jump-start and release the other offer."
 },
 {
 "t": "phase",
@@ -198,33 +213,16 @@
 "state": "released"
 },
 {
-"t": "status",
-"who": "asma",
-"state": "released"
-},
-{
 "t": "say",
 "from": "robot",
 "to": "hamza",
-"text": "Thanks! Can you meet Noor by her car downstairs now to jump-start it?"
+"text": "Noor would like your help at 06:15. Where should she meet you?"
 },
 {
 "t": "say",
 "from": "robot",
 "to": "sulaiman",
-"text": "Help is arranged. Thanks for offering."
-},
-{
-"t": "say",
-"from": "robot",
-"to": "asma",
-"text": "Help is arranged, thank you for offering."
-},
-{
-"t": "say",
-"from": "robot",
-"to": "noor",
-"text": "I’ve asked Hamza to meet you by your car downstairs now. I’ll confirm when he replies!"
+"text": "Thanks for offering to help; it’s covered now."
 },
 {
 "t": "typing",
@@ -234,11 +232,6 @@
 {
 "t": "typing",
 "who": "sulaiman",
-"on": true
-},
-{
-"t": "typing",
-"who": "asma",
 "on": true
 },
 {
@@ -250,7 +243,7 @@
 "t": "say",
 "from": "hamza",
 "to": "robot",
-"text": "On my way — downstairs in about 5 minutes. Tell Noor to pop the bonnet and stay near the driver's seat. Let's go."
+"text": "Perfect — tell Noor to meet me at the apartment entrance at 06:15. I’ll bring the jumper cables and we’ll get her started quick."
 },
 {
 "t": "typing",
@@ -261,24 +254,7 @@
 "t": "say",
 "from": "sulaiman",
 "to": "robot",
-"text": "Good. Keep warm — I’m around if you need tools or a hand later."
-},
-{
-"t": "typing",
-"who": "asma",
-"on": false
-},
-{
-"t": "say",
-"from": "asma",
-"to": "robot",
-"text": "You're welcome — glad it's sorted. I'll put the kettle on and leave a mug by the door in case they stop by."
-},
-{
-"t": "say",
-"from": "noor",
-"to": "robot",
-"text": "Yes please, go with your recommendation"
+"text": "Good. tell Noor I’m around if anything else pops up."
 },
 {
 "t": "typing",
@@ -292,7 +268,7 @@
 },
 {
 "t": "think",
-"text": "Confirming Hamza’s arrival with Noor."
+"text": "I’m confirming the agreed handover with Noor."
 },
 {
 "t": "phase",
@@ -302,7 +278,29 @@
 "t": "say",
 "from": "robot",
 "to": "noor",
-"text": "Hamza is on his way and will meet you by your car downstairs in about 5 minutes! He asks you to pop the bonnet and stay near the driver’s seat."
+"text": "Hamza will meet you at the apartment entrance at 06:15 with the jumper cables. Hope you make your shift! 💛"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "asma",
+"text": "Thank you for offering to help; it’s covered now, so there’s no need to call Faisal."
+},
+{
+"t": "typing",
+"who": "asma",
+"on": true
+},
+{
+"t": "typing",
+"who": "asma",
+"on": false
+},
+{
+"t": "say",
+"from": "asma",
+"to": "robot",
+"text": "That's good to hear — glad Noor's sorted. I’ll still make some tea and honey in case she needs a warm drink before her shift."
 },
 {
 "t": "done"

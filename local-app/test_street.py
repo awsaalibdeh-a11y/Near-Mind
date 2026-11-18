@@ -46,6 +46,7 @@ def test_full_flow_events_in_order(app_mod, monkeypatch):
     rounds = iter([
         {"think": "Asking two awake neighbors.", "parse": {"item": "movie buddy", "kind": "company", "urgency": "low"},
          "phase": "outreach", "status": {"osama": "asked", "anas": "asked"},
+         "why": {"osama": "awake, loves films", "ghost": "x", "sedra": "the asker"},
          "messages": [{"to": "osama", "text": "Movie with Sedra tonight?"}, {"to": "anas", "text": "Up for a movie?"}]},
         {"think": "Reporting back.", "phase": "relay", "status": {"osama": "offer", "anas": "no"},
          "messages": [{"to": "sedra", "text": "Osama is in! Want him?"}], "quick": ["Yes, Osama", "No thanks"]},
@@ -60,6 +61,7 @@ def test_full_flow_events_in_order(app_mod, monkeypatch):
     assert says == [("sedra", "robot"), ("robot", "osama"), ("robot", "anas"), ("osama", "robot"), ("anas", "robot"), ("robot", "sedra")]
     assert {"t": "quick", "options": ["Yes, Osama", "No thanks"]} in ev
     assert {"t": "status", "who": "anas", "state": "no"} in ev
+    assert [e for e in ev if e["t"] == "why"] == [{"t": "why", "who": "osama", "text": "awake, loves films"}]   # no ghosts, never the asker
 
 
 def test_robot_cannot_mark_the_asker_or_unknown_people(app_mod, monkeypatch):
@@ -99,7 +101,7 @@ def test_model_failure_becomes_error_event(app_mod, monkeypatch):
 
 def test_home_is_the_street(app_mod):
     r = app_mod.app.test_client().get("/")
-    assert r.status_code == 200 and b"NearMind Street" in r.data
+    assert r.status_code == 200 and b"NearMind City" in r.data and b'id="cityview"' in r.data
 
 
 def test_portraits_are_served(app_mod):
@@ -133,7 +135,7 @@ def public_mod(tmp_path, monkeypatch):
 
 def test_public_site_serves_only_the_street(public_mod):
     c = public_mod.app.test_client()
-    for ok in ("/", "/street", "/chat/jump", "/static/demos/jump.json", "/api/street/people", "/api/health"):
+    for ok in ("/", "/street", "/chat/jump", "/static/demos/jump.json", "/api/street/people", "/api/city", "/api/health"):
         assert c.get(ok).status_code == 200, ok
     for blocked in ("/api/wa/status", "/api/wa/friends", "/api/neighbors", "/api/turn", "/.env", "/state.json"):
         assert c.get(blocked).status_code == 404, blocked
@@ -153,6 +155,52 @@ def test_public_visitors_get_separate_streets_and_a_rate_limit(public_mod, monke
     go("bbb")
     third = go("ccc")                                                                 # same IP, limit is 2 an hour
     assert third[0]["t"] == "error" and "this hour" in third[0]["error"] and third[-1] == {"t": "done"}
+
+
+def test_city_names_are_all_different_and_families_are_4_to_8(app_mod):
+    from collections import Counter
+    st = app_mod.street_mod
+    hoods = [h["name"] for h in st.HOODS]
+    names = [B["name"] for B in st.BUILDINGS.values()]
+    assert len(set(hoods)) == len(hoods) == 5 and len(set(names)) == len(names) == 20
+    assert not set(hoods) & set(names)
+    full = Counter()
+    for bid, B in st.BUILDINGS.items():
+        assert len(B["order"]) == 10, bid
+        firsts = [m["name"] for n in B["order"] for m in B["N"][n]["members"]]
+        assert len(firsts) == len(set(firsts)), bid                                  # no first name twice in a building
+        for n in B["order"]:
+            h = B["N"][n]
+            assert 4 <= len(h["members"]) <= 8, (bid, n)
+            assert h["members"][0]["name"] == h["name"]                               # the contact person lives there
+            full.update(f"{m['name']} {h['family']}" for m in h["members"])
+    assert max(full.values()) == 1 and sum(full.values()) > 1000                      # nobody shares a full name, 1000+ people
+    fams = [B["N"][n]["family"] for B in st.BUILDINGS.values() for n in B["order"]]
+    assert len(fams) == len(set(fams)) == 200                                         # every family name is different
+
+
+def test_city_api_and_a_run_in_another_building(app_mod, monkeypatch):
+    c = app_mod.app.test_client()
+    d = c.get("/api/city").get_json()
+    assert d["buildings"] == 20 and d["homes"] == 200 and d["people"] > 1000
+    flag = [b for h in d["hoods"] for b in h["buildings"] if b["flagship"]]
+    assert [b["id"] for b in flag] == ["noor-tower"]
+    bid = d["hoods"][2]["buildings"][1]["id"]
+    pp = c.get(f"/api/street/people?b={bid}").get_json()
+    assert pp["building"]["id"] == bid and len(pp["order"]) == 10 and "home" not in pp["people"][pp["order"][0]]
+    assert c.get("/api/street/people?b=nowhere").status_code == 404
+    st = app_mod.STREET
+    asker, other = pp["order"][0], pp["order"][3]
+    monkeypatch.setattr(st, "robot_fn", lambda S, f: {"why": {other: "has a car"}, "status": {other: "asked"},
+                                                     "messages": [{"to": other, "text": "Got a ladder?"}, {"to": "sedra", "text": "x"}]})
+    monkeypatch.setattr(st, "neighbor_fn", lambda S, n: "yes, my son can bring it")
+    r = c.post("/api/street/run", json={"from": asker, "text": "need a ladder", "building": bid})
+    ev = [json.loads(l) for l in r.get_data(as_text=True).splitlines() if l.strip()]
+    says = [(e["from"], e["to"]) for e in ev if e["t"] == "say"]
+    assert (other, "robot") in says and not any("sedra" in s for s in says)          # flagship people don't exist here
+    B = app_mod.street_mod.BUILDINGS[bid]
+    assert st.sess("me", bid)["b"] == bid and B["name"] in B["prompt"] and "Sedra" not in B["prompt"]
+    assert c.post("/api/street/run", json={"from": "sedra", "text": "hi", "building": bid}).status_code == 400
 
 
 def test_recorded_demos_are_complete():
