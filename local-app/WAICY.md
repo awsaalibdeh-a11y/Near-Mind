@@ -66,8 +66,12 @@ make your AI fail, and know when to say "I don't know". NearMind already does al
       `/chat/charger`, `/chat/sale` and `/chat/movie`.
 - [ ] Open both links on a phone using mobile data (not your home Wi-Fi) before submitting, to be sure they work
       from outside.
-- [ ] **Screenshots** for the PDF: the building, a demo mid-way, the "Neighbors contacted" card, the delivery zoom.
-- [ ] Turn this text into the PDF, upload it to a Google Drive folder named `LLM_Middle_NearMind`, set sharing to
+- [x] **Screenshots** for the PDF (in `waicy/img/`): the city, a neighborhood, the building, the jump-start demo
+      mid-way, the decisions card, the delivery zoom, another building, the chat page.
+- [x] **The PDF: `waicy/LLM_Middle_NearMind.pdf`** (10 pages, the ten sections in the guidebook's order). Rebuild it
+      after any text change with `python tools/make_waicy_pdf.py`. The Motivation section is a draft: rewrite it in
+      your own words (edit section 3 in the script) before submitting.
+- [ ] Upload the PDF to a Google Drive folder named `LLM_Middle_NearMind`, set sharing to
       "anyone with the link can view", and submit the form at https://www.waicy.org/2026-submission
 - [ ] Optional: Saudi Arabia also has **WAICY KSA** (ages 13-18, finals in Abha) at https://www.waicy.org/waicy-2026-ksa/.
       Ask your school whether it's open and how it relates to WAICY Global.
