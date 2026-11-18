@@ -54,15 +54,20 @@ make your AI fail, and know when to say "I don't know". NearMind already does al
 
 ### Still missing before you can submit
 
-- [ ] **Live chatbot link.** Everything is ready for Render (see "Put it online" in the README). A parent should
-      create the Render account (sign in with GitHub), click New → Blueprint, choose this repo and branch
-      `local-app-street`, and paste the OpenAI key into Render. Also set a monthly spending limit in the OpenAI
-      dashboard. Then the link is `https://<your-render-name>.onrender.com`.
-- [ ] **Chat history link.** Done in the code: `https://<your-render-name>.onrender.com/chat/jump` shows the full
-      6 AM jump-start conversation (18 messages, 3 of 9 neighbors contacted). The other four runs are at
-      `/chat/ladder`, `/chat/charger`, `/chat/sale` and `/chat/movie`.
-- [ ] Open both links on a phone and in a private window before submitting. The free plan sleeps when nobody
-      visits, so the first load can take up to a minute; open it yourself just before the judging days.
+- [ ] **Live chatbot link.** It runs from your own computer: double-click `start-public.bat` and copy the
+      `https://....trycloudflare.com` address it shows. **Rules for keeping it working:**
+      - Start it once, shortly before you submit, and **don't close it** until WAICY is over (7 December).
+        Every restart gives a **new address**, and the one in your PDF would stop working.
+      - The computer must stay **on, plugged in, online and awake**. Windows Settings → System → Power →
+        set "When plugged in, put my device to sleep after" to **Never**. Don't restart for Windows updates
+        (Settings → Windows Update → Pause updates).
+      - Set a monthly spending limit in the OpenAI dashboard, in case the link gets shared.
+- [ ] **Chat history link.** The same address + `/chat/jump` shows the full 6 AM jump-start conversation
+      (18 messages, 3 of 9 neighbors contacted). The other four runs are at `/chat/ladder`, `/chat/charger`,
+      `/chat/sale` and `/chat/movie`.
+- [ ] Open both links on a phone using mobile data (not your home Wi-Fi) before submitting, to be sure they work
+      from outside. If the computer ever has to restart, the link changes: you'd need to tell WAICY the new
+      one (info@waicy.org), so try hard not to.
 - [ ] **Screenshots** for the PDF: the building, a demo mid-way, the "Neighbors contacted" card, the delivery zoom.
 - [ ] Turn this text into the PDF, upload it to a Google Drive folder named `LLM_Middle_NearMind`, set sharing to
       "anyone with the link can view", and submit the form at https://www.waicy.org/2026-submission
@@ -149,7 +154,7 @@ buying things they use once."
 
 ### 4. Link to the chat history
 
-`https://<your-render-name>.onrender.com/chat/jump`
+`https://<your-address>.trycloudflare.com/chat/jump`
 
 The **jump-start at 6 AM** run (18 messages). Noor asks; NearMind asks Sulaiman,
 Hamza and Asma (not Yousef, who's asleep); Sulaiman and Asma don't have cables but offer other help; Hamza does;
@@ -158,7 +163,7 @@ Noor to pop the bonnet because Hamza is five minutes away.
 
 ### 5. Link to the chatbot
 
-`https://<your-render-name>.onrender.com`
+`https://<your-address>.trycloudflare.com`
 
 To keep it fair and affordable, each visitor gets their own private building, and there's a limit on live
 requests per hour and per day. The five recorded demos always work.

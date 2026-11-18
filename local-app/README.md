@@ -25,20 +25,23 @@ python app.py               # http://127.0.0.1:5215
 - The **Neighbors contacted** card shows how few people were bothered (e.g. 2 of 9, 7 left in peace).
 - Rebuild the animation after editing `remotion/src/street.jsx`: `cd remotion && npm install && node build.mjs`.
 
-## Put it online (Render)
+## Put it online (from this computer)
 
-`render.yaml` at the repo root sets everything up. On https://render.com: **New → Blueprint**, pick this repo and the
-branch `local-app-street`, then paste `OPENAI_API_KEY` when Render asks (it's stored there, never in the repo).
+Double-click `start-public.bat`. It starts a second NearMind server in **public mode** on port 5218 and opens a free
+Cloudflare tunnel (`tunnel\cloudflared.exe`) to it. The window shows the public address
+(`https://....trycloudflare.com`); the chat history is that address + `/chat/jump`.
 
-Online it runs in **public mode** (`NM_PUBLIC=1`):
+- The link works only while that window is open and the computer is awake and online.
+- The address changes every time you start it again, so start it once and leave it running while judges need it.
+- The normal private server (`python app.py`, port 5215) is never exposed: it refuses tunnel traffic.
+
+Public mode (`NM_PUBLIC=1`):
 - Only the website, its API and the chat pages are served. WhatsApp, the old chat engine and any personal files are
   switched off (404).
 - Every browser tab gets its own private street.
-- Limits protect the API budget: `NM_HOURLY_PER_IP` (25 live requests an hour per visitor) and `NM_DAILY_CAP`
-  (150 a day for the whole site). The recorded demos and chat pages never call the model.
+- Limits protect the API budget: `NM_HOURLY_PER_IP` (default 25 live requests an hour per visitor) and `NM_DAILY_CAP`
+  (default 400 a day for the whole site). The recorded demos and chat pages never call the model.
 - Shareable transcripts of the recorded runs: `/chat/jump`, `/chat/ladder`, `/chat/charger`, `/chat/sale`, `/chat/movie`.
-
-On the free plan the site sleeps after about 15 minutes without visitors and takes up to a minute to wake up.
 
 ## For WAICY judges
 
