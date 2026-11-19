@@ -121,6 +121,11 @@ Rules
 - Privacy: never mention one neighbor's name or offer inside another neighbor's chat (except to the asker when relaying offers).
 - Respect sleep: don't ping someone who is probably asleep unless it's urgent.
 - Safety: mention plainly if an offer sounds unsafe and prefer the safer one.
+- Kindness: never pass on insults, gossip or complaints about a neighbor, even if asked; say kindly that NearMind is only for
+  favors and help, and contact nobody.
+- Money: don't arrange money loans between neighbors and never ask anyone for card numbers, passwords or bank details; suggest
+  family or a trusted friend instead (selling an item for a price is fine).
+- Emergencies: if someone describes a real emergency (fire, injury, someone in danger), first tell them to call 911, then help.
 - Keep every message to 1-2 short sentences, in the recipient's style.
 - If nobody can help, tell the asker warmly and suggest an alternative.
 - Fairness: don't lean on the same helpful neighbors every time. If two neighbors are about equally likely, ask the one who has
@@ -143,6 +148,7 @@ def robot_prompt(B):
     return ROBOT_TMPL.replace("{bname}", B["name"]).replace("{hood}", B["hood_name"]).replace("{roster}", roster)
 
 STATES = {"asked", "offer", "no", "chosen", "released"}
+MAX_ASK = 3          # hard limit, in code: never more than 3 neighbors contacted per request, whatever the model or the asker says
 
 import city                                               # noqa: E402  (needs N and ORDER above)
 HOODS, BUILDINGS = city.build(N, ORDER)
@@ -217,8 +223,10 @@ def render(S):
 def invented_offer(S, out, asker):
     """True when the robot reports or arranges an offer although no neighbor has said anything yet in this request.
     Code-level guard for the rule "only relay what neighbors actually said" (the model alone once broke it)."""
-    if str(out.get("phase") or "") not in ("relay", "handover", "closed"):
-        return False
+    phase = str(out.get("phase") or "")
+    picks = any(st in ("offer", "chosen") for st in (out.get("status") or {}).values()) if isinstance(out.get("status"), dict) else False
+    if phase not in ("relay", "handover") and not (phase == "closed" and picks):
+        return False                              # asking, clarifying, or politely declining and closing: all fine
     to_asker = any(str(m.get("to", "")).lower() == asker for m in out.get("messages") or [] if isinstance(m, dict))
     anyone_replied = any(w == "me" for n, th in S["threads"].items() if n != asker for w, _ in th)
     return to_asker and not anyone_replied
@@ -287,12 +295,13 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
         S["threads"][asker].append(("me", text))
         yield {"t": "say", "from": asker, "to": "robot", "text": text}
         try:
+            told, wrap = False, False                    # the asker always gets an answer, even when the robot declines
             for rnd in range(4):
                 yield {"t": "typing", "who": "robot", "on": True}
-                out = bp.robot_fn(S, rnd == 3)
+                out = bp.robot_fn(S, rnd == 3 or wrap)
                 if invented_offer(S, out, asker):         # reporting offers before anyone answered = making them up
                     S["nudge"] = True
-                    out = bp.robot_fn(S, rnd == 3)
+                    out = bp.robot_fn(S, rnd == 3 or wrap)
                     if invented_offer(S, out, asker):     # still inventing: drop those messages rather than relay them
                         out = {"think": "Checking with neighbors before promising anything.", "phase": "outreach", "messages": []}
                 yield {"t": "typing", "who": "robot", "on": False}
@@ -310,8 +319,17 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
                 for nid, reason in why.items():                  # the robot's reason for picking each neighbor, shown on screen
                     if nid in N and nid != asker and str(reason).strip():
                         yield {"t": "why", "who": nid, "text": str(reason).strip()[:60]}
+                contacted = {n for n, th in S["threads"].items() if n != asker and th}
+                def allowed(nid):                         # the 3-neighbor limit: someone new only while there is room
+                    if nid in contacted or nid == asker:
+                        return True
+                    if len(contacted) < MAX_ASK:
+                        contacted.add(nid)
+                        return True
+                    S["brain"]["limit"] = f"You may contact at most {MAX_ASK} neighbors per request; work with the ones you already asked."
+                    return False
                 for nid, st in (out.get("status") or {}).items():
-                    if nid in N and st in STATES and nid != asker:
+                    if nid in N and st in STATES and nid != asker and (nid in contacted or (st == "asked" and allowed(nid))):
                         prev = S["brain"].setdefault("status", {}).get(nid)
                         S["brain"]["status"][nid] = st
                         led = S.setdefault("ledger", {}).setdefault(nid, {"asked": 0, "helped": 0})
@@ -323,7 +341,7 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
                 to_asker, jobs = False, []
                 for m in out.get("messages") or []:
                     nid, msg = str(m.get("to", "")).lower(), str(m.get("text", "")).strip()
-                    if nid not in N or not msg:
+                    if nid not in N or not msg or not allowed(nid):
                         continue
                     S["threads"][nid].append(("ai", msg))
                     yield {"t": "say", "from": "robot", "to": nid, "text": msg}
@@ -340,6 +358,10 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
                         S["threads"][nid].append(("me", rep))
                         yield {"t": "typing", "who": nid, "on": False}
                         yield {"t": "say", "from": nid, "to": "robot", "text": rep}
+                told = told or to_asker
+                if not to_asker and not out.get("messages") and not told and not wrap and rnd < 3:
+                    wrap = True                           # it sent nothing at all: one more round, told to answer the asker
+                    continue
                 if to_asker or not out.get("messages"):
                     q = [str(x)[:50] for x in (out.get("quick") or [])][:3]
                     if to_asker and q:

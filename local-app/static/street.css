@@ -294,3 +294,6 @@ body:not([data-view=building]) .clock,body:not([data-view=building]) #present,bo
 .hp{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 3px;border-radius:999px;background:var(--chip,#eef6f3);font-size:13px}
 .hp .fa{width:26px;height:26px}
 .q[dir="auto"],#in{unicode-bidi:plaintext}
+
+/* v8: keyboard focus rings on the city map and building cards */
+.hood:focus-visible .lbl,.bcard:focus-visible{box-shadow:0 0 0 3px var(--acc),0 16px 34px rgba(20,50,70,.16)}

@@ -41,8 +41,10 @@ python app.py               # http://127.0.0.1:5215
 - **Arabic or English:** write in Arabic and the robot asks neighbors and answers you in Arabic (try the **عربي** presets);
   bubbles and the timeline show Arabic right-to-left.
 - **Never invents offers, enforced in code:** the server blocks the robot from reporting an offer before any neighbor has replied.
+- **Hard to trick:** the code never lets the robot contact more than 3 neighbors per request, whatever anyone types; it refuses
+  gossip, money loans and requests for card details, tells people to call 911 in a real emergency, and always answers the asker.
 - **Sell** mode: a family lists something with a price; the robot finds who'd want it and the item goes to the buyer's door.
-- **Watch a demo** (in The Roof Robot Tower) replays five recorded real runs instantly. Re-record with `python tools/record_demo.py [name]`.
+- **Watch a demo** (in The Roof Robot Tower) replays six recorded real runs instantly, one of them in Arabic. Re-record with `python tools/record_demo.py [name]`.
 - When a deal closes, the item travels door to door and the camera zooms in on the receiver's door. `1×/2×` sets the pace.
 - Rebuild the animation after editing `remotion/src/street.jsx`: `cd remotion && npm install && node build.mjs`.
 
@@ -78,7 +80,7 @@ The WAICY 2026 rules for the LLM & AI Agent track, the submission text and the W
 
 - **ⓘ How it works** (or press `I`) explains the problem, the four steps, the AI inside and the responsible-AI rules.
 - **⛶ Present** (or `P`) shows the building full screen for a live demo or screen recording; `Esc` exits.
-- Shortcuts: `1`-`5` play the demos (movie night, ladder, charger at 00:30, selling a bike, jump-start at 6 AM), `S` speed, `R` reset.
+- Shortcuts: `1`-`6` play the demos (movie night, ladder, charger at 00:30, selling a bike, jump-start at 6 AM, a ladder in Arabic), `S` speed, `R` reset.
 - What the AI does: one router model replies in strict JSON (what it thinks, who to message, status changes); each neighbor is a
   separately simulated person that only owns what is in its private list, so the router has to ask to find out.
 - Responsible by design: the router sees only public facts, never inventories; neighbors never see each other's chats; it asks as

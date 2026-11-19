@@ -1,0 +1,309 @@
+{
+"title": "Ladder, in Arabic",
+"asker": "noor",
+"clock": "18:00",
+"events": [
+{
+"t": "say",
+"from": "noor",
+"to": "robot",
+"text": "مرحبا، أحتاج سلم صغير لتغيير لمبة في المطبخ، هل عند أحد؟"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "سأسأل جارَين قد يتمكنان من المساعدة."
+},
+{
+"t": "parse",
+"item": "سلم صغير لتغيير لمبة المطبخ",
+"kind": "item",
+"urgency": "medium",
+"qty": "1",
+"price": ""
+},
+{
+"t": "phase",
+"phase": "outreach"
+},
+{
+"t": "why",
+"who": "sulaiman",
+"text": "يعمل بالأدوات ومستيقظ الآن"
+},
+{
+"t": "why",
+"who": "asma",
+"text": "تجهز شقتها ومستيقظة الآن"
+},
+{
+"t": "status",
+"who": "sulaiman",
+"state": "asked"
+},
+{
+"t": "status",
+"who": "asma",
+"state": "asked"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sulaiman",
+"text": "مرحبًا، هل عندك سلم صغير يمكن استعارته لتغيير لمبة؟"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "asma",
+"text": "مرحبًا أسماء، هل لديكِ سلم صغير يمكن استعارته لتغيير لمبة في المطبخ؟"
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": true
+},
+{
+"t": "typing",
+"who": "asma",
+"on": true
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": false
+},
+{
+"t": "say",
+"from": "sulaiman",
+"to": "robot",
+"text": "عندي سلم ألومنيوم طوله ستة أقدام. تبيه اليوم؟ أقدر أجي عندك بعد ثُمَّة أرباع الساعة."
+},
+{
+"t": "typing",
+"who": "asma",
+"on": false
+},
+{
+"t": "say",
+"from": "asma",
+"to": "robot",
+"text": "مرحبًا — آسفة، ما عندي سلم صغير. أقدر أساعدكِ بإرشاد آمن كيف تغيّري اللمبة من الأرض أو أقترح نستعين بفصيلتنا: فيصل قادر يجيب واحد صغير أو نشتري واحد بميزانية قليلة. تريدين أن أتصل به الآن؟"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "سأستوضح موعد وصول السلم قبل إبلاغ Noor."
+},
+{
+"t": "phase",
+"phase": "clarify"
+},
+{
+"t": "status",
+"who": "sulaiman",
+"state": "offer"
+},
+{
+"t": "status",
+"who": "asma",
+"state": "no"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sulaiman",
+"text": "شكرًا، تقصد تقدر تجي بعد كم دقيقة؟"
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": true
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": false
+},
+{
+"t": "say",
+"from": "sulaiman",
+"to": "robot",
+"text": "أقدر أكون عندك بعد 45 دقيقة."
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "أنقل لنور العرض والبديل المتاحين."
+},
+{
+"t": "phase",
+"phase": "relay"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "noor",
+"text": "سليمان لديه سلم ألومنيوم بطول ٦ أقدام ويمكنه المجيء بعد ٤٥ دقيقة، وأسماء عرضت إرشادك أو الاتصال بفيصل لتوفير سلم صغير. أنصح بسلم سليمان لأنه متوفر؛ أيهما تفضلين؟"
+},
+{
+"t": "quick",
+"options": [
+"سلم سليمان",
+"الاتصال بفيصل",
+"إرشادات أسماء"
+]
+},
+{
+"t": "say",
+"from": "noor",
+"to": "robot",
+"text": "نعم، سليمان من فضلك. أنا في شقة 5A، أقدر أجي آخذه الحين."
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "سأتأكد من تسليم السلم لنور الآن."
+},
+{
+"t": "phase",
+"phase": "handover"
+},
+{
+"t": "status",
+"who": "sulaiman",
+"state": "chosen"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sulaiman",
+"text": "نور اختارت سلمك وتقدر تجي تأخذه الآن. هل يناسبك تسلمه عند باب شقتك 2A؟"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "noor",
+"text": "تمام يا نور، سأتأكد من سليمان إذا يناسبه تسليمك السلم الآن عند باب 2A. 🌷"
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": true
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": false
+},
+{
+"t": "say",
+"from": "sulaiman",
+"to": "robot",
+"text": "تمام. باب 2A. أرسليها تهز الجرس، ألبس القفازات وأجي أتناوله من عند الباب حالاً."
+},
+{
+"t": "ledger",
+"helped": {
+"sulaiman": 1
+}
+},
+{
+"t": "say",
+"from": "noor",
+"to": "robot",
+"text": "تمام، شكراً جزيلاً!"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "أؤكد لنور مكان ووقت استلام السلم."
+},
+{
+"t": "phase",
+"phase": "closed"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "noor",
+"text": "العفو يا نور 🌷 سليمان أكّد أنه جاهز الآن عند باب 2A؛ دقّي الجرس لاستلام السلم."
+},
+{
+"t": "say",
+"from": "robot",
+"to": "asma",
+"text": "شكرًا على عرضك يا أسماء، تم توفير السلم، فلا داعي للاتصال بفيصل."
+},
+{
+"t": "typing",
+"who": "asma",
+"on": true
+},
+{
+"t": "typing",
+"who": "asma",
+"on": false
+},
+{
+"t": "say",
+"from": "asma",
+"to": "robot",
+"text": "جميل، ممتاز — شكرًا إنكم جبتوه. لو حابة، أقدر أقول لك خطوات سريعة للسلامة قبل ما تبدين: إطفاء الكهرباء من المفتاح، أن تقف شخص يساعد على تثبيت السلم، واستخدام نظارات حماية لو عندكم. تريدين إرشادات خطوة بخطوة؟"
+},
+{
+"t": "ledger",
+"helped": {
+"sulaiman": 1
+}
+},
+{
+"t": "done"
+}
+]
+}

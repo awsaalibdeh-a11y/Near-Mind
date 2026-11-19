@@ -49,7 +49,7 @@
 <script>
 (() => {
   const DEMOS = [["jump","🚗 Jump-start at 6 AM"],["ladder","🪜 Ladder at noon"],["charger","🔌 Charger after midnight"],
-                 ["sale","🚲 Selling a bike"],["movie","🎬 Movie night"]];
+                 ["sale","🚲 Selling a bike"],["movie","🎬 Movie night"],["arabic","🇸🇦 Ladder in Arabic"]];
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const name = (location.pathname.split("/").filter(Boolean)[1] || "jump").replace(/[^a-z]/g, "");
   const id = DEMOS.some(d => d[0] === name) ? name : "jump";
@@ -68,9 +68,9 @@
       if(e.t === "say"){
         const side = e.from === "robot" ? "robot" : "";
         const av = e.from === "robot" ? `<div class="av" aria-hidden="true">🤖</div>` : `<img class="av" src="${esc(P[e.from].img)}" alt="">`;
-        out.push(`<div class="row ${side}">${av}<div class="b"><div class="who"><b>${esc(nm(e.from))}</b> → ${esc(nm(e.to))}</div>${esc(e.text)}</div></div>`);
+        out.push(`<div class="row ${side}">${av}<div class="b"><div class="who"><b>${esc(nm(e.from))}</b> → ${esc(nm(e.to))}</div><div dir="auto" style="unicode-bidi:plaintext">${esc(e.text)}</div></div></div>`);
       } else if(e.t === "think"){
-        out.push(`<div class="note">🤖 NearMind thinks: ${esc(e.text)}</div>`);
+        out.push(`<div class="note">🤖 NearMind thinks: <span dir="auto">${esc(e.text)}</span></div>`);
       } else if(e.t === "status"){
         out.push(`<div class="note"><span class="chip ${e.state === "chosen" ? "chosen" : ""}">${esc(P[e.who].name)}: ${esc(LABEL[e.state] || e.state)}</span></div>`);
       } else if(e.t === "phase" && e.phase === "closed"){

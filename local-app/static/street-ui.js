@@ -201,7 +201,9 @@ function route(){
   showCity();
 }
 function countUp(el){
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;   // no counting animation for people who turned motion off
   el.querySelectorAll("[data-n]").forEach(x => { const n = +x.dataset.n, t0 = performance.now();
+    if(still){ x.textContent = fmt(n); return; }
     const step = now => { const f = Math.min(1, (now - t0) / 900); x.textContent = fmt(Math.round(n * (1 - Math.pow(1 - f, 3)))); if(f < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step); });
 }
@@ -310,7 +312,7 @@ function fresh(){
 }
 
 // ---------- recorded demos: real runs replayed instantly ----------
-const DEMOS = [["movie","🎬 Movie night"],["ladder","🪜 Ladder at noon"],["charger","🔋 Charger at 00:30"],["sale","🏷️ Selling a bike"],["jump","🚗 Jump-start at 6 AM"]];
+const DEMOS = [["movie","🎬 Movie night"],["ladder","🪜 Ladder at noon"],["charger","🔋 Charger at 00:30"],["sale","🏷️ Selling a bike"],["jump","🚗 Jump-start at 6 AM"],["arabic","🇸🇦 Ladder in Arabic"]];
 async function playDemo(demoId){
   if(busy){ toast("Wait for this request to finish"); return; }
   if(!BMETA || !BMETA.flagship){ location.hash = "#/b/noor-tower"; await new Promise(r => setTimeout(r, 900)); }
