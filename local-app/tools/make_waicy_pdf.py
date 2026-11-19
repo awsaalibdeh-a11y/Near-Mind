@@ -328,11 +328,11 @@ s += [para("4. Link to the chat history", H1),
       para("5. Link to the chatbot", H1),
       para(link(LIVE)),
       para("To keep it fair and affordable, each visitor gets their own private building, and there's a limit on live "
-           "requests per hour and per day. The five recorded demos always work."),
+           "requests per hour and per day. The six recorded demos always work."),
       para("<b>How to use it:</b> tap a neighborhood, then a building, then an apartment to choose who's asking. Type a "
            "request or tap a preset, and watch it play out. Change the time of day and the sky changes and people go to "
-           "sleep. <b>Watch a demo</b> (in The Roof Robot Tower) replays five recorded real runs instantly. Keyboard: "
-           "<b>1</b>-<b>5</b> demos, <b>I</b> how it works, <b>P</b> full screen, <b>S</b> speed, <b>R</b> reset."),
+           "sleep. <b>Watch a demo</b> (in The Roof Robot Tower) replays six recorded real runs (one in Arabic) instantly. Keyboard: "
+           "<b>1</b>-<b>6</b> demos, <b>I</b> how it works, <b>P</b> full screen, <b>S</b> speed, <b>R</b> reset."),
       pic("demo.jpg", "The jump-start demo at 06:00: the robot has asked Hamza, Asma and Sulaiman, each with a reason "
                       "under their name. Four neighbors are asleep and left alone. The counter shows 3 of 9 contacted."),
       ]
@@ -360,7 +360,7 @@ s += [para("6. Iterative design process", H1),
              ["1", "Growing from 6 to 10 neighbors", "With more people to choose from, nothing stopped the agent from "
               "messaging lots of them, and nothing showed how many it bothered", "Prompt: “Pick the 1-3 neighbors... "
               "asking fewer people is better: never message everyone... Ask 2 normally; 3 only when urgent.” Added the "
-              "on-screen <b>Neighbors contacted</b> counter to measure it", "In the five recorded demos it contacted 1-3 "
+              "on-screen <b>Neighbors contacted</b> counter to measure it", "In the six recorded demos it contacted 1-3 "
               "of 9 neighbors each time"],
              ["2", "Requests at night and early morning", "Waking people up is rude", "Each neighbor has sleep hours; the "
               "agent is told who is “probably ASLEEP” and “don't ping someone who is probably asleep unless it's urgent”. "

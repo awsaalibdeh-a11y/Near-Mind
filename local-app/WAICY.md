@@ -226,10 +226,10 @@ says where her car is parked; NearMind confirms the place with Hamza, thanks the
 https://nearmind.awsaa-libdeh.workers.dev
 
 To keep it fair and affordable, each visitor gets their own private building, and there's a limit on live
-requests per hour and per day. The five recorded demos always work.
+requests per hour and per day. The six recorded demos always work.
 
 How to use it: pick who's asking (tap an apartment), type a request or tap a preset, and watch it play out. Change
-the time of day and the sky changes and people go to sleep. **Watch a demo** replays five recorded real runs
+the time of day and the sky changes and people go to sleep. **Watch a demo** replays six recorded real runs (one in Arabic)
 instantly (the sixth is in Arabic). Keyboard: `1`-`6` demos, `I` how it works, `P` full screen, `S` speed, `R` reset.
 
 ### 6. Iterative design process
@@ -254,7 +254,7 @@ wrong, change the prompt or the code, and run again.
 
 | # | What we tested | What went wrong (error analysis) | What we changed | Result |
 |---|---|---|---|---|
-| 1 | Growing from 6 to 10 neighbors | With more people to choose from, there was nothing stopping the agent from messaging lots of them, and nothing showed how many it bothered | Prompt: "Pick the 1-3 neighbors (out of all ten; asking fewer people is better: never message everyone)... Ask 2 normally; 3 only when urgent." Added the on-screen **Neighbors contacted** counter to measure it | In the five recorded demos it contacted 1-3 of 9 neighbors each time |
+| 1 | Growing from 6 to 10 neighbors | With more people to choose from, there was nothing stopping the agent from messaging lots of them, and nothing showed how many it bothered | Prompt: "Pick the 1-3 neighbors (out of all ten; asking fewer people is better: never message everyone)... Ask 2 normally; 3 only when urgent." Added the on-screen **Neighbors contacted** counter to measure it | In the six recorded demos it contacted 1-3 of 9 neighbors each time |
 | 2 | Requests at night and early morning | Waking people up is rude | Each neighbor has sleep hours; the agent is told who is "probably ASLEEP" and the rule "don't ping someone who is probably asleep unless it's urgent". Sleeping neighbors reply sleepy and short | At 06:00 the agent skipped Yousef (asleep) |
 | 3 | 6 AM jump-start | **A simulated neighbor made something up:** Sulaiman offered jumper cables that weren't in his inventory. The agent would have relayed a false offer | Neighbor prompt: "Be truthful about what you have: you ONLY own the things listed above; if something isn't listed, you don't have it, so say no kindly." Agent rule: "Only relay what neighbors actually said. Never invent that someone has something." | Re-ran: Sulaiman says no and offers to help push-start; Hamza, who really has cables, is chosen |
 | 4 | Movie night | The conversation never finished: the agent kept saying it would check and come back | Found the agent was right to wait: it can't confirm a meeting without a time and place, and the test asker never gave one. The prompt already says to confirm "time and place" before closing, so the fix was in the test: the asker now proposes 20:30 at her flat | The request closes with Alwalid joining at 20:30. Lesson: sometimes the AI is right and the test is wrong |
