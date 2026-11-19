@@ -110,7 +110,7 @@ function Bubbles({frame}){
   return <div key={id} style={{position:"absolute",left:x,top:y,width:w,zIndex:8,opacity:sp*fade,transform:`translateX(${(1-sp)*(left?30:-30)}px) scale(${0.85+0.15*sp})`,transformOrigin:left?"right center":"left center",fontFamily:FONT}}>
    <div style={{background:"#fff",borderRadius:18,padding:"10px 14px",boxShadow:"0 10px 28px rgba(20,40,32,.18)",borderTop:"6px solid "+(fromRobot?"#17c394":p.color),position:"relative"}}>
     <div style={{fontSize:12,fontWeight:800,letterSpacing:1,textTransform:"uppercase",color:fromRobot?"#0b8f69":"#36424a",marginBottom:3}}>{fromRobot?"🤖 NearMind → "+p.name:p.name+" → 🤖 NearMind"}</div>
-    <div style={{fontSize:18,lineHeight:1.3,color:"#14201c"}}>{b.text}</div>
+    <div dir="auto" style={{fontSize:18,lineHeight:1.3,color:"#14201c",unicodeBidi:"plaintext"}}>{b.text}</div>
     <div style={{position:"absolute",top:30,[left?"right":"left"]:-12,width:0,height:0,borderTop:"12px solid transparent",borderBottom:"12px solid transparent",[left?"borderLeft":"borderRight"]:"14px solid #fff"}}/>
    </div></div>})}</>}
 
@@ -241,7 +241,7 @@ function Scene(){
   {th&&<div style={{position:"absolute",left:880,top:30,width:470,opacity:thSp,transform:`scale(${0.9+0.1*thSp})`,transformOrigin:"left center",zIndex:7}}>
    <div style={{background:night?"#e8f6f1":"#ffffff",borderRadius:24,padding:"14px 20px",boxShadow:"0 12px 30px rgba(20,40,32,.16)",border:"3px dashed #17c394"}}>
     <div style={{fontSize:14,fontWeight:800,letterSpacing:1.5,color:"#0b8f69",textTransform:"uppercase",marginBottom:3}}>🤖 thinking</div>
-    <div style={{fontSize:20,lineHeight:1.3,color:"#14201c"}}>{th.text}</div></div>
+    <div dir="auto" style={{fontSize:20,lineHeight:1.3,color:"#14201c",unicodeBidi:"plaintext"}}>{th.text}</div></div>
    {[0,1].map(i=><div key={i} style={{position:"absolute",left:-22-i*20,top:70+i*16,width:16-i*5,height:16-i*5,borderRadius:"50%",background:"#fff",border:"3px dashed #17c394"}}/>)}
   </div>}
   <Reach frame={frame} ids={ids}/>

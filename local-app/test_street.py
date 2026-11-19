@@ -229,3 +229,76 @@ def test_recorded_demos_are_complete():
         assert kinds[-1] == "done" and "say" in kinds
         assert any(e["t"] == "status" and e["state"] == "chosen" for e in data["events"]), n   # every demo ends in a handover
         assert any(e["t"] == "phase" and e["phase"] == "closed" for e in data["events"]), n
+
+
+def test_bad_clock_and_bad_json_are_handled(app_mod, monkeypatch):
+    st = app_mod.street_mod
+    assert st.valid_clock("06:00") and st.valid_clock("23:59")
+    assert not any(st.valid_clock(x) for x in ["99:99", "24:00", "12:60", "6:00", "ab:cd", ""])
+    c = app_mod.app.test_client()
+    for body in ["notjson", "[1, 2]"]:                                  # a clean JSON 400, never an HTML page or a crash
+        r = c.post("/api/street/run", data=body, content_type="application/json")
+        assert r.status_code == 400 and r.get_json()["error"]
+    assert c.post("/api/street/reset", data="[1]", content_type="application/json").status_code == 200
+
+
+def test_new_request_after_a_closed_one_starts_fresh(app_mod, monkeypatch):
+    st = app_mod.STREET
+    seen = []
+    def robot(S, force):
+        seen.append(dict(S["brain"]))
+        return {"think": "done", "phase": "closed", "messages": [{"to": "noor", "text": "All set!"}]}
+    monkeypatch.setattr(st, "robot_fn", robot)
+    c = app_mod.app.test_client()
+    run(c, "noor", "jumper cables please")
+    run(c, "noor", "now I need sugar")                                   # same asker, but the first request closed
+    assert seen[1] == {}                                                # so the robot starts with a clean slate
+
+
+def test_fairness_ledger_counts_helpers_and_reaches_the_robot(app_mod, monkeypatch):
+    st = app_mod.STREET
+    ctx = []
+    def robot(S, force):
+        ctx.append(app_mod.street_mod.world(S))
+        return next(rounds)
+    rounds = iter([
+        {"think": "ask", "phase": "outreach", "status": {"sulaiman": "asked"}, "messages": [{"to": "sulaiman", "text": "Ladder?"}]},
+        {"think": "pick", "phase": "closed", "status": {"sulaiman": "chosen"}, "messages": [{"to": "osama", "text": "Sulaiman brings it"}]},
+        {"think": "again", "phase": "outreach", "messages": [{"to": "sedra", "text": "Checking"}]},
+    ])
+    monkeypatch.setattr(st, "robot_fn", robot)
+    monkeypatch.setattr(st, "neighbor_fn", lambda S, n: "Sure")
+    c = app_mod.app.test_client()
+    ev = run(c, "osama", "I need a ladder")
+    led = [e for e in ev if e["t"] == "ledger"]
+    assert led and led[-1]["helped"] == {"sulaiman": 1}
+    run(c, "sedra", "anyone have a drill?")
+    assert "HELPED BEFORE" in ctx[-1] and "Sulaiman asked 1x, helped 1x" in ctx[-1]
+
+
+def test_robot_is_told_about_fairness_and_language(app_mod):
+    p = app_mod.street_mod.ROBOT
+    assert "Fairness:" in p and "HELPED BEFORE" in p
+    assert "Language:" in p and "Arabic" in p
+
+
+def test_robot_cannot_report_offers_before_anyone_replies(app_mod, monkeypatch):
+    st = app_mod.STREET
+    calls = []
+    def robot(S, force):
+        calls.append(S.get("nudge"))
+        return {"think": "Sulaiman has one", "phase": "relay", "messages": [{"to": "noor", "text": "Sulaiman has a 6ft ladder!"}]}
+    monkeypatch.setattr(st, "robot_fn", robot)
+    ev = run(app_mod.app.test_client(), "noor", "I need a ladder")
+    texts = [e["text"] for e in ev if e["t"] == "say" and e["from"] == "robot"]
+    assert "Sulaiman has a 6ft ladder!" not in texts                     # the made-up offer never reaches Noor
+    assert calls[:2] == [None, True]                                     # the robot was corrected and asked to try again
+    assert ev[-1]["t"] == "done"
+
+
+def test_a_clarifying_question_is_still_allowed(app_mod, monkeypatch):
+    st = app_mod.STREET
+    monkeypatch.setattr(st, "robot_fn", lambda S, force: {"think": "unclear", "phase": "understand",
+                                                         "messages": [{"to": "noor", "text": "What size ladder?"}]})
+    ev = run(app_mod.app.test_client(), "noor", "ladder")
+    assert any(e["t"] == "say" and e["text"] == "What size ladder?" for e in ev)

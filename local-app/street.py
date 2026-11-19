@@ -8,6 +8,8 @@ Streams every step as an event so the web page can animate it:
   status  {who, state}            asked | offer | no | chosen | released | asleep
   phase   {phase}                 understand | outreach | clarify | relay | handover | closed
   quick   {options}               tap-to-reply suggestions for the asker
+  why     {who, text}             the robot's short reason for picking a neighbor
+  ledger  {helped}                how often each neighbor has helped in this building (fairness)
   error   {error} / done
 """
 from __future__ import annotations
@@ -121,6 +123,10 @@ Rules
 - Safety: mention plainly if an offer sounds unsafe and prefer the safer one.
 - Keep every message to 1-2 short sentences, in the recipient's style.
 - If nobody can help, tell the asker warmly and suggest an alternative.
+- Fairness: don't lean on the same helpful neighbors every time. If two neighbors are about equally likely, ask the one who has
+  helped or been asked less (see HELPED BEFORE below), and say so in "why" (e.g. "has one too, asked less").
+- Language: write to each person in the language they use. If the asker writes in Arabic, write to the asker in Arabic and ask
+  neighbors in Arabic too; otherwise use English. Keep names as they are.
 
 Reply with ONE JSON object only:
 {"think": str (one short sentence on what you are doing now, shown to the audience),
@@ -148,6 +154,13 @@ for _B in BUILDINGS.values():
 ROBOT = BUILDINGS[city.FLAGSHIP]["prompt"]                # the flagship building's prompt (tests read this)
 
 
+def valid_clock(clk):
+    """'HH:MM' with a real time of day (00:00-23:59); anything else means "use the real clock"."""
+    if len(clk) != 5 or clk[2] != ":" or not clk.replace(":", "").isdigit():
+        return False
+    return int(clk[:2]) < 24 and int(clk[3:]) < 60
+
+
 def now_label(clock):
     if clock:
         h, m = (int(x) for x in clock.split(":"))
@@ -165,7 +178,7 @@ def asleep(nid, hf, NN=None):
 def new_session(bid=None):
     bid = bid if bid in BUILDINGS else city.FLAGSHIP
     return {"b": bid, "asker": None, "threads": {n: [] for n in BUILDINGS[bid]["order"]}, "brain": {}, "clock": None,
-            "lock": threading.Lock(), "turns": 0}
+            "lock": threading.Lock(), "turns": 0, "ledger": {}}
 
 
 def bld(S):
@@ -180,6 +193,10 @@ def world(S):
         st = "probably ASLEEP" if asleep(n, hf, NN) else "probably awake"
         out.append(f"- {n} ({NN[n]['name']} {NN[n].get('family', '')}, {NN[n]['apt']}, {NN[n]['style']}, household of {len(NN[n].get('members') or [1])}): {st}. "
                    + "; ".join(NN[n]["facts"]))
+    led = {n: v for n, v in (S.get("ledger") or {}).items() if n in NN and n != S["asker"] and (v.get("asked") or v.get("helped"))}
+    if led:
+        out.append("HELPED BEFORE (earlier requests in this building; spread the load): " + "; ".join(
+            f"{NN[n]['name']} asked {v.get('asked', 0)}x, helped {v.get('helped', 0)}x" for n, v in led.items()))
     out.append(f"ASKER: {S['asker']} ({NN[S['asker']]['name']})")
     return "\n".join(out)
 
@@ -195,6 +212,16 @@ def render(S):
         out += [f"{N[n]['name'] if w == 'me' else 'NearMind'}: {t}" for w, t in th]
         out.append("")
     return "\n".join(out) or "(no messages yet)"
+
+
+def invented_offer(S, out, asker):
+    """True when the robot reports or arranges an offer although no neighbor has said anything yet in this request.
+    Code-level guard for the rule "only relay what neighbors actually said" (the model alone once broke it)."""
+    if str(out.get("phase") or "") not in ("relay", "handover", "closed"):
+        return False
+    to_asker = any(str(m.get("to", "")).lower() == asker for m in out.get("messages") or [] if isinstance(m, dict))
+    anyone_replied = any(w == "me" for n, th in S["threads"].items() if n != asker for w, _ in th)
+    return to_asker and not anyone_replied
 
 
 def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
@@ -219,6 +246,9 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
 
     def robot(S, force):
         ctx = world(S) + "\n\n" + render(S) + "\nYour notes so far: " + json.dumps(S["brain"])
+        if S.pop("nudge", None):
+            ctx += ("\nCORRECTION: no neighbor has replied to you yet in this request, so you cannot report or recommend any offer. "
+                    "Ask 1-3 neighbors first (or ask the asker one clarifying question), and wait for their answers.")
         if force:
             ctx += f"\nIMPORTANT: wrap up now. Send {bld(S)['N'][S['asker']]['name']} a message this round with what you know."
         msgs = [{"role": "system", "content": bld(S)["prompt"]}, {"role": "user", "content": ctx}]
@@ -243,7 +273,7 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
                 "if something isn't listed, you don't have it, so say no kindly. "
                 "Your FIRST answer is a bit vague (nicknames, no exact types); get specific only when NearMind asks you to clarify. "
                 "If asked to hand something over or join, agree and say when/how. If offered something for sale, decide honestly from what "
-                "you'd buy and your budget; you may counter-offer politely. Never mention being an AI.")
+                "you'd buy and your budget; you may counter-offer politely. Reply in English, unless NearMind's latest message to you is in Arabic: then reply in Arabic. Never mention being an AI.")
         msgs = [{"role": "system", "content": sys_}]
         for w, t in S["threads"][nid]:
             msgs.append({"role": "user" if w == "ai" else "assistant", "content": t})
@@ -252,7 +282,7 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
     def run(S, asker, text):
         N = bld(S)["N"]
         S["turns"] += 1
-        if S["asker"] != asker:                          # a different neighbor asking starts a fresh request
+        if S["asker"] != asker or S["brain"].get("phase") == "closed":   # a new asker, or a new request after a closed one
             S["asker"], S["threads"], S["brain"] = asker, {n: [] for n in bld(S)["order"]}, {}
         S["threads"][asker].append(("me", text))
         yield {"t": "say", "from": asker, "to": "robot", "text": text}
@@ -260,6 +290,11 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
             for rnd in range(4):
                 yield {"t": "typing", "who": "robot", "on": True}
                 out = bp.robot_fn(S, rnd == 3)
+                if invented_offer(S, out, asker):         # reporting offers before anyone answered = making them up
+                    S["nudge"] = True
+                    out = bp.robot_fn(S, rnd == 3)
+                    if invented_offer(S, out, asker):     # still inventing: drop those messages rather than relay them
+                        out = {"think": "Checking with neighbors before promising anything.", "phase": "outreach", "messages": []}
                 yield {"t": "typing", "who": "robot", "on": False}
                 if out.get("think"):
                     yield {"t": "think", "text": str(out["think"])[:200]}
@@ -277,7 +312,13 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
                         yield {"t": "why", "who": nid, "text": str(reason).strip()[:60]}
                 for nid, st in (out.get("status") or {}).items():
                     if nid in N and st in STATES and nid != asker:
-                        S["brain"].setdefault("status", {})[nid] = st
+                        prev = S["brain"].setdefault("status", {}).get(nid)
+                        S["brain"]["status"][nid] = st
+                        led = S.setdefault("ledger", {}).setdefault(nid, {"asked": 0, "helped": 0})
+                        if st == "asked" and prev is None:
+                            led["asked"] += 1
+                        if st == "chosen" and prev != "chosen":
+                            led["helped"] += 1
                         yield {"t": "status", "who": nid, "state": st}
                 to_asker, jobs = False, []
                 for m in out.get("messages") or []:
@@ -306,12 +347,16 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
                     break
         except Exception as e:
             yield {"t": "error", "error": str(e)[:200]}
+        helped = {n: v["helped"] for n, v in (S.get("ledger") or {}).items() if v.get("helped")}
+        if helped:
+            yield {"t": "ledger", "helped": helped}           # who has helped so far in this building (fairness)
         yield {"t": "done"}
 
     @bp.post("/api/street/run")
     def street_run():
         sid = sid_fn() or "me"
-        d = request.get_json(force=True) or {}
+        d = request.get_json(force=True, silent=True)
+        d = d if isinstance(d, dict) else {}             # bad JSON or a JSON list: treated as empty, so a clean 400
         bid = str(d.get("building") or city.FLAGSHIP)
         if bid not in BUILDINGS:
             return Response(json.dumps({"error": "unknown building"}), status=400, mimetype="application/json")
@@ -320,7 +365,7 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
         if asker not in BUILDINGS[bid]["N"] or not text:
             return Response(json.dumps({"error": "need a neighbor and a message"}), status=400, mimetype="application/json")
         clk = str(d.get("clock") or "")
-        S["clock"] = clk if len(clk) == 5 and clk[2] == ":" and clk.replace(":", "").isdigit() else None
+        S["clock"] = clk if valid_clock(clk) else None
         refuse = "This street has had a lot of requests. Press Reset to start a fresh one." if public and S["turns"] >= 30 else None
         refuse = refuse or (gate() if gate else None)
         if refuse:
@@ -341,7 +386,8 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
 
     @bp.post("/api/street/reset")
     def street_reset():
-        d = request.get_json(force=True, silent=True) or {}
+        d = request.get_json(force=True, silent=True)
+        d = d if isinstance(d, dict) else {}
         SESS.pop(f"{sid_fn() or 'me'}|{d.get('building') or city.FLAGSHIP}", None)
         return {"ok": True}
 

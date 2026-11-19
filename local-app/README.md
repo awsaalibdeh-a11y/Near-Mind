@@ -36,6 +36,11 @@ python app.py               # http://127.0.0.1:5215
 - **Why these neighbors?** shows who the robot picked and its reason for each, plus who it left in peace (and who was asleep).
 - The **step tracker** (Understand · Ask · Clarify · Report · Hand over) lights up as the robot works; a **result** card sums up
   messages, people asked, people left in peace and AI rounds.
+- **Fair:** the robot remembers who already helped in each building and spreads requests out; the decisions card shows
+  **Helpers so far**.
+- **Arabic or English:** write in Arabic and the robot asks neighbors and answers you in Arabic (try the **عربي** presets);
+  bubbles and the timeline show Arabic right-to-left.
+- **Never invents offers, enforced in code:** the server blocks the robot from reporting an offer before any neighbor has replied.
 - **Sell** mode: a family lists something with a price; the robot finds who'd want it and the item goes to the buyer's door.
 - **Watch a demo** (in The Roof Robot Tower) replays five recorded real runs instantly. Re-record with `python tools/record_demo.py [name]`.
 - When a deal closes, the item travels door to door and the camera zooms in on the receiver's door. `1×/2×` sets the pace.
@@ -49,7 +54,9 @@ Double-click `start-public.bat` (after a restart too). It:
 1. starts a second NearMind server in **public mode** on port 5218,
 2. opens a free Cloudflare tunnel to it (`tunnel\cloudflared.exe`, a new `trycloudflare.com` address each time),
 3. redeploys the small Cloudflare Worker in `worker/` so the permanent `workers.dev` link forwards to the new tunnel
-   (`tools/update-link.ps1`; needs `npx wrangler login` once).
+   (`tools/update-link.ps1`; needs `npx wrangler login` once),
+4. starts a **watchdog** (`tools/keep-public.ps1`) that checks the link every minute and restarts the server or opens a new
+   tunnel by itself if either drops (free tunnels can expire). Its log is `tunnel\watchdog.log`.
 
 - The link stays the same forever; the computer must be on, awake and online for it to work. If it's off, the link shows
   a friendly "NearMind is resting" page.

@@ -167,7 +167,8 @@ s += [para("1. What specific service NearMind provides", H1),
           "two people in the city share a full name. Each building gets its own robot prompt with its own 10 families.",
           "<b>Code checks the agent:</b> the server ignores any message to an unknown person (or someone from another "
           "building), never lets it mark the asker, and turns model errors into a clean message instead of a crash. "
-          "45 automated tests check this with the model faked.",
+          "It also stops the robot from reporting an offer before any neighbor has answered. 52 automated tests check this "
+          "with the model faked.",
           "<b>The website</b> turns each step into animation: every message flies between the apartments and the robot, "
           "and when a deal closes the item travels door to door. Portraits were illustrated with an AI image tool; the "
           "animation uses Remotion."]),
@@ -389,7 +390,11 @@ s += [para("6. Iterative design process", H1),
               "(1,182 people). Each building gets its own prompt; family members are part of each household's prompt. "
               "Tests check that no names repeat", "In a generated building, a chef asked for a calculator for his "
               "daughter's exam; the robot asked 2 of 9 neighbors, and one offered to check her own daughter's school "
-              "bag"]], [0.04, 0.15, 0.27, 0.32, 0.22]),
+              "bag"],
+             ['10', 'Fairness', 'Over many requests the same kind neighbor (Sulaiman, the mechanic) got asked again and again', 'The robot now sees a HELPED BEFORE line (who was asked and who helped earlier in this building) and the rule “if two neighbors are about equally likely, ask the one who has helped or been asked less". The page shows a "Helpers so far" tally', 'After Sulaiman lent his ladder, the next request asked Asma too, with the reason “Setting up flat, asked less"'],
+             ['11', 'Arabic', 'Many families in Saudi Arabia would rather write in Arabic', 'Rule: write to each person in the language they use; neighbors reply in the language NearMind wrote to them. Bubbles and the timeline show Arabic right-to-left. Added Arabic example buttons', 'Noor asked for a ladder in Arabic; NearMind asked Sulaiman and Asma in Arabic and reported back in Arabic'],
+             ['12', 'A made-up offer, again', '<b>In the first Arabic test the robot told Noor “Sulaiman has a ladder" without asking anyone.</b> The prompt rule alone wasn\'t enough', 'Added a check in code: if the robot reports or arranges an offer before any neighbor has replied, the server stops it, tells the robot to ask first, and drops the message if it tries again. A test proves it', "Re-ran: the robot asked Sulaiman and Asma first and only reported Sulaiman's real answer"],
+             ['13', 'Staying online', 'The free tunnel to my computer expired overnight, so the public link showed “NearMind is resting"', "A watchdog checks the public link every minute and, if it's down, restarts the server or opens a new tunnel and repoints the permanent link", 'The link came back by itself in about two minutes']], [0.04, 0.15, 0.27, 0.32, 0.22]),
       Spacer(1, 8),
       KeepTogether([
           para("<b>Final results (the five recorded runs):</b>"),
@@ -434,8 +439,8 @@ s += [para("7. Limitations and ethical considerations", H1),
       para("8. Future development", H1),
       bullets([
           "<b>Pilot with real neighbors</b> in one building, using the WhatsApp version (people opt in by messaging first).",
-          "<b>Fairness:</b> remember who helped recently and spread requests out; give helpers “thank-you” points.",
-          "<b>Arabic and English</b> in the same building, each person in their own language.",
+          "<b>Thank-you points:</b> fairness already spreads requests out; next, neighbors can thank helpers with points.",
+          "<b>Voice notes:</b> many older neighbors would rather speak than type, in Arabic or English.",
           "<b>Learning with consent:</b> remember who usually helps with what, only if they agree, and let them delete it.",
           "<b>Building-manager controls:</b> verified residents only, and a way to report problems.",
           "<b>Beyond one building:</b> a mosque community, a school, a university dorm."]),
@@ -443,8 +448,8 @@ s += [para("7. Limitations and ethical considerations", H1),
       para("NearMind turns a general language model into a specialized agent with one job: connect a neighbor who needs "
            "something with the one or two neighbors who can help, and leave everyone else in peace. It understands the "
            "request, reasons about who is likely to have it and be awake, asks politely, checks vague answers, recommends "
-           "the safest or fastest offer, and lets the human decide. Through nine rounds of testing it learned to ask fewer "
-           "people, respect sleep, never invent offers, explain its choices, and grow from one building to a city of "
+           "the safest or fastest offer, and lets the human decide. Through thirteen rounds of testing it learned to ask fewer "
+           "people, respect sleep, never invent offers (checked in code), share the load fairly, speak Arabic and English, explain its choices, and grow from one building to a city of "
            "1,182 people. Small favors are how neighbors become a community, and NearMind makes asking for one easy."),
       para("10. References", H1),
       para("AI4K12. (n.d.). <i>The 5 big ideas in AI</i>. " + link("https://ai4k12.org/resources/big-ideas-poster/")),

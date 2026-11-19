@@ -28,3 +28,8 @@ if (-not $url) { Write-Host "The tunnel didn't give an address. Check your inter
 Write-Host "Tunnel address: $url"
 
 & (Join-Path $PSScriptRoot "update-link.ps1") -Target $url
+
+# keep it alive: restarts the server or tunnel by itself if either goes down (quick tunnels can expire)
+Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object { $_.CommandLine -like '*keep-public.ps1*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+Start-Process -WindowStyle Minimized -FilePath "powershell" -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", (Join-Path $PSScriptRoot "keep-public.ps1"))
+Write-Host "  A watchdog window is running too: it brings the link back by itself if it ever drops."

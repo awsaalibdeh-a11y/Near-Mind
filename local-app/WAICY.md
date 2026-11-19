@@ -144,7 +144,8 @@ who knows who to call.
   and building name is different, no first name repeats inside a building, every family name is different, and no
   two people in the city share a full name. Each building gets its own robot prompt with its own 10 families.
 - **Code checks the agent:** the server ignores any message to an unknown person (or someone from another
-  building), never lets it mark the asker, and turns model errors into a clean message instead of a crash. 45
+  building), never lets it mark the asker, and turns model errors into a clean message instead of a crash. It also stops the robot from reporting an offer
+  before any neighbor has answered. 52
   automated tests check this with the model faked.
 - **The website** turns each step into animation: you watch every message fly between the apartments and the robot,
   and when a deal closes the item travels door to door. Portraits were illustrated with an AI image tool; the
@@ -239,6 +240,10 @@ wrong, change the prompt or the code, and run again.
 | 7 | Selling | Sales are different from borrowing: the asker is the seller | Added a "Selling" section to the prompt: find interested buyers, relay counter-offers, never pressure, item goes to the buyer's door, payment on pickup | Asma's bike sold to Sulaiman for 150 SAR |
 | 8 | Explaining itself | Viewers could see *who* the robot asked but not *why* | The robot now returns a 3-7 word reason for each person it picks ("has a car, up early"); the page shows it on the apartment and in a "Why these neighbors?" card, next to who was left in peace and who was asleep | Every decision is explained on screen |
 | 9 | Scaling up to a city | One building can't show whether the idea scales, and real apartments hold families, not single people | Built NearMind City: 5 neighborhoods, 20 buildings, 200 families of 4-8 (1,182 people). Each building gets its own prompt; family members are part of each household's prompt. Tests check that no names repeat | In a generated building, a chef asked for a calculator for his daughter's exam; the robot asked 2 of 9 neighbors, and one offered to check her own daughter's school bag |
+| 10 | Fairness | Over many requests the same kind neighbor (Sulaiman, the mechanic) got asked again and again | The robot now sees a HELPED BEFORE line (who was asked and who helped earlier in this building) and the rule "if two neighbors are about equally likely, ask the one who has helped or been asked less". The page shows a "Helpers so far" tally | After Sulaiman lent his ladder, the next request asked Asma too, with the reason "Setting up flat, asked less" |
+| 11 | Arabic | Many families in Saudi Arabia would rather write in Arabic | Rule: write to each person in the language they use; neighbors reply in the language NearMind wrote to them. Bubbles and the timeline show Arabic right-to-left. Added Arabic example buttons | Noor asked for a ladder in Arabic; NearMind asked Sulaiman and Asma in Arabic and reported back in Arabic |
+| 12 | A made-up offer, again | **In the first Arabic test the robot told Noor "Sulaiman has a ladder" without asking anyone.** The prompt rule alone wasn't enough | Added a check in code: if the robot reports or arranges an offer before any neighbor has replied, the server stops it, tells the robot to ask first, and drops the message if it tries again. A test proves it | Re-ran: the robot asked Sulaiman and Asma first and only reported Sulaiman's real answer |
+| 13 | Staying online | The free tunnel to my computer expired overnight, so the public link showed "NearMind is resting" | A watchdog checks the public link every minute and, if it's down, restarts the server or opens a new tunnel and repoints the permanent link | The link came back by itself in about two minutes |
 
 `[Add one or two rounds of your own: something you noticed, what you changed, what happened.]`
 
@@ -271,8 +276,8 @@ wrong, change the prompt or the code, and run again.
 ### 8. Future development
 
 - **Pilot with real neighbors** in one building, using the WhatsApp version (people opt in by messaging first).
-- **Fairness:** remember who helped recently and spread requests out; give helpers "thank-you" points.
-- **Arabic and English** in the same building, each person in their own language.
+- **Thank-you points:** fairness already spreads requests out; next, let neighbors thank helpers with points they can see.
+- **Voice notes:** many older neighbors would rather speak than type, in Arabic or English.
 - **Learning with consent:** remember who usually helps with what, only if they agree, and let them delete it.
 - **Building-manager controls:** verified residents only, and a way to report problems.
 - **Beyond one building:** a mosque community, a school, a university dorm.
@@ -282,8 +287,9 @@ wrong, change the prompt or the code, and run again.
 NearMind turns a general language model into a specialized agent with one job: connect a neighbor who needs
 something with the one or two neighbors who can help, and leave everyone else in peace. It understands the request,
 reasons about who is likely to have it and be awake, asks politely, checks vague answers, recommends the safest or
-fastest offer, and lets the human decide. Through nine rounds of testing it learned to ask fewer people, respect
-sleep, never invent offers, and actually close deals. Small favors are how neighbors become a community, and
+fastest offer, and lets the human decide. Through thirteen rounds of testing it learned to ask fewer people, respect
+sleep, never invent offers (checked in code, not just asked for), share the load fairly, speak Arabic
+and English, and actually close deals. Small favors are how neighbors become a community, and
 NearMind makes asking for one easy.
 
 ### 10. References

@@ -6,6 +6,7 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt
 let P = {}, ORDER = [], asker = "sedra", clock = "", busy = false, speed = 1, mode = "ask", demo = false;
 let REQ = null, CHOSEN = null, CLOSED = false;            // what this request is, who was chosen, whether it closed
 let BID = null, BMETA = null, CITY = null, VIEW = "city";   // where you are in the city
+let LEDGER = {};                                         // who has helped in this building so far (fairness)
 let WHY = {}, ST = {}, MSGS = 0, ROUNDS = 0, SEEN = new Set(), DEMO_ID = null, T0 = 0;   // the AI-decision card and the result
 const SID = (() => {                                        // one private street per browser tab on the public site
   const make = () => (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()).replace(/-/g, "").slice(0, 32);
@@ -22,6 +23,7 @@ const PRESETS = [
   ["Tools", [["🔨","Hammer","Can I borrow a hammer to hang a picture?"],["🪛","Screwdriver","Need a screwdriver for 10 min"],["🔧","Drill","Does anyone have a drill? Putting up a shelf"],["🪜","Ladder","Need a ladder to change a ceiling bulb"]]],
   ["Handy", [["🔌","Extension cord","Anyone have an extension cord?"],["☔","Umbrella","It's pouring, can I borrow an umbrella?"],["🔋","Charger","My phone is dying, anyone have a USB-C charger?"],["🩹","First aid","I cut my finger, does anyone have plasters?"],["🔦","Flashlight","Power's out here, anyone have a flashlight or candles?"]]],
   ["Company", [["🎬","Movie buddy","I need someone to watch a movie with me tonight"],["🎲","Board games","Anyone up for board games this evening?"]]],
+  ["عربي", [["🪜","سلم","أحتاج سلم صغير لتغيير لمبة في المطبخ، هل عند أحد؟"],["🍬","سكر","ممكن أستلف كوب سكر؟"],["🔋","شاحن","جوالي بيطفي، أحد عنده شاحن تايب سي؟"]]],
   ["Sell", [["🚲","Sell bike","I'm selling my old bike for 150 SAR"],["💡","Sell lamp","Selling a desk lamp, 40 SAR"],["🎮","Sell controller","Selling a spare game controller for 60 SAR"],["🍳","Sell air fryer","Selling an air fryer, barely used, 120 SAR"]]],
 ];
 
@@ -67,7 +69,7 @@ function show(e){
       NMStreet.say(e.from, e.to, e.text);
       MSGS++;
       logRow("say", face(e.from), color(e.from),
-        `<b>${esc(name(e.from))}</b> → <b>${esc(name(e.to))}</b><span class="q">${esc(e.text)}</span>`);
+        `<b>${esc(name(e.from))}</b> → <b>${esc(name(e.to))}</b><span class="q" dir="auto">${esc(e.text)}</span>`);
       break;
     case "think":
       NMStreet.think(e.text);
@@ -101,6 +103,9 @@ function show(e){
     case "quick":
       if(demo) break;
       $("#quick").innerHTML = e.options.map(o => `<button type="button">${esc(o)}</button>`).join("");
+      break;
+    case "ledger":
+      LEDGER = e.helped || {}; drawHelpers();
       break;
     case "error":
       logRow("err", "⚠️", "#ffe2dc", esc(e.error));
@@ -151,6 +156,13 @@ function drawBrain(){
   $("#peace").innerHTML = peace.map(id => `<span class="f${sleeping(id, hf) ? " zz" : ""}" title="${esc(P[id].name)} · ${sleeping(id, hf) ? "asleep, not disturbed" : "not asked"}">${avatar(id, "fa")}</span>`).join("");
   $("#peace-n").textContent = `${peace.length} left in peace${zz.length ? ` · ${zz.length} asleep` : ""}`;
   $("#reach").textContent = `${picked.length} of ${ORDER.length - 1} asked`;
+}
+function drawHelpers(){                                    // fairness: who has already helped in this building
+  const el = $("#helpers"); if(!el) return;
+  const ids = Object.keys(LEDGER).filter(id => P[id] && LEDGER[id] > 0).sort((a, b) => LEDGER[b] - LEDGER[a]);
+  el.hidden = !ids.length;
+  el.innerHTML = ids.length ? `<div class="peace-h"><span>🤝</span><b>Helpers so far</b><small>NearMind spreads requests out</small></div>
+    <div class="helpers">${ids.map(id => `<span class="hp" title="${esc(P[id].name)} helped ${LEDGER[id]}×">${avatar(id, "fa")}<b>${LEDGER[id]}×</b></span>`).join("")}</div>` : "";
 }
 function drawResult({sale, item, from, to}){
   const asked = ORDER.filter(id => id !== asker && (ST[id] || WHY[id])).length, secs = T0 ? Math.round((Date.now() - T0) / 1000) : 0;
@@ -235,7 +247,7 @@ async function showBuilding(bid){
   $("#brand-sub").textContent = b.name; $("#brand-small").textContent = `${h.name} · 10 families · ${b.people} people`;
   if(BID === bid) return;
   const d = await fetch(`/api/street/people?b=${encodeURIComponent(bid)}`).then(r => r.json());
-  BID = bid; BMETA = d.building; P = d.people; ORDER = d.order;
+  BID = bid; BMETA = d.building; P = d.people; ORDER = d.order; LEDGER = {}; drawHelpers();
   if(!ORDER.includes(asker)) asker = ORDER[0];
   document.querySelector(".demo-card").hidden = !BMETA.flagship;
   NMStreet.mount($("#scene"), P, id => pick(id), "/static/img/backdrop.jpg");
@@ -377,10 +389,10 @@ try{ if(!localStorage.getItem("nm.seenHow")){ localStorage.setItem("nm.seenHow",
 $("#reset").onclick = async () => {
   if(busy){ toast("Wait for this request to finish"); return; }
   try{ await fetch("/api/street/reset", {method:"POST", headers:{"X-Sid":SID, "content-type":"application/json"}, body:JSON.stringify({building:BID})}); }catch(e){}
-  fresh(); NMStreet.asker(asker); toast("Street cleared");
+  LEDGER = {}; drawHelpers(); fresh(); NMStreet.asker(asker); toast("Street cleared");
 };
 
-const FAV = ["Movie buddy","Sugar","Eggs","Ladder","Drill","Charger","Umbrella","First aid"];
+const FAV = ["Movie buddy","Sugar","Ladder","Drill","Charger","Umbrella","First aid","سلم"];
 const ALL = PRESETS.flatMap(([, items]) => items), chip = ([ic, label, q]) => `<button type="button" data-q="${esc(q)}" title="${esc(q)}">${ic} ${label}</button>`;
 function drawPresets(open){
   $("#presets").innerHTML = (open ? PRESETS.map(([g, items]) => `<span class="grp">${g}</span>` + items.map(chip).join("")).join("")

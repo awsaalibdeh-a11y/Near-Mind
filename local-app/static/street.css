@@ -286,3 +286,11 @@ body:not([data-view=building]) .clock,body:not([data-view=building]) #present,bo
 @keyframes rise3{from{opacity:0;transform:translateY(16px) scale(.9)}}
 
 [hidden]{display:none!important}
+
+/* v7: fairness helpers, Arabic text */
+.helpers-box{margin-top:12px}
+.helpers-box .peace-h small{margin-left:auto;color:var(--muted,#6b7a80);font-size:12px}
+.helpers{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.hp{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 3px;border-radius:999px;background:var(--chip,#eef6f3);font-size:13px}
+.hp .fa{width:26px;height:26px}
+.q[dir="auto"],#in{unicode-bidi:plaintext}
