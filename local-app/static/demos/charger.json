@@ -25,7 +25,7 @@
 },
 {
 "t": "parse",
-"item": "USB-C charger",
+"item": "USB-C phone charger",
 "kind": "item",
 "urgency": "medium",
 "qty": "1",
@@ -49,7 +49,7 @@
 "t": "say",
 "from": "robot",
 "to": "sedra",
-"text": "Hey Sedra! 😊 Do you have a USB-C charger to lend?"
+"text": "Hey Sedra! 😊 Do you have a USB-C phone charger Anas could borrow? His phone’s dying."
 },
 {
 "t": "typing",
@@ -65,7 +65,7 @@
 "t": "say",
 "from": "sedra",
 "to": "robot",
-"text": "yasss i do! i've got a usb-c phone charger ready to share ⚡️ you can swing by my place (1A) whenever — i'm free most evenings, or i can drop it off tonight if you need it now?"
+"text": "hey hi!! 💖 i do—i’ve got a USB-C phone charger in my little tech stash 🧋 you can totally borrow it. i’m up most evenings, so anas can swing by after 00:30 (or tomorrow anytime) to pick it up. want me to leave it by the door or meet him in the hallway?"
 },
 {
 "t": "typing",
@@ -79,7 +79,7 @@
 },
 {
 "t": "think",
-"text": "I’ll relay Sedra’s charger offer to Anas."
+"text": "I’ll relay Sedra’s available charger to Anas."
 },
 {
 "t": "phase",
@@ -94,20 +94,21 @@
 "t": "say",
 "from": "robot",
 "to": "anas",
-"text": "Sedra has a USB-C phone charger you can borrow. I recommend her offer since she’s awake; pick it up at 1A or have her drop it off tonight?"
+"text": "Sedra can lend you a USB-C charger tonight or tomorrow. I recommend hers since she’s awake now; want it?"
 },
 {
 "t": "quick",
 "options": [
-"Pick up at 1A",
-"Drop it off tonight"
+"Yes, tonight",
+"Tomorrow",
+"No thanks"
 ]
 },
 {
 "t": "say",
 "from": "anas",
 "to": "robot",
-"text": "Pick up at 1A"
+"text": "Yes, tonight"
 },
 {
 "t": "typing",
@@ -121,7 +122,7 @@
 },
 {
 "t": "think",
-"text": "I’ll confirm pickup at 1A with Sedra."
+"text": "I’ll arrange the charger pickup with Sedra."
 },
 {
 "t": "phase",
@@ -136,7 +137,13 @@
 "t": "say",
 "from": "robot",
 "to": "sedra",
-"text": "Hey Sedra! 😊 Anas would like to pick up the charger at 1A. Is now a good time?"
+"text": "Thanks, Sedra! 😊 Can you meet Anas at your door, 1A, at 00:40?"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "anas",
+"text": "I’ll arrange pickup at Sedra’s door, 1A, at 00:40."
 },
 {
 "t": "typing",
@@ -152,7 +159,19 @@
 "t": "say",
 "from": "sedra",
 "to": "robot",
-"text": "oh cute! anas can come by now — i'm up and hanging with the big screen thing 🌙 i'll hand him the usb-c charger at the door. tell him to text when he's outside so i can grab it!"
+"text": "yesss i can meet him at my door 1A at 00:40 🥰 i’ll be there with the charger and maybe a tiny cup of popcorn if he wants? see you both then!"
+},
+{
+"t": "ledger",
+"helped": {
+"sedra": 1
+}
+},
+{
+"t": "say",
+"from": "anas",
+"to": "robot",
+"text": "Yes please, go with your recommendation"
 },
 {
 "t": "typing",
@@ -166,7 +185,7 @@
 },
 {
 "t": "think",
-"text": "The pickup is confirmed."
+"text": "Sedra confirmed the pickup, so I’m closing the request."
 },
 {
 "t": "phase",
@@ -176,7 +195,13 @@
 "t": "say",
 "from": "robot",
 "to": "anas",
-"text": "Sedra can hand you the charger at her 1A door now. Please text her when you’re outside."
+"text": "Confirmed: meet Sedra at her door, 1A, at 00:40 for the charger."
+},
+{
+"t": "ledger",
+"helped": {
+"sedra": 1
+}
 },
 {
 "t": "done"

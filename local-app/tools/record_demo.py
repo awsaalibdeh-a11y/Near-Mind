@@ -31,15 +31,16 @@ FOLLOWUPS = {   # what the asker says next when the robot needs more than a yes
              "My car is in the basement parking, spot B4 next to the lift. I'll be there with the bonnet open. Thank you!"],
     "arabic": ["نعم، سليمان من فضلك. أنا في شقة 5A، أقدر أجي آخذه الحين.",
                "تمام، شكراً جزيلاً!"],
-    "sale": ["It's a medium frame, a bit dusty but no rust. Happy to sell to whoever is keen at 150, I can bring it at 18:30.",
-             "Yes, go with them, 150 SAR, I'll bring it to their door at 18:30."],
+    "sale": ["It's a medium hybrid, a bit dusty but no rust, and the brakes and gears work fine. Whoever is keen at 150 can have it.",
+             "Yes, Sulaiman. 150 SAR, I'll bring it to his door myself tomorrow at 18:30.",
+             "Yes, I'll bring it myself. Thanks!"],
 }
 
 
 def record(name, title, asker, clock, text):
     post("/api/street/reset", {})
     events, msg, follow = [], text, list(FOLLOWUPS.get(name, []))
-    for turn in range(3):
+    for turn in range(4):
         ev = post("/api/street/run", {"from": asker, "text": msg, "clock": clock})
         events += [e for e in ev if e["t"] != "done"]
         if any(e["t"] == "phase" and e["phase"] == "closed" for e in ev):

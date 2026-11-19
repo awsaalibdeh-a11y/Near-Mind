@@ -21,11 +21,11 @@
 },
 {
 "t": "think",
-"text": "I’ll ask two awake cycling-minded neighbors if they’re interested."
+"text": "I’ll ask two neighbors who are interested in bikes."
 },
 {
 "t": "parse",
-"item": "old adult bike with solid frame and good wheels",
+"item": "Old adult bike with solid frame and good wheels",
 "kind": "sale",
 "urgency": "low",
 "qty": "1",
@@ -38,12 +38,12 @@
 {
 "t": "why",
 "who": "yousef",
-"text": "Into cycling and awake"
+"text": "Into cycling, probably awake"
 },
 {
 "t": "why",
 "who": "sulaiman",
-"text": "Tinkers with bikes, awake"
+"text": "Tinkers with bikes, probably awake"
 },
 {
 "t": "status",
@@ -59,13 +59,13 @@
 "t": "say",
 "from": "robot",
 "to": "yousef",
-"text": "Hey! Interested in buying an old adult bike with a solid frame and good wheels for 150 SAR?"
+"text": "Interested in buying an old adult bike with a solid frame and good wheels for 150 SAR?"
 },
 {
 "t": "say",
 "from": "robot",
 "to": "sulaiman",
-"text": "Interested in an old adult bike for 150 SAR? Solid frame and good wheels."
+"text": "Interested in an old adult bike with a solid frame and good wheels for 150 SAR?"
 },
 {
 "t": "typing",
@@ -86,7 +86,7 @@
 "t": "say",
 "from": "yousef",
 "to": "robot",
-"text": "Hey — maybe! What kind of bike is it and how does it look? If it’s solid and in decent shape I might be up for 150 SAR. I can swing by later today (around 19:00) or tomorrow evening. Easy 🙂"
+"text": "Easy — I might be interested. I can pay up to 150 SAR for a solid adult bike but would prefer to see photos and know the frame size and wheel condition first. Can you send pics and tell me where/when I can check it (after 17:00 today or tomorrow)? 🚲"
 },
 {
 "t": "typing",
@@ -97,7 +97,7 @@
 "t": "say",
 "from": "sulaiman",
 "to": "robot",
-"text": "Could come by this evening. What color, brakes OK, any rust on chain or frame? I'll take a look — can do 150 if it's sound."
+"text": "Maybe. I buy old bikes to fix. Can I see photos of frame and wheels tonight after 18:00 or tomorrow morning? I can offer up to 150 SAR; might haggle a little down if it needs parts."
 },
 {
 "t": "typing",
@@ -111,7 +111,7 @@
 },
 {
 "t": "think",
-"text": "I’ll relay the conditional interest and ask for the bike details."
+"text": "I’ll relay both conditional interests and recommend Sulaiman."
 },
 {
 "t": "phase",
@@ -123,16 +123,29 @@
 "state": "offer"
 },
 {
+"t": "status",
+"who": "yousef",
+"state": "offer"
+},
+{
 "t": "say",
 "from": "robot",
 "to": "asma",
-"text": "Sulaiman could come this evening and pay 150 SAR if the bike is sound; Yousef may be interested at 150 SAR and can come around 19:00 or tomorrow evening. Sulaiman is the stronger lead because he’s ready to inspect it: what kind and color is the bike, what condition are the brakes in, and is there rust on the chain or frame?"
+"text": "Sulaiman may pay up to 150 SAR, subject to photos and possibly negotiating if parts are needed; Yousef may pay up to 150 SAR, subject to photos, frame size and wheel condition. I recommend Sulaiman because he fixes old bikes; which would you prefer?"
+},
+{
+"t": "quick",
+"options": [
+"Sulaiman",
+"Yousef",
+"Neither"
+]
 },
 {
 "t": "say",
 "from": "asma",
 "to": "robot",
-"text": "It's a medium frame, a bit dusty but no rust. Happy to sell to whoever is keen at 150, I can bring it at 18:30."
+"text": "It's a medium hybrid, a bit dusty but no rust, and the brakes and gears work fine. Whoever is keen at 150 can have it."
 },
 {
 "t": "typing",
@@ -146,7 +159,7 @@
 },
 {
 "t": "think",
-"text": "I’ll check whether Sulaiman can meet Asma at 18:30."
+"text": "I’ll check whether Yousef will buy the bike at the asking price."
 },
 {
 "t": "phase",
@@ -154,65 +167,14 @@
 },
 {
 "t": "status",
-"who": "sulaiman",
+"who": "yousef",
 "state": "chosen"
 },
 {
 "t": "say",
 "from": "robot",
-"to": "sulaiman",
-"text": "The bike has a medium frame, is a bit dusty, and has no rust; the brake condition is unconfirmed. Can Asma bring it to your door at 18:30 for inspection, with 150 SAR payment on pickup if it’s sound?"
-},
-{
-"t": "typing",
-"who": "sulaiman",
-"on": true
-},
-{
-"t": "typing",
-"who": "sulaiman",
-"on": false
-},
-{
-"t": "say",
-"from": "sulaiman",
-"to": "robot",
-"text": "Okay. Ask Asma to bring it at 18:30. Tariq will help check brakes and wheels — if it’s sound, I’ll pay 150 SAR."
-},
-{
-"t": "typing",
-"who": "robot",
-"on": true
-},
-{
-"t": "typing",
-"who": "robot",
-"on": false
-},
-{
-"t": "think",
-"text": "I’ll confirm the inspection and release the other lead."
-},
-{
-"t": "phase",
-"phase": "closed"
-},
-{
-"t": "status",
-"who": "yousef",
-"state": "released"
-},
-{
-"t": "say",
-"from": "robot",
-"to": "asma",
-"text": "Please bring the bike to Sulaiman’s door, 2A, at 18:30. He’ll check the brakes and wheels with Tariq and pay 150 SAR if it’s sound."
-},
-{
-"t": "say",
-"from": "robot",
 "to": "yousef",
-"text": "Thanks for your interest! The seller has arranged an inspection, so no need to come by 🙂"
+"text": "The bike is a medium hybrid, dusty but rust-free, with working brakes and gears. Would you buy it for 150 SAR if Asma brings it to your door, 4B, at 17:10, with payment on pickup?"
 },
 {
 "t": "typing",
@@ -228,7 +190,64 @@
 "t": "say",
 "from": "yousef",
 "to": "robot",
-"text": "No worries — sounds good. Any pics or a quick rundown of frame type, wheel size, and any rust or mechanical issues? Easy 🙂"
+"text": "No worries — yes, I’ll buy it for 150 SAR if Asma brings it to 4B at 17:10 and I can check it quickly before paying. See you then. 🚲"
+},
+{
+"t": "typing",
+"who": "robot",
+"on": true
+},
+{
+"t": "typing",
+"who": "robot",
+"on": false
+},
+{
+"t": "think",
+"text": "Yousef agreed, so I’m confirming the sale and releasing Sulaiman."
+},
+{
+"t": "phase",
+"phase": "closed"
+},
+{
+"t": "status",
+"who": "sulaiman",
+"state": "released"
+},
+{
+"t": "say",
+"from": "robot",
+"to": "asma",
+"text": "Yousef will buy the bike for 150 SAR. Please bring it to his door, 4B, at 17:10; he’ll check it briefly before paying."
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sulaiman",
+"text": "Thanks for your interest. The bike is no longer available."
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": true
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": false
+},
+{
+"t": "say",
+"from": "sulaiman",
+"to": "robot",
+"text": "Shame. If you get another like that, call. I can come by after 18:00 tomorrow to look."
+},
+{
+"t": "ledger",
+"helped": {
+"yousef": 1
+}
 },
 {
 "t": "done"

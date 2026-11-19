@@ -25,7 +25,7 @@
 },
 {
 "t": "parse",
-"item": "ladder for changing a ceiling bulb",
+"item": "ladder to change a ceiling bulb",
 "kind": "item",
 "urgency": "medium",
 "qty": "1",
@@ -43,7 +43,7 @@
 {
 "t": "why",
 "who": "asma",
-"text": "Setting up her new flat"
+"text": "Setting up her flat"
 },
 {
 "t": "status",
@@ -65,7 +65,7 @@
 "t": "say",
 "from": "robot",
 "to": "asma",
-"text": "Hi Asma, would you have a ladder Osama could borrow to change a ceiling bulb?"
+"text": "Hi Asma, do you have a ladder Osama could borrow to change a ceiling bulb?"
 },
 {
 "t": "typing",
@@ -86,7 +86,7 @@
 "t": "say",
 "from": "sulaiman",
 "to": "robot",
-"text": "Yes — got the 6ft aluminium step ladder in the hall. Osama can use it; tell him to be careful, I’ll show him where it is."
+"text": "Yeah — got the 6ft aluminium step ladder in the hall. After 13:00 today works. Need me to bring it up or can Osama carry it?"
 },
 {
 "t": "typing",
@@ -97,7 +97,7 @@
 "t": "say",
 "from": "asma",
 "to": "robot",
-"text": "Hi — I’m sorry, I don’t have a ladder. I can ask Faisal to help him when he’s home, or Osama can use a sturdy chair instead while I hold it steady."
+"text": "Hi — I don’t have a ladder, sorry. I can help hold a flashlight or stand under the light while someone on a step stool works, or ask Faisal to help after 13:00. Do you want me to come by later today?"
 },
 {
 "t": "typing",
@@ -111,7 +111,7 @@
 },
 {
 "t": "think",
-"text": "I’ll relay the ladder offer and flag the unsafe chair suggestion."
+"text": "I’ll relay the ladder offer and available help."
 },
 {
 "t": "phase",
@@ -125,26 +125,27 @@
 {
 "t": "status",
 "who": "asma",
-"state": "no"
+"state": "offer"
 },
 {
 "t": "say",
 "from": "robot",
 "to": "osama",
-"text": "Sulaiman can lend you a 6-foot aluminium stepladder and show you where it is; I recommend it over Asma’s chair suggestion, which is unsafe. Would you like to borrow it?"
+"text": "Sulaiman can lend you a 6 ft step ladder now and asks whether you’d like him to bring it; Asma can also help with a flashlight. I recommend the ladder rather than a step stool for safer reach—which would you like?"
 },
 {
 "t": "quick",
 "options": [
-"Yes, borrow the ladder",
-"No, thank you"
+"Ladder, please bring it",
+"Ladder, I’ll collect it",
+"Ladder and Asma’s help"
 ]
 },
 {
 "t": "say",
 "from": "osama",
 "to": "robot",
-"text": "Yes, borrow the ladder"
+"text": "Ladder, please bring it"
 },
 {
 "t": "typing",
@@ -158,7 +159,7 @@
 },
 {
 "t": "think",
-"text": "I’ll arrange the ladder handover with Sulaiman."
+"text": "I’ll arrange the ladder delivery and release Asma."
 },
 {
 "t": "phase",
@@ -170,16 +171,27 @@
 "state": "chosen"
 },
 {
+"t": "status",
+"who": "asma",
+"state": "released"
+},
+{
 "t": "say",
 "from": "robot",
 "to": "sulaiman",
-"text": "Can Osama collect the ladder at your 2A door in 5 minutes?"
+"text": "Please bring the ladder to Osama’s door, 1B, at 13:10. Does that work?"
 },
 {
 "t": "say",
 "from": "robot",
 "to": "asma",
-"text": "Thank you for offering to help; a ladder has been found."
+"text": "Thank you for offering to help; you’re all set for now."
+},
+{
+"t": "say",
+"from": "robot",
+"to": "osama",
+"text": "I’ve asked Sulaiman to bring the ladder to your door, 1B, at 13:10. I’ll let you know when he confirms."
 },
 {
 "t": "typing",
@@ -200,7 +212,7 @@
 "t": "say",
 "from": "sulaiman",
 "to": "robot",
-"text": "Five minutes okay. I’m in — tell Osama to come to 2A, I’ll bring it to the door."
+"text": "Can do. I’ll bring it to 1B at 13:10. Want me to leave it outside the door or hand it to Osama?"
 },
 {
 "t": "typing",
@@ -211,7 +223,19 @@
 "t": "say",
 "from": "asma",
 "to": "robot",
-"text": "Great — glad you found one. If you’d like, I can hold the light steady while Osama climbs, or have Faisal do it when he gets back."
+"text": "Great — glad it's sorted. If you need anything later today, I can come by after 13:30."
+},
+{
+"t": "ledger",
+"helped": {
+"sulaiman": 1
+}
+},
+{
+"t": "say",
+"from": "osama",
+"to": "robot",
+"text": "Yes please, go with your recommendation"
 },
 {
 "t": "typing",
@@ -225,7 +249,7 @@
 },
 {
 "t": "think",
-"text": "I’m confirming the ladder handover with Osama."
+"text": "Sulaiman confirmed the delivery, so I’ll close the request."
 },
 {
 "t": "phase",
@@ -234,8 +258,36 @@
 {
 "t": "say",
 "from": "robot",
+"to": "sulaiman",
+"text": "Thanks, please hand it to Osama at 1B at 13:10."
+},
+{
+"t": "say",
+"from": "robot",
 "to": "osama",
-"text": "Sulaiman will bring the ladder to his 2A door in five minutes. Please be careful while using it."
+"text": "Sulaiman will bring the ladder to your door, 1B, at 13:10."
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": true
+},
+{
+"t": "typing",
+"who": "sulaiman",
+"on": false
+},
+{
+"t": "say",
+"from": "sulaiman",
+"to": "robot",
+"text": "Okay. I’ll hand it to Osama at 1B at 13:10."
+},
+{
+"t": "ledger",
+"helped": {
+"sulaiman": 1
+}
 },
 {
 "t": "done"

@@ -21,11 +21,11 @@
 },
 {
 "t": "think",
-"text": "I’ll ask two awake neighbors who enjoy movie nights."
+"text": "I’ll look for company for Sedra tonight."
 },
 {
 "t": "parse",
-"item": "Movie-watching company tonight",
+"item": "Someone to watch a movie with tonight",
 "kind": "company",
 "urgency": "medium",
 "qty": "1 person",
@@ -38,12 +38,12 @@
 {
 "t": "why",
 "who": "alwalid",
-"text": "Family movie nights, probably awake"
+"text": "Enjoys family movie nights"
 },
 {
 "t": "why",
-"who": "layla",
-"text": "Home often, probably awake"
+"who": "anas",
+"text": "Awake tonight, enjoys gaming"
 },
 {
 "t": "status",
@@ -52,20 +52,20 @@
 },
 {
 "t": "status",
-"who": "layla",
+"who": "anas",
 "state": "asked"
 },
 {
 "t": "say",
 "from": "robot",
 "to": "alwalid",
-"text": "Hey! Interested in watching a movie with a neighbor tonight? 🎬"
+"text": "Hi Alwalid! Would you like to watch a movie with Sedra tonight, if you’re free after bedtime?"
 },
 {
 "t": "say",
 "from": "robot",
-"to": "layla",
-"text": "Hello Layla, would you enjoy watching a movie with a neighbor tonight?"
+"to": "anas",
+"text": "Hi Anas, would you like to watch a movie with Sedra tonight?"
 },
 {
 "t": "typing",
@@ -74,7 +74,7 @@
 },
 {
 "t": "typing",
-"who": "layla",
+"who": "anas",
 "on": true
 },
 {
@@ -86,18 +86,18 @@
 "t": "say",
 "from": "alwalid",
 "to": "robot",
-"text": "Hey! Sounds great — I’m in, but I’m in the middle of putting the kids to bed (Tala’s asking for one more story). Can we do around 20:30? I’ve got a huge pot for popcorn and a couple of folding chairs; any movie in mind?"
+"text": "Hey! I’m putting the kids to bed now (bit of a circus with the giant pot on the counter), but I’m up for a movie after—can do around 20:30. Does Sedra want a family movie or something grown-up?"
 },
 {
 "t": "typing",
-"who": "layla",
+"who": "anas",
 "on": false
 },
 {
 "t": "say",
-"from": "layla",
+"from": "anas",
 "to": "robot",
-"text": "Oh, how lovely, dear — I'd enjoy that very much. What time were you thinking of coming by tonight?"
+"text": "uh, maybe. i don't really have movies — only anime stuff. i could join after 20:30 if that's okay. do you want me to bring my console and HDMI cable?"
 },
 {
 "t": "typing",
@@ -111,7 +111,7 @@
 },
 {
 "t": "think",
-"text": "I’ll share both movie-night offers with Sedra."
+"text": "I’ll share both options and recommend the definite offer."
 },
 {
 "t": "phase",
@@ -124,20 +124,21 @@
 },
 {
 "t": "status",
-"who": "layla",
+"who": "anas",
 "state": "offer"
 },
 {
 "t": "say",
 "from": "robot",
 "to": "sedra",
-"text": "Alwalid is in around 20:30, and Layla would love to join and asks what time you’re thinking. 🎬 I recommend Alwalid for his movie-night experience; which would you like?"
+"text": "Alwalid is up for a movie around 20:30; Anas could join after 20:30 and has anime stuff. I’d pick Alwalid because he’s confirmed—who would you like? 🎬"
 },
 {
 "t": "quick",
 "options": [
 "Alwalid",
-"Layla"
+"Anas",
+"Neither"
 ]
 },
 {
@@ -158,7 +159,7 @@
 },
 {
 "t": "think",
-"text": "I’ll confirm the plan with Alwalid and kindly let Layla know."
+"text": "I’ll confirm the plan with Alwalid and let Anas know."
 },
 {
 "t": "phase",
@@ -171,20 +172,26 @@
 },
 {
 "t": "status",
-"who": "layla",
+"who": "anas",
 "state": "released"
 },
 {
 "t": "say",
 "from": "robot",
 "to": "alwalid",
-"text": "Hey! Does 20:30 at Sedra’s place, 1A, work after the kids are asleep? 🎬"
+"text": "Hey Alwalid! Can you make it to Sedra’s place, 1A, at 20:30 for the movie after the kids are asleep?"
 },
 {
 "t": "say",
 "from": "robot",
-"to": "layla",
-"text": "Thank you so much, dear. The movie plan is sorted for tonight, but your kind offer is appreciated."
+"to": "anas",
+"text": "Thanks for offering! You’re off the hook tonight."
+},
+{
+"t": "say",
+"from": "robot",
+"to": "sedra",
+"text": "Great choice! 🎬 I’ll confirm 20:30 at your place, 1A, with Alwalid."
 },
 {
 "t": "typing",
@@ -193,7 +200,7 @@
 },
 {
 "t": "typing",
-"who": "layla",
+"who": "anas",
 "on": true
 },
 {
@@ -205,18 +212,30 @@
 "t": "say",
 "from": "alwalid",
 "to": "robot",
-"text": "Yes, that works — I’ll be there around 20:30 after I finish bedtime. I can bring the giant pot for popcorn and maybe a board game if you want."
+"text": "Yep I can come over to 1A at 20:30 after I get the kids down — I’ll bring a board game just in case (the kids’ stool is already in use). Do you want a family movie or something for grown-ups?"
 },
 {
 "t": "typing",
-"who": "layla",
+"who": "anas",
 "on": false
 },
 {
 "t": "say",
-"from": "layla",
+"from": "anas",
 "to": "robot",
-"text": "That's very sweet of you to let me know, dear — thank you. If you change your mind another evening, do tell me; I always have tea ready and a slice of cake if you fancy."
+"text": "uh, okay. thanks. say hi to sedra for me."
+},
+{
+"t": "ledger",
+"helped": {
+"alwalid": 1
+}
+},
+{
+"t": "say",
+"from": "sedra",
+"to": "robot",
+"text": "Yes please, go with your recommendation"
 },
 {
 "t": "typing",
@@ -230,7 +249,7 @@
 },
 {
 "t": "think",
-"text": "The movie plan is confirmed."
+"text": "Alwalid confirmed, so I’ll let Sedra know."
 },
 {
 "t": "phase",
@@ -240,7 +259,13 @@
 "t": "say",
 "from": "robot",
 "to": "sedra",
-"text": "Alwalid confirmed he'll be at your place, 1A, around 20:30 after bedtime. Enjoy your movie night! 🎬"
+"text": "Alwalid confirmed: he’ll come to your place, 1A, at 20:30 after getting the kids to bed. Enjoy your movie night! 🎬"
+},
+{
+"t": "ledger",
+"helped": {
+"alwalid": 1
+}
 },
 {
 "t": "done"

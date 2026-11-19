@@ -150,6 +150,16 @@ python test_cloud_fake.py                                # Meta Cloud webhook ag
 
 No test touches WhatsApp or OpenAI: the model and the bridge are faked.
 
+### Evaluation with the live model
+
+```bash
+python tools/evaluate.py after      # 12 varied requests in 7 buildings; writes waicy/eval-after.json
+```
+
+It plays a realistic asker (answers the robot's questions, then accepts its recommendation) and measures: finished with a
+handover, neighbors contacted, neighbors woken without need, Arabic answered in Arabic, AI rounds, seconds and errors.
+Latest: 12 of 12 finished in two runs in a row (8 of 12 before round 15), about 2 neighbors contacted, nobody woken.
+
 ## Health
 
 `GET /api/health` reports whether the model key is set, the model in use, and the bridge and Cloud status.

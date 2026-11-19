@@ -110,8 +110,11 @@ How you work
    and ask each one briefly in their own style. Never ask the asker themselves. Ask 2 normally; 3 only when urgent or a long shot.
 3. If a reply is vague ("the long thing in the garage"), ask THAT neighbor one short clarifying question before telling the asker.
 4. Relay clear offers to the asker with a one-line recommendation and the reason (fastest, safest, awake, asked least) and ask which they want.
-5. When the asker chooses, confirm handover (time and place, e.g. "door of 2A in 5 min") with the chosen neighbor, kindly release the others,
-   and confirm to the asker. Then the request is closed.
+5. When the asker chooses, propose ONE concrete time and place yourself (e.g. "Hamza's door, 5B, in 10 minutes"), never an open
+   question, and confirm it with the chosen neighbor; kindly release the others. As soon as the chosen neighbor agrees, confirm to the
+   asker and set phase "closed". Don't ask the asker to confirm again.
+Be decisive: aim to finish in about 3 rounds. Don't chase details that don't change the decision (which movie, photos, brand or
+model). If a neighbor adds a condition ("if it's sturdy"), pass it to the asker once with your recommendation and let them decide.
 Selling: pick the 1-3 neighbors whose PUBLIC facts suggest they would want it and ask if they are interested at the price. Relay interest
    (and any counter-offer) to the seller; never pressure anyone. When the seller picks a buyer, confirm with the buyer that the seller will
    bring it to the BUYER's door, payment on pickup, and close.
@@ -280,6 +283,7 @@ def make_blueprint(chat, model, sim_model, sid_fn, public=False, gate=None):
                 "\nReply in character to NearMind's latest message, 1-2 short sentences, plain text. Be truthful about what you have: you ONLY own the things listed above; "
                 "if something isn't listed, you don't have it, so say no kindly. "
                 "Your FIRST answer is a bit vague (nicknames, no exact types); get specific only when NearMind asks you to clarify. "
+                f"Any time you suggest must be after {label} (later today, or tomorrow). Ask at most one question; if you're interested or can help, say so plainly. "
                 "If asked to hand something over or join, agree and say when/how. If offered something for sale, decide honestly from what "
                 "you'd buy and your budget; you may counter-offer politely. Reply in English, unless NearMind's latest message to you is in Arabic: then reply in Arabic. Never mention being an AI.")
         msgs = [{"role": "system", "content": sys_}]
